@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Grid Experiment: Checkers</title>
+	<link type="text/css" href="css/ui-lightness/jquery-ui-1.8.18.custom.css" rel="stylesheet" />	
+	<style>
+		#piece-box {
+			height: 100px;
+			border: 1px solid blue;
+			padding: 5px;
+		}
+		.row {
+			clear: both;
+		}
+		.slot {
+			width: 100px;
+			height: 100px;
+			border: 1px solid black;
+			float: left;
+			background: #824F15;
+		}
+		.row-alt .slot {
+			background: #FAE1C5;
+		}
+		.row .slot:nth-child(2) {
+			background: #FAE1C5;
+		}
+		.row-alt .slot:nth-child(2) {
+			background: #824F15;
+		}
+		.piece {
+			width: 50px;
+			height: 50px;
+			background: red;
+			border-radius: 25px;
+		}
+	</style>
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".piece").draggable({
+				start: function(event, ui) {
+					ui.helper.moveToPieceBox = true;
+				},
+				stop: function(event, ui) {
+					if (ui.helper.moveToPieceBox) {
+						$(this).css({top: 0, left: 0});
+						$("#piece-box").append($(this));
+					}
+				}
+			});
+			$(".slot").droppable({
+				drop: function(event, ui) {
+					ui.helper.moveToPieceBox = false;
+					var $this = $(this);
+					$this.append(ui.draggable);
+					
+					var width = $this.width();
+					var height = $this.height();
+					var cntrLeft = (width / 2) - (ui.draggable.width() / 2);
+					var cntrTop = (height / 2) - (ui.draggable.height() / 2);
+					
+					ui.draggable.css({
+						left: cntrLeft + "px",
+						top: cntrTop + "px"
+					});
+				}
+				
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="piece-box">
+		<div class="piece"></div>
+	</div>
+	
+	<div class="row">
+		<div class="slot">
+		</div>
+		<div class="slot">
+		</div>
+		<div class="slot">
+		</div>
+	</div>
+	<div class="row row-alt">
+		<div class="slot">
+		</div>
+		<div class="slot">
+		</div>
+		<div class="slot">
+		</div>
+	</div>
+	<div class="row">
+		<div class="slot">
+		</div>
+		<div class="slot">
+		</div>
+		<div class="slot">
+		</div>
+	</div>
+</body>
+</html>

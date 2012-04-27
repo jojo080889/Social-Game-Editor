@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Prototype Editor</title>
+	<link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.8.18.custom.css" />
+	<link rel="stylesheet" type="text/css" href="css/editor.css" />
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
+	<script type="text/javascript" src="js/jquery.generateFile.js"></script>
+	<script type="text/javascript" src="js/json2.js"></script>
+	<script type="text/javascript" src="js/jquery.ajaxfileupload.js"></script>
+	<script type="text/javascript" src="js/editor.js"></script>
+</head>
+<body>
+	<ul id="nav">
+		<li>
+			<span>File</span>
+			<ul>
+				<li id="load_project">
+					<form action="./" method="post">
+					<span>Load Project..</span>
+					</form>
+				</li>
+				<li id="save_project">
+					<form action="./" method="post">
+					<span>Save Project..</span>
+					</form>
+				</li>
+			</ul>
+		</li>
+		<li>
+			<span>Board</span>
+			<ul>
+				<li id="createGrid">
+				<input type="text" maxlength="2" size="2" id="createGridSize" placeholder="size"/>
+				Add Grid Board
+				</li>
+			</ul>
+		</li>
+		<li>
+			<span>Players</span>
+			<ul>
+				<li id="add_player">
+				Add Player
+				</li>
+			</ul>
+		</li>
+		<li>
+			<span>Pieces</span>
+			<ul>
+				<li id="add_piece_set">
+				Add Piece Set
+				</li>
+			</ul>
+		</li>
+		<li>
+			<span>Rules</span>
+			<ul>
+				<li>
+					Deciding Moves
+				</li>
+				<li>
+					Points
+				</li>
+				<li>
+					Turns
+				</li>
+				<li>
+					Winning and Losing
+				</li>
+			</ul>
+		</li>
+		<li>
+			<span>Export</span>
+			<ul>
+			<li id="generate">
+				<form action="./" method="post">
+				<span>Export to HTML</span>
+				</form>
+			</li>
+			</ul>
+		</li>
+	</ul>
+	<div id="stage">
+		<div id="workarea">
+			<div id="box"></div>
+			<div id="bigBox"></div>
+		</div>
+	</div>
+	<div id="piece_sets">
+		<h1>Piece Sets</h1>
+	</div>
+	<div id="players">
+		<h1>Players</h1>
+	</div>
+
+	<!-- dialog divs -->
+	<div id="load_window" class="dialog" title="Load Project">
+		Choose your project file: <input name="uploadedfile" id="uploadedfile" type="file" /><br />
+	</div>
+</body>
+</html>

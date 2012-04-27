@@ -1,0 +1,116 @@
+body {
+	font-family: "Trebuchet MS", "Arial", sans-serif;
+}
+
+#stage {
+	background-image: url('../images/nexusone.png');
+	background-repeat: no-repeat;
+	width: 300px;
+	height: 589px;
+	position: relative;
+	float:left;
+}
+#workarea {
+	background: #fff;
+	position: absolute;
+	left: 28px;
+	top: 66px;
+	width: 243px;
+	height: 405px;
+	background: #ddd;
+	overflow: hidden;
+}
+#players, #piece_sets {
+	float: left;
+	width: 500;
+	margin-left: 20px;
+}
+#box {
+	width: 30px;
+	height: 30px;
+	background: purple;
+	position: absolute;
+	left: 0;
+	top: 0;
+	cursor: move;
+}
+#bigBox {
+	width: 150px;
+	height: 150px;
+	background: blue;
+	position: absolute;
+	left:0;
+	top:0;
+	cursor: move;
+}
+
+/* CONTROLS */
+#nav {
+	position: relative;
+	z-index: 99;
+	padding: 0;
+	margin: 0;
+	margin-bottom: 10px;
+}
+#nav > li {
+	position: relative;
+	display: inline-block;
+	list-style: none;
+	cursor: pointer;
+	height: 50px;
+	padding: 0 10px;
+	line-height: 50px;
+	background: #eee;
+	text-align: center;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+#nav li:hover ul {
+	display: block;
+}
+#nav ul {
+	display: none;
+	list-style: none;
+	position: absolute;
+	top: 51px;
+	left: 0;
+	padding: 0;
+	margin: 0;
+}
+#nav > li ul li {
+	background: #ddd;
+	border-bottom: 1px solid #bbb;
+	line-height: normal;
+	width: 170px;
+}
+#nav > li ul li:hover {
+	background: #eee;
+}
+#nav > li ul li:first-child {
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;
+}
+#nav > li ul li:last-child {
+	border-bottom-right-radius:5px;
+	border-bottom-left-radius:5px;
+}
+
+
+/* GRID */
+#board {
+	position: absolute;
+}
+.row {
+	clear: both;
+}
+.slot {
+	border: 1px solid black;
+	float: left;
+	background: #824F15;
+	position: relative; 
+}
+
+/* UI */
+.dialog {
+	display: none;
+}
