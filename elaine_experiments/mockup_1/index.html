@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Fancy Sliding Form with jQuery</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta name="description" content="Fancy Sliding Form with jQuery" />
+        <meta name="keywords" content="jquery, form, sliding, usability, css3, validation, javascript"/>
+        <link rel="stylesheet" href="css/style.css" type="text/css" media="screen"/>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+        <script type="text/javascript" src="sliding.form.js"></script>
+    <style>
+        span.reference{
+            position:fixed;
+            left:5px;
+            top:5px;
+            font-size:10px;
+            text-shadow:1px 1px 1px #fff;
+        }
+        span.reference a{
+            color:#555;
+            text-decoration:none;
+			text-transform:uppercase;
+        }
+        span.reference a:hover{
+            color:#000;
+            
+        }
+        h1{
+            color:#ccc;
+            font-size:36px;
+            text-shadow:1px 1px 1px #fff;
+            padding:20px;
+        }
+		.e form select {
+			float: none;
+			background: red;
+		}
+    </style>
+	<script type="text/javascript"> 
+
+		function changeIt() 
+		{
+		var theImg = document.getElementsByTagName('img')[1].src;
+
+		var x = theImg.split("/");
+		var t = x.length-1;
+		var y = x[t];
+		
+		if(y=='grid1.jpg')
+		{
+		document.images.example.src='grid3.jpg'
+		}
+		if(y=='grid3.jpg')
+		{
+		document.images.example.src='grid2.jpg'
+		}
+		if(y=='grid2.jpg')
+		{
+		document.images.example.src='grid1.jpg'
+		}	
+		}
+
+	</script>
+    </head>
+    <body>				
+
+
+        <div id="content">
+            <h1>Musubi Game Framework</h1>	
+			<div style="float: left; width: 240px; overflow: hidden;background-color:#f9f9f9; " class="curves">
+			<img src="state.jpg" height=200 style="border: 10px solid white" />
+			</div>
+            <div id="wrapper">
+                <div id="steps">
+                    <form id="formElem" name="formElem" action="" method="post">
+                        <fieldset class="step">
+                            <legend>Board </legend>
+							<div class="p">
+							<a href="#" onclick="changeIt()"><img src='grid1.jpg' name='example' border='0' /></a> 
+							</div>
+							<div style="float: left; background: #f4f4f4; margin: 20px;" class="curves">
+                                <input id="username" name="username" placeholder="x" style="width: 20px" />
+                                <input id="username" name="username" placeholder="y" style="width: 20px" />
+							</div>
+							<div style="float: left; background: #f4f4f4; margin: 20px;" class="curves">
+							<img src="layermodule.jpg" />
+							</div>
+							<!--
+                            <p>
+                                <label for="username">User name</label>
+                                <input id="username" name="username" />
+                            </p>
+                            <p>
+                                <label for="email">Email</label>
+                                <input id="email" name="email" placeholder="info@tympanus.net" type="email" AUTOCOMPLETE=OFF />
+                            </p>
+                            <p>
+                                <label for="password">Password</label>
+                                <input id="password" name="password" type="password" AUTOCOMPLETE=OFF />
+                            </p>
+							-->
+                        </fieldset>
+                        <fieldset class="step">
+                            <legend>Your PieceSets:</legend>
+                            <p>	
+								<img src="http://image.shutterstock.com/display_pic_with_logo/499165/499165,1280343416,28/stock-vector-chess-knight-icon-on-square-black-internet-button-original-illustration-58026922.jpg" height=50px />
+								<img src="http://us.123rf.com/400wm/400/400/iconspro/iconspro1008/iconspro100800346/7567664-chess-queen-icon-on-square-black-internet-button-original-illustration.jpg" height=50px />
+								<img src="http://image.shutterstock.com/display_pic_with_logo/499165/499165,1280343406,24/stock-vector-chess-king-icon-on-square-black-internet-button-original-illustration-58026943.jpg" height=50px />
+								<img src="http://image.shutterstock.com/display_pic_with_logo/499165/499165,1315930510,18/stock-vector-chess-pawn-icon-on-round-black-button-collection-original-illustration-84566821.jpg" height=50px />
+                            </p>
+                            <legend>Create New PieceSet</legend>
+                            <p>
+                                <label for="country">Piece Image</label>
+								<input type="submit" value="Import Image" />
+								</p>
+                            <p>
+                                <label for="country">Board Slots</label>
+								<img src="grid1.jpg" height=100 />
+                            </p>
+                            <p>
+                                <label for="phone"># Pieces in Set</label>
+                                <input id="phone" name="phone" placeholder="e.g. +351215555555" type="tel" AUTOCOMPLETE=OFF />
+                            </p>
+                        </fieldset>
+                        <fieldset class="step">
+                            <legend>Players</legend>
+                            <p>
+                                <label for="cardtype">Select Player:</label>
+                                <select id="cardtype" name="cardtype">
+                                    <option>Player 1</option>
+                                    <option>Player 1</option>
+                                    <option>Add New Player</option>
+                                </select>
+								<br /><br />
+                                <label for="cardtype">Select PieceSet:</label>
+                                <select id="cardtype" name="cardtype">
+                                    <option>Player 1</option>
+                                    <option>Player 1</option>
+                                    <option>Add New Player</option>
+                                </select>
+                            </p>
+							<!--
+                            <p>
+                                <label for="secure">Security code</label>
+                                <input id="secure" name="secure" type="number" AUTOCOMPLETE=OFF />
+                            </p>
+                            <p>
+                                <label for="namecard">Name on Card</label>
+                                <input id="namecard" name="namecard" type="text" AUTOCOMPLETE=OFF />
+                            </p>
+							-->
+                        </fieldset>
+                        <fieldset class="step">
+                            <legend>Rules</legend>
+                            <p>
+                                <label for="newsletter">Winning State</label>
+                                <select id="newsletter" name="newsletter">
+                                    <option value="Daily" selected>Sweep Board</option>
+                                    <option value="Weekly">Out of Pieces</option>
+                                    <option value="Monthly">No more Room</option>
+                                    <option value="Never">Never</option>
+                                </select>
+                            </p>
+                            <p>
+                                <label for="updates">Losing State</label>
+                                <select id="updates" name="updates">
+                                    <option value="Daily">Sweep Board</option>
+                                    <option value="Weekly" selected>Out of Pieces</option>
+                                    <option value="Monthly">No more Room</option>
+                                    <option value="Never">Never</option>
+                                </select>
+                            </p>
+							<p>
+                                <label for="tagname">Validate Winning State </label>
+                                <select id="updates" name="updatess">
+                                    <option value="Daily" selected>After Every Move</option>
+                                    <option value="Weekly">After all players' turns</option>
+                                    <option value="Monthly">At End</option>
+								</select>
+                            </p>
+                            <legend>Triggers</legend>
+                        </fieldset>
+						<fieldset class="step">
+                            <legend>Export</legend>
+							<p>
+							</p>
+                            <p class="submit">
+                                <button id="registerButton" type="submit">Export HTML</button>
+                            </p>
+                        </fieldset>
+                    </form>
+                </div>
+                <div id="navigation" style="display:none; height: 130px">
+                    <ul>
+                        <li class="selected">
+                            <a href="#">Board <br /><img src="http://cdn1.iconfinder.com/data/icons/Isloo_icons_by_IconFinder/128/board.png" /></a>
+                        </li>
+                        <li>
+                            <a href="#">Pieces <br /><img src="http://aux.iconpedia.net/uploads/1434923731.png" /></a>
+                        </li>
+                        <li>
+                            <a href="#">Players <br /><img src="http://aux3.iconpedia.net/uploads/621167966116026331.png" /></a>
+                        </li>
+                        <li>
+                            <a href="#">Rules <br /><img src="http://vidcamproductions.com/_Media/psd-clipboard-icon_med.png" /></a>
+                        </li>
+						<li>
+                            <a href="#">Export <br /><img src="http://icons.iconseeker.com/png/fullsize/longhorn-objects/box.png" /></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
