@@ -12,6 +12,7 @@ var UP_RIGHT = 7;
 var title = "My Donburi Game";
 var size = Math.floor((Math.random()*10)+3);
 var playerNum = Math.floor((Math.random()*3) + 2);
+var currentPlayer = Math.floor((Math.random()*playerNum)); // 0 to playerNum - 1
 var boardState = getBoardStateObj();
 var piecesState = getPiecesStateObj();
 
@@ -20,19 +21,22 @@ $(document).ready(function() {
 	$("title").html(title);
 	$("header h1").html(title);
 
+	// Create players
+	$("#players").append($(generatePlayers(playerNum)));
+
 	// Create board
 	$("#board-container").append($(generateGrid(size)));
 	adjustGrid(size);
 	
-	// Create players
-	$("#players").append($(generatePlayers(playerNum)));
-	
 	// Set current player
-	var currentPlayer = Math.floor((Math.random()*playerNum));
 	setCurrentPlayer(currentPlayer);
 	
 	// Create pieces and place in correct positions
 	createPieces();
+	
+	// Set event handlers
+	bindActionHandlers();
+	$(document).bind("orientationchange", function() { alert("hi") });
 });
 
 /* BOARD */
@@ -85,7 +89,13 @@ function generateGrid(size) {
 
 function adjustGrid(size) {
 	// adjust square and board sizes to fit on screen
-	var maxBoxWidth = Math.floor($("#main #board-container").width() / size);
+	var totalWidth = $(window).width();
+	var totalHeight = $(window).height() - $("#actions").outerHeight() - 
+		$("#players").outerHeight() - $("header h1").outerHeight() - 30; // add some buffer space
+	if (totalHeight < totalWidth) {
+		totalWidth = totalHeight;
+	}
+	var maxBoxWidth = Math.floor(totalWidth / size);
 	boxWidth = maxBoxWidth - (2 * parseInt($(".slot").css("borderWidth")));
 	$(".slot").css("width", boxWidth).css("height", boxWidth);
 	
@@ -102,7 +112,7 @@ function generatePlayers(number) {
 	var html = "<ul>";
 	for (var i = 0; i < number; i++) {
 		html += "<li class='player'>";
-		html += "<p>Player " + (i+1) + "</p>";
+		html += "<p><span class='player" + (i + 1) + "'></span>Player " + (i+1) + "</p>";
 		
 		// Check if there are points, and set points
 		if (pointsExist) {
@@ -120,18 +130,25 @@ function setCurrentPlayer(number) {
 	$($(".player")[number]).find(".player-status").addClass("active");
 }
 
+function changeToNextTurn() {
+	currentPlayer++;
+	if (currentPlayer == playerNum) { currentPlayer = 0; }
+	setCurrentPlayer(currentPlayer);
+}
+
 /* PIECES */
 /* TODO: get real pieces state
  * Format: Array of array where outer index corresponds to player number. Array slots contain
  * {x: (x position on board) and y: (y position on board) }
  */
 function getPiecesStateObj() {
-	// randomly pick squares for pieces to exist
 	var piecesState = new Array();
 	for (var i = 0; i < playerNum; i++) {
 		var pieces = new Array();
-		var x = Math.floor(Math.random()*size);
-		var y = Math.floor(Math.random()*size);
+		//var x = Math.floor(Math.random()*size); // random position of pieces
+		//var y = Math.floor(Math.random()*size);
+		var x = 0;
+		var y = 0;
 		var piece = {};
 		piece.x = x;
 		piece.y = y;
@@ -148,7 +165,83 @@ function createPieces() {
 			var p = piecesState[i][j];
 			// find the right slot
 			var slot = $($($("#board .row")[p.y]).find(".slot")[p.x]);
-			slot.append($("<div class='piece' id='piece" + (i + 1) + "'></div>"));
+			slot.append($("<div class='piece player" + (i + 1) + "' id='piece" + (i + 1) + "'></div>"));
 		}
 	}
+}
+
+/* ACTIONS */
+function bindActionHandlers() {
+	$("#roll_move").click(startTurn);
+	
+	$("#skip_turn").click(function() {
+		changeToNextTurn();
+	});
+}
+
+function startTurn() {
+	// get piece of current player
+	var pieceDiv = $("#piece" + (currentPlayer + 1));
+	var pieceState = piecesState[currentPlayer];
+
+	// pick random number
+	// TODO: Display on screen
+	// TODO: make flexible with different kinds of dice
+	var diceResult = Math.floor((Math.random()*6) + 1); // 1 through 6
+	$("#move-result-num").html(diceResult);
+	$("#move-result").show("fast").delay(1000).hide("fast", function() {
+		makeMove(pieceDiv, pieceState[0], diceResult);
+	});
+}
+
+function makeMove(pieceDiv, position, moveCount) {
+	// TODO: handle multiple pieces
+	var curX = position.x;
+	var curY = position.y;
+	
+	if (moveCount == 0) {
+		piecesState[currentPlayer][0].x = curX;
+		piecesState[currentPlayer][0].y = curY;	
+		// Change turn to next player
+		changeToNextTurn();
+		return;
+	}
+	
+	var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
+
+	// get path of current square
+	var path = boardState[curY][curX].path; // row first
+	var verDistance = sourceSlot.outerHeight();
+	var horDistance = sourceSlot.outerWidth();
+	var moveObj = {top: 0, left: 0};
+	
+	// update position
+	if (path == RIGHT || path == UP_RIGHT || path == DOWN_RIGHT) {
+		curX++;
+		moveObj.left = horDistance + "px";
+	}
+	if (path == LEFT || path == UP_LEFT || path == DOWN_LEFT) {
+		curX--;
+		moveObj.left = "-" + horDistance + "px";
+	}
+	if (path == DOWN || path == DOWN_LEFT || path == DOWN_RIGHT) {
+		curY++;
+		moveObj.top = verDistance + "px";
+	}
+	if (path == UP || path == UP_LEFT || path == UP_RIGHT) {
+		curY--;
+		moveObj.top = "-" + verDistance + "px";
+	}
+	console.log("roll:" + moveCount + ", path:" + path + ", position:" + curX + " " + curY + ", move:" + moveObj.left + " " + moveObj.top);
+
+	var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
+	position.x = curX;
+	position.y = curY;
+	sourceSlot.addClass("slot-moving");
+	pieceDiv.addClass("piece-moving")
+	.animate(moveObj, 1000, function() { 
+		$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
+		sourceSlot.removeClass("slot-moving");
+		makeMove(pieceDiv, position, moveCount - 1);
+	});
 }
