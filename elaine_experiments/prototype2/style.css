@@ -1,0 +1,17 @@
+*, body { 
+	margin: 0;
+	padding: 0;
+	font-family: Lucida Grande;
+	line-height: 140%;
+}
+
+header {
+	background: #f1f1f1;
+	color: white;
+	height: 100px;
+	margin-top: 0;
+}
+
+.sansa, h4 { font-family: Georgia; font-style: italic; color: white; font-size: 200%; font-weight: normal}
+
+.sansa p { font-size: 70%; line-height: 200%; }
