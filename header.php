@@ -3,6 +3,20 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+	<!-- For testing tab -->
+	<!-- TODO include these ONLY if the current tab is the testing tab -->
+	<script type="text/javascript" src="js/lib/socialKit.js"></script>
+	<script type="text/javascript" src="js/lib/turnBasedGame.js"></script>
+	
+	<script type="text/javascript" src="js/rsa/bigint.js"> </script>
+	<script type="text/javascript" src="js/rsa/barrett.js"> </script>
+	<script type="text/javascript" src="js/rsa/rsa.js"> </script>
+	<script type="text/javascript" src="js/crypto-js/crypto-min.js"> </script>
+	<script type="text/javascript" src="js/crypto-js/crypto-sha1-hmac-pbkdf2-blockmodes-aes.js"> </script>
+	<script type="text/javascript" src="js/musubi/web_socket.js"> </script>
+	<script type="text/javascript" src="js/musubi/transport.js"> </script>
+	<script type="text/javascript" src="js/musubi/messageFormat.js"> </script>
+	<script type="text/javascript" src="js/lib/platforms/socialKit-browser.js"></script>	
 	
     <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="button-styles.css" type="text/css" media="screen" />
