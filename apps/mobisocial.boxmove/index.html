@@ -1,0 +1,58 @@
+
+<html>
+    <head>
+        <script type="text/javascript" src="../../js/lib/socialKit.js"></script>
+        <script type="text/javascript" src="../../js/lib/turnBasedGame.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script type="text/javascript" src="app.js"></script>
+        <script type="text/javascript" src="jquery.event.drag-2.0.js"></script>
+        
+        <style type="text/css">
+            body {
+                font-family: Helvetica;
+                font-size: 0.9em;
+            }
+            
+            #board {
+            	width:300px;
+            	height:300px;
+            }
+            
+            #divbox {
+                width: 50px;
+                height: 50px;
+                background-color: gray;
+                position: relative;
+            }
+            
+            #turn {
+                font-size: 1.2em;
+                font-weight: bold;
+                margin-top: 15px;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+
+            
+        </style>
+        
+        <title>BoxMove</title>
+    </head>
+    <body style="text-align: center">
+    	<div id = "board">
+        	<div id="divbox">
+        	</div>
+        </div>
+        
+        <div id="turn">
+        </div>
+        
+        <input type="button" value="Start over" onclick="game.reset()">
+        <input type="button" id="taketurn" value="Done with turn">
+        <div>
+        <h2>Players</h2>
+        <ul id="players">
+        </ul>
+        </div>
+    </body>
+</html>

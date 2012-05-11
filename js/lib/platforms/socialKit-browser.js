@@ -25,7 +25,7 @@ Musubi.Browser.Environment = function(transport) {
 	this._loadAppInFrame = function(appId, frame, callback) {
 		var frm = window.frames[frame];
 		
-		frm.location = '../apps/' + appId + '/index.html';
+		frm.location = 'apps/' + appId + '/index.html';
 		$('[name=' + frame + ']').load(function() {
 			$('[name=' + frame + ']').unbind('load');
 			callback(frm.Musubi);
