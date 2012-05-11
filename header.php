@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 	
     <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="button-styles.css" type="text/css" media="screen" />
@@ -176,7 +176,7 @@
 <body>
 	<header>
 	<div style="padding-top: 30px; margin-left: 500px">
-			<a href="index.html" class="homebutton"></a>
-			<a href="test.html" class="downloadbutton"></a>
+			<a href="index.php" class="homebutton"></a>
+			<a href="test.php" class="downloadbutton"></a>
 	</div>
 	</header>
