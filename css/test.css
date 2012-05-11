@@ -1,0 +1,40 @@
+body, html {
+	font-family: Helvetica;
+	font-size: 12px;
+	color: #333;
+}
+
+#rule_summary {
+	float: left;
+	color: #2b2b2b;
+	padding: 20px;
+	width: 360px;
+	background: #fff;
+	margin: 20px;
+	height: 550px;
+}
+
+#test_actions {
+	text-align: center;
+	margin-top: 20px;
+}
+#test_actions #appId {
+	width: 300px;
+}
+		
+.device {
+	padding-top: 102px;
+	padding-left: 42px;
+	background: url('../images/android.png');
+	float: left; 
+	margin-right: 20px;
+	width: 274px;
+	height: 516px;
+}
+		
+.device iframe {
+	width: 254px;
+	height: 403px;
+	border: solid 1px #999;
+	background: #fff;
+}

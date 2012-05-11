@@ -3,6 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
 	<!-- For testing tab -->
 	<!-- TODO include these ONLY if the current tab is the testing tab -->
 	<script type="text/javascript" src="js/lib/socialKit.js"></script>
@@ -17,7 +18,9 @@
 	<script type="text/javascript" src="js/musubi/transport.js"> </script>
 	<script type="text/javascript" src="js/musubi/messageFormat.js"> </script>
 	<script type="text/javascript" src="js/lib/platforms/socialKit-browser.js"></script>	
-	
+	<script type="text/javascript" src="js/test.js"></script>
+	<link rel="stylesheet" href="css/test.css" type="text/css" />
+
     <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="button-styles.css" type="text/css" media="screen" />
     <!--[if IE 7]>
