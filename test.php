@@ -4,7 +4,7 @@
 		<input type="text" id="appId" value="game_template" />
 		<input id="app_launch" type="button" value="Launch"/>
 	</div>
-	
+    	
 	<div id="rule_summary" class="sansa"> 
 		Game Logic
 		<p>
