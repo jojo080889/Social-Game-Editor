@@ -1,4 +1,7 @@
-<?php include "header.php" ?>
+<?php 
+$page = "test";
+include "header.php" 
+?>
 	
 	<div id="rule_summary"> 
 		<h1>How to Play</h1>
@@ -17,9 +20,9 @@
 
 	<div id="test_area">
 		<div id="test_actions">
-			<input id="add_user" type="button" value="Add user/device" />
-			<input type="text" id="appId" value="game_template" />
-			<input id="app_launch" type="button" value="Launch"/>
+			<button id="app_launch">Launch Game</button>
+			<button id="app_restart">Restart Game</button>
+			<button id="return_feed">Return to Feed</button>
 		</div>
 		<div id="devices"></div>
     </div>

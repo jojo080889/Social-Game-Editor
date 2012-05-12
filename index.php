@@ -1,4 +1,7 @@
-<?php include "header.php" ?>
+<?php 
+$page = "index";
+include "header.php" 
+?>
     <div id="vtab">
         <ul>
             <li class="home selected">board</li>

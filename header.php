@@ -5,7 +5,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 	
 	<!-- For testing tab -->
-	<!-- TODO include these ONLY if the current tab is the testing tab -->
+	<?php if($page == "test") { ?>
 	<script type="text/javascript" src="js/lib/socialKit.js"></script>
 	<script type="text/javascript" src="js/lib/turnBasedGame.js"></script>
 	
@@ -20,6 +20,7 @@
 	<script type="text/javascript" src="js/lib/platforms/socialKit-browser.js"></script>	
 	<script type="text/javascript" src="js/test.js"></script>
 	<link rel="stylesheet" href="css/test.css" type="text/css" />
+	<?php } ?>
 
     <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="button-styles.css" type="text/css" media="screen" />
