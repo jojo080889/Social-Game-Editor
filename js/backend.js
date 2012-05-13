@@ -11,11 +11,11 @@ $(document).ready(function() {
 	];
 	
 	var pieceTypes = [
-		{type: "king", image: "images/pieces/2.png"},
-		{type: "queen", image: "images/pieces/1.png"},
-		{type: "knight", image: "images/pieces/3.png"},
-		{type: "pawn", image: "images/pieces/4.png"},
-		{type: "colorPiece"}
+		{name: "king", image: "images/pieces/2.png"},
+		{name: "queen", image: "images/pieces/1.png"},
+		{name: "knight", image: "images/pieces/3.png"},
+		{name: "pawn", image: "images/pieces/4.png"},
+		{name: "colorPiece"}
 	];
 	
 	var pieces = [];
@@ -47,8 +47,9 @@ $(document).ready(function() {
 					var model = $(ui.draggable).data("backbone-view").model;
 					var piece = new Piece({
 						player: self.model.get("id"),
-						type: model
+						type: model.get("name")
 					});
+					pieceList.push(piece); // add piece to global piece list
 					var pView = new PieceView({
 						model: piece
 					});
@@ -147,8 +148,24 @@ $(document).ready(function() {
 			$(this.el).remove();
 		},
 		remove: function() {
-			// TODO: show a warning, then also delete all pieces of the same piece type
-			this.model.destroy();
+			var self = this;
+			// show a warning, then also delete all pieces of the same piece type
+			$( "#dialog-pieceTypeDelete" ).dialog({
+				resizable: false,
+				height:140,
+				modal: true,
+				buttons: {
+					"Delete": function() {
+						var toRemove = pieceList.where({type: self.model.get("name")});
+						pieceList.remove(toRemove);
+						self.model.destroy();
+						$( this ).dialog( "close" );
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
 		}
 	});
 	var PieceTypeList = Backbone.Collection.extend({
@@ -202,10 +219,12 @@ $(document).ready(function() {
 			this.model.bind("remove", this.unrender);
 		},
 		render: function() {
+			// get model for appearance attributes
+			var pieceTypeModel = pieceTypeList.collection.where({name: this.model.get("type")})[0];
 			var tmpl = _.template(this.template);
-			this.$el.html(tmpl(this.model.get("type").toJSON()));
-			if (this.model.get("type").get("image") == null) {
-				this.$el.css({background: this.model.get("type").get("color")});
+			this.$el.html(tmpl(pieceTypeModel.toJSON()));
+			if (pieceTypeModel.get("image") == null) {
+				this.$el.css({background: pieceTypeModel.get("color")});
 			}
 			return this;
 		},
@@ -216,8 +235,12 @@ $(document).ready(function() {
 			this.model.destroy();
 		}
 	});
+	var PieceList = Backbone.Collection.extend({
+		model: Piece
+	});
 	
 	// Instantiate stuff
 	var playerList = new PlayerListView();
 	var pieceTypeList = new PieceTypeListView();
+	var pieceList = new PieceList();
 });

@@ -90,6 +90,11 @@ include "header.php"
         </div>
     </div>
 	
+	<!-- dialogs -->
+	<div id="dialog-pieceTypeDelete" title="Delete this piece type?">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Deleting this piece type will delete all pieces of that type currently assigned to players. Are you sure?</p>
+	</div>
+	
 	<!-- templates -->
 	<script id="playerTemplate" type="text/template">
 		<p>Player <%= id + 1 %></p>
