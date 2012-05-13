@@ -11,7 +11,7 @@
 	<script type="text/javascript" src="js/buttons.js"></script>
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
 	<link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" media="all" />
-    <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="button-styles.css" type="text/css" media="screen" />
     <!--[if IE 7]>
     <style type="text/css">
@@ -52,8 +52,22 @@
 </head>
 <body>
 <header>
-<div style="padding-top: 30px; margin-left: 500px">
-		<a href="index.php" class="homebutton"></a>
-		<a href="test.php" class="downloadbutton"></a>
-</div>
+	<div id="logobar">
+		<img src="images/logo.png" alt="donburi" id="logo" />
+		<nav>
+			<ul>
+				<li>Save Project</li>
+				<li>Load Project</li>
+				<li>Export to Musubi</li>
+			</ul>
+		</nav>
+	</div>
+	<div id="mode_switch">
+		<table>
+		<tr>
+			<td><a href="index.php" class="mode_button selected" id="edit">Edit</a></td>
+			<td><a href="test.php" class="mode_button" id="test">Test</a></td>
+		</tr>
+		</table>
+	</div>
 </header>

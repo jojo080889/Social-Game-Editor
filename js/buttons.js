@@ -74,13 +74,13 @@ $(document).ready(function() {
 /*** Tabs ***/
 $(function() {
 	var $items = $('#vtab>ul>li');
-	$items.mouseover(function() {
+	$items.click(function() {
 		$items.removeClass('selected');
 		$(this).addClass('selected');
 
 		var index = $items.index($(this));
 		$('#vtab>div').hide().eq(index).show();
-	}).eq(0).mouseover();			// sets default tab
+	}).eq(0).click();			// sets default tab
 	
 });
 
@@ -92,13 +92,16 @@ function rulesToolbar() {
 
 /*** Drag and Drop ***/
 $(function() {
-	/*$( ".draggable" ).draggable({
+	$("#board_design .draggable").draggable({
 		snap:true,
 		helper: "clone"
-	});*/
+	});
 });
 
 $(document).ready(function() {
+	/*** Board Tab ***/
+	$("#numX").change(changeGridSize);
+	$("#numY").change(changeGridSize);
+	
 	initDroppable();
-  }
-);
+});

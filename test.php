@@ -26,5 +26,4 @@ include "header.php"
 		</div>
 		<div id="devices"></div>
     </div>
-</body>
-</html>
+<?php include "footer.php" ?>
