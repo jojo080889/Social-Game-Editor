@@ -9,17 +9,44 @@ include "header.php"
             <li class="support">settings</li>
         </ul>
         <div>
-            <h4>
-                Design your board</h4>
-				<img onclick=cersei() src="images/toolbar.jpg" style="position: relative; top: 0; float: left;" />
-				<div style="float: left; padding-top: -200px; border: 1px solid blue; height: 600px; width: 600px; overflow: hidden">
-						<iframe src="http://hakim.se/experiments/html5/sketch/" style="height: 600px; margin-top: -100px; z-index: -1000; width: 600px; overflow-y: hidden" scrolling="no"></iframe>
+			<h4>Design your board</h4>
+
+			Set grid size:
+			<input type="text" placeholder="x" id="numX" onchange=changeGridSize() />
+			<input type="text" placeholder="y" id="numY" onchange=changeGridSize() /><br /><br />
+
+			<div id="slotsArea">
+				<!--
+				<div class="slot droppable ui-widget-header" ></div>
+				<div class="slot droppable ui-widget-header" ></div>
+				<div class="slot droppable ui-widget-header" ></div>
+				-->
+				<div style="margin: 0 auto; width: 160px; margin-top: 170px; color: #bbb;">Specify grid size</div>
+			</div>
+
+				<input type="button" value="Define a new tile" />
+
+			<div id="tileChoices">
+				<div id="#002930" class="draggable ui-widget-content tile" style="background: #002930">
 				</div>
-				<div id="triggersBoard" style="padding: 20px; font-size: 60%; line-height: 300%; width: 260px; color: #cecece; float: right; display: none; background: #2b2b2b">
-					<h4>Triggers</h4>
-					1. On land ... <br/>
-					2. On land ... <br />
+				<div id="#F8F0AF" class="draggable ui-widget-content tile" style="background: #F8F0AF">
 				</div>
+				<div id="#AC4A00" class="draggable ui-widget-content tile" style="background: #AC4A00">
+				</div>
+				<div id="#C5B475" class="draggable ui-widget-content tile" style="background: #C5B475">
+				</div>
+				<div id="#FDFDEB" class="draggable ui-widget-content tile" style="background: #FDFDEB">
+				</div>
+				<div id="#E6DEAD" class="draggable ui-widget-content tile" style="background: #E6DEAD">
+				</div>
+			</div>
+					
+					
+			<div id="slotRulesPanel">
+				<h4>Rules for this board slot...</h4>
+				1. On land ... <br/>
+				2. On land ... <br />
+			</div>
 
 		</div>
         <div id="player_tab" class="tab">
