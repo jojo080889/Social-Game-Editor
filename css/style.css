@@ -152,9 +152,6 @@ header #mode_switch .selected:hover {
 #vtab > ul > li.login {
 	background: url('../images/login.png') no-repeat center center;
 }
-#vtab > ul > li.support {
-	background: url('../images/support.png') no-repeat center center;
-}
 #vtab > ul > li.selected {
 	opacity: 1;
 	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
