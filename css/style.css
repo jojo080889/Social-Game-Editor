@@ -68,6 +68,7 @@ header #mode_switch .mode_button {
 	border: 1px solid #977E77;
 	padding: 3px 15px;
 	text-shadow: white 1px 1px 1px;
+	cursor: pointer;
 }
 header #mode_switch .mode_button:hover {
 	background: #ccb;

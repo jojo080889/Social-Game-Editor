@@ -1,14 +1,6 @@
 /* App JS */
 /* Will soon be replaced with Backbone */
 $(document).ready(function() {
-	/* Board Tab */
-	//$("#numX").change(changeGridSize);
-	//$("#numY").change(changeGridSize);
-	/*$("#board_design .draggable").draggable({
-		snap:true,
-		helper: "clone"
-	});*/
-	
 	/* Tabs */
 	var $items = $('#vtab>ul>li');
 	$items.click(function() {
@@ -23,10 +15,14 @@ $(document).ready(function() {
 	$("#mode_switch #test").click(function() {
 		$("#vtab").hide();
 		$("#test_tab").show();
+		$("#mode_switch .mode_button").removeClass("selected");
+		$(this).addClass("selected");
 	});
 	$("#mode_switch #edit").click(function() {
 		$("#vtab").show();
 		$("#test_tab").hide();
+		$("#mode_switch .mode_button").removeClass("selected");
+		$(this).addClass("selected");
 	});
 });
 
