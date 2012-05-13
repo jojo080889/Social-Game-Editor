@@ -22,19 +22,14 @@ include "header.php"
 				</div>
 
 		</div>
-        <div>
+        <div id="player_tab" class="tab">
             <h4>Create Pieces and Players</h4>
 			<div class="demo" style="float: left; width: 600px">
-			
-				<div class="droppable" class="ui-widget-header">
-					<p>Player 1</p>
+				<div id="playerList">
+					<button id="addPlayer">Add a Player</button>
+					<button id="removePlayer">Remove a Player</button>
 				</div>
-				<div class="droppable" class="ui-widget-header">
-					<p>Player 2</p>
-				</div>
-				<div class="droppable" class="ui-widget-header">
-					<p>Player 3</p>
-				</div>
+				
 				<div style="padding: 20px; background: white; clear: both; height: 200px; width: 500px; ">
 				
 				<h6>Drag pieces to players</h6>
@@ -89,5 +84,10 @@ include "header.php"
             pellentesque purus.
         </div>
     </div>
+	
+	<!-- templates -->
+	<script id="playerTemplate" type="text/template">
+		<p>Player <%= id + 1 %></p>
+	</script>
 </body>
 </html>
