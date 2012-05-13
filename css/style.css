@@ -104,8 +104,7 @@ header #mode_switch .selected:hover {
 .slot { 
 	height: 60px; 
 	width: 60px; 
-	background: #143E54; 
-	margin: 5px; 
+	background: #fafafa;
 	float: left;
 }
 .slot .tile {
