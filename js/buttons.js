@@ -12,7 +12,7 @@ function initDroppable() {
 			//$(ui.draggable).offset({ top: parentOffset.top, left: parentOffset.left });
 		}
 	});
-	$("#playerList .droppable").droppable({
+	/*$("#playerList .droppable").droppable({
 		drop: function(event, ui) {
 			var html = $(ui.draggable).html();
 			var ide = $(ui.draggable).attr('id');
@@ -32,7 +32,7 @@ function initDroppable() {
 						//.html( "Dropped!" );
 			}
 		}
-	});
+	});*/
 	$('.droppable').click(function() {
 		rulesToolbar();
 	});
@@ -92,10 +92,10 @@ function rulesToolbar() {
 
 /*** Drag and Drop ***/
 $(function() {
-	$( ".draggable" ).draggable({
+	/*$( ".draggable" ).draggable({
 		snap:true,
 		helper: "clone"
-	});
+	});*/
 });
 
 $(document).ready(function() {

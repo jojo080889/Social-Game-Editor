@@ -39,8 +39,22 @@ $(document).ready(function() {
 			this.model.bind("remove", this.unrender);
 		},
 		render: function() {
+			var self = this;
 			var tmpl = _.template(this.template);
 			this.$el.html(tmpl(this.model.toJSON()));
+			this.$el.droppable({
+				drop: function(event, ui) {
+					var model = $(ui.draggable).data("backbone-view").model;
+					var piece = new Piece({
+						player: self.model.get("id"),
+						type: model
+					});
+					var pView = new PieceView({
+						model: piece
+					});
+					self.$el.append(pView.render().el);
+				}
+			});
 			return this;
 		},
 		unrender: function() {
@@ -96,7 +110,7 @@ $(document).ready(function() {
 		}
 	});
 	
-	/* PIECES */
+	/* PIECE TYPES */
 	var PieceType = Backbone.Model.extend({
 		defaults: {
 			name: "piece_type_name",
@@ -122,6 +136,11 @@ $(document).ready(function() {
 			if (this.model.get("image") == null) {
 				this.$el.css({background: this.model.get("color")});
 			}
+			this.$el.draggable({
+				snap:true,
+				helper: "clone"
+			});
+			this.$el.data("backbone-view", this);
 			return this;
 		},
 		unrender: function() {
@@ -163,10 +182,38 @@ $(document).ready(function() {
 		}
 	});
 	
+	/* PIECES */
 	var Piece = Backbone.Model.extend({
 		defaults: {
 			player: -1, // Player ID. -1 means not owned.
 			type: null
+		}
+	});
+	var PieceView = Backbone.View.extend({
+		tagName: 'div',
+		className: "draggable ui-widget-content piece",
+		template: $("#pieceTemplate").html(),
+		events: {
+			"click span.delete": "unrender"
+		},    
+		initialize: function() {
+			_.bindAll(this, "render", "unrender", "remove");
+			this.model.bind("change", this.render);
+			this.model.bind("remove", this.unrender);
+		},
+		render: function() {
+			var tmpl = _.template(this.template);
+			this.$el.html(tmpl(this.model.get("type").toJSON()));
+			if (this.model.get("type").get("image") == null) {
+				this.$el.css({background: this.model.get("type").get("color")});
+			}
+			return this;
+		},
+		unrender: function() {
+			$(this.el).remove();
+		},
+		remove: function() {
+			this.model.destroy();
 		}
 	});
 	
