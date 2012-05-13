@@ -69,6 +69,32 @@ include "header.php"
 	</div>
 </div> <!-- end vtab -->
 	
+<div id="test_tab">
+	<div id="rule_summary"> 
+		<h1>How to Play</h1>
+		<p class="info_text">
+			These rules have been automatically generated from the program you've created.
+		</p>
+		<ul id="rule_list">
+			<li>
+				On the start of your turn, roll a dice and move the number of spaces you roll.
+			</li>
+			<li>
+				When you land on the same square an opponent is occupying, the opponent must move their piece back to start.
+			</li>
+		</ul>
+	</div>
+
+	<div id="test_area">
+		<div id="test_actions">
+			<button id="app_launch">Launch Game</button>
+			<button id="app_restart">Restart Game</button>
+			<button id="return_feed">Return to Feed</button>
+		</div>
+		<div id="devices"></div>
+	</div>
+</div>	
+	
 <!-- dialogs -->
 <div id="dialog-pieceTypeDelete" title="Delete this piece type?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Deleting this piece type will delete all pieces of that type currently assigned to players. Are you sure?</p>

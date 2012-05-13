@@ -15,12 +15,9 @@
     <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
 	
 	<!-- For edit tab -->
-	<?php if ($page == "index") { ?>
 	<script type="text/javascript" src="js/backend.js"></script>
-	<?php } ?>
 	
 	<!-- For testing tab -->
-	<?php if($page == "test") { ?>
 	<script type="text/javascript" src="js/lib/socialKit.js"></script>
 	<script type="text/javascript" src="js/lib/turnBasedGame.js"></script>
 	<script type="text/javascript" src="js/rsa/bigint.js"> </script>
@@ -34,7 +31,6 @@
 	<script type="text/javascript" src="js/lib/platforms/socialKit-browser.js"></script>	
 	<script type="text/javascript" src="js/test.js"></script>
 	<link rel="stylesheet" href="css/test.css" type="text/css" />
-	<?php } ?>
 </head>
 
 <body>
@@ -52,8 +48,8 @@
 	<div id="mode_switch">
 		<table>
 		<tr>
-			<td><a href="index.php" class="mode_button selected" id="edit">Edit</a></td>
-			<td><a href="test.php" class="mode_button" id="test">Test</a></td>
+			<td><span class="mode_button selected" id="edit">Edit</span></td>
+			<td><span class="mode_button" id="test">Test</span></td>
 		</tr>
 		</table>
 	</div>

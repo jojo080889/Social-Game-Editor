@@ -216,3 +216,7 @@ header #mode_switch .selected:hover {
 	margin-left: 115px;
 }
 		
+/* Mode Switching */
+#test_tab {
+	display: none;
+}

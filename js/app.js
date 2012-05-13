@@ -18,6 +18,16 @@ $(document).ready(function() {
 		var index = $items.index($(this));
 		$('#vtab>div').hide().eq(index).show();
 	}).eq(0).click();			// sets default tab
+	
+	/* Mode Switch */
+	$("#mode_switch #test").click(function() {
+		$("#vtab").hide();
+		$("#test_tab").show();
+	});
+	$("#mode_switch #edit").click(function() {
+		$("#vtab").show();
+		$("#test_tab").hide();
+	});
 });
 
 function changeGridSize() {
