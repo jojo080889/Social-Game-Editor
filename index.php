@@ -10,7 +10,7 @@ include "header.php"
 	</ul>
 	
 	<!-- board design tab -->
-	<div id="board_design">
+	<div id="board_design" class="tab_content">
 		<h4>Design your board</h4>
 
 		Set grid size:
@@ -38,7 +38,7 @@ include "header.php"
 			</div>
 		</div>
 				
-		<div id="slotRulesPanel">
+		<div id="slotRulesPanel" class="rules_panel">
 			<h4>Rules for this board slot...</h4>
 			1. On land ... <br/>
 			2. On land ... <br />
@@ -46,30 +46,28 @@ include "header.php"
 	</div>
 	
 	<!-- player design tab -->
-	<div id="player_design" class="tab">
+	<div id="player_design" class="tab_content">
 		<h4>Create Pieces and Players</h4>
 		<div id="playerList">
 			<button id="addPlayer">Add a Player</button>
 			<button id="removePlayer">Remove a Player</button>
 		</div>
 		
-		<div style="padding: 20px; background: white; clear: both; height: 200px; width: 500px; ">
-			<h6>Drag pieces to players</h6>
-			<div id="pieceTypeList">
-				<button id="addPieceType">Add Piece Type</button>
-			</div>
+		<h6>Drag pieces to players</h6>
+		<div id="pieceTypeList">
+			<button id="addPieceType">Add Piece Type</button>
 		</div>
 		
-		<div id="triggersPiece" style="padding: 20px; font-size: 60%; line-height: 300%; width: 260px; color: #cecece; float: right; display: none; background: #2b2b2b">
+		<div id="triggersPiece" class="rules_panel">
 			<h4>Trigger for Piece</h4>
 			1. On land ... <br/>
 			2. On land ... <br />
 		</div>	
 	</div>
 	
-	<div>
-		<h4>
-			Online Support</h4>
+	<!-- settings tab -->
+	<div id="settings" class="tab_content">
+		<h4>Online Support</h4>
 		Maecenas in varius nulla. Morbi leo elit, volutpat ac faucibus in; aliquam eget
 		massa. Nullam a neque ac turpis luctus venenatis et placerat risus. Quisque pretium
 		scelerisque sapien, et accumsan nunc venenatis non. Donec ullamcorper, leo gravida
@@ -100,4 +98,5 @@ include "header.php"
 	<% } %>
 	<span class="delete">[Delete]</span>
 </script>
+
 <?php include "footer.php" ?>

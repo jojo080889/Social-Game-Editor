@@ -8,25 +8,12 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
-	<script type="text/javascript" src="js/buttons.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
+	
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
 	<link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" media="all" />
     <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="button-styles.css" type="text/css" media="screen" />
-    <!--[if IE 7]>
-    <style type="text/css">
-        #vtab > ul > li.selected{
-            border-right: 1px solid #fff !important;
-        }
-        #vtab > ul > li {
-            border-right: 1px solid #ddd !important;
-        }
-        #vtab > div { 
-            z-index: -1 !important;
-            left:1px;
-        }
-    </style>
-    <![endif]-->
+    <link rel="stylesheet" href="css/button-styles.css" type="text/css" media="screen" />
 	
 	<!-- For edit tab -->
 	<?php if ($page == "index") { ?>
@@ -50,6 +37,7 @@
 	<link rel="stylesheet" href="css/test.css" type="text/css" />
 	<?php } ?>
 </head>
+
 <body>
 <header>
 	<div id="logobar">

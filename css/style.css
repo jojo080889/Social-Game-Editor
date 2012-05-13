@@ -109,14 +109,16 @@ header #mode_switch .selected:hover {
 
 #tileChoices .tile { height: 60px; width: 60px; clear: both; display: inline-block; margin: 10px;}
 
-#slotRulesPanel {
-	padding: 20px; font-size: 60%; 
-	line-height: 300%; width: 260px; 
-	color: white; float: left; display: none; 
+.rules_panel {
+	padding: 20px; 
+	font-size: 60%; 
+	line-height: 300%; 
+	width: 260px; 
+	color: #cecece;
+	display: none;
+	float: left; 
 	background: #2b2b2b;
-	
 }
-
 /* Player Design Tab */
 #player_design .draggable { width: 100px; height: 100px; padding: 0.5em; float: left; margin: 10px 10px 10px 0; }
 #player_design .droppable { width: 150px; height: 250px; padding: 0.5em; float: left; margin: 10px; background: #bed4f2}
