@@ -6,7 +6,10 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
+	
+	<?php if ($page == "index") { ?>
 	<script type="text/javascript" src="js/backend.js"></script>
+	<?php } ?>
 	
 	<!-- For testing tab -->
 	<?php if($page == "test") { ?>
