@@ -365,8 +365,9 @@ $(document).ready(function() {
 			}
 			return this;
 		},
-		unrender: function() {
+		unrender: function(e) {
 			$(this.el).remove();
+			e.stopImmediatePropagation();
 		},
 		remove: function() {
 			this.model.destroy();
