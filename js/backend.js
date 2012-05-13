@@ -459,6 +459,30 @@ $(document).ready(function() {
 		}
 	});	
 	
+	/* App Views */
+	var BoardEditView = Backbone.View.extend({
+		el: $("#board_design"),
+		events: {
+			'click button#setBoardSize': 'setBoardSize'
+		},
+		initialize: function() {
+			_.bindAll(this, 'render', 'setBoardSize');
+			this.render();
+		},
+		render: function() {
+		},
+		setBoardSize: function() {
+			// TODO validation here
+			var size = $("#size", this.el).val();
+			
+			// clear existing board
+			$("#slotsArea", this.el).empty();
+			
+			// replace with new board
+			var boardView = new BoardView({sizeX: size, sizeY: size});
+		}
+	});	
+	
 	// Instantiate stuff
 	var playerList = new PlayerListView();
 	var pieceTypeList = new PieceTypeListView();
@@ -467,4 +491,6 @@ $(document).ready(function() {
 	var tileTypeList = new TileTypeListView();
 	var boardView = new BoardView({sizeX: 3, sizeY: 3});
 	var tileList = new TileList();
+	
+	var boardEditView = new BoardEditView();
 });

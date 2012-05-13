@@ -13,9 +13,8 @@ include "header.php"
 	<div id="board_design" class="tab_content">
 		<h4>Design your board</h4>
 
-		Set grid size:
-		<input type="text" placeholder="x" id="numX" />
-		<input type="text" placeholder="y" id="numY" />
+		Set grid size: <input type="text" placeholder="Type a number..." id="size" />
+		<button id="setBoardSize">Set Board Size</button>
 
 		<div id="slotsArea">
 			<div class="info_text">Specify grid size</div>

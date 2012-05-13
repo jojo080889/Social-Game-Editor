@@ -2,12 +2,12 @@
 /* Will soon be replaced with Backbone */
 $(document).ready(function() {
 	/* Board Tab */
-	$("#numX").change(changeGridSize);
-	$("#numY").change(changeGridSize);
-	$("#board_design .draggable").draggable({
+	//$("#numX").change(changeGridSize);
+	//$("#numY").change(changeGridSize);
+	/*$("#board_design .draggable").draggable({
 		snap:true,
 		helper: "clone"
-	});
+	});*/
 	
 	/* Tabs */
 	var $items = $('#vtab>ul>li');
