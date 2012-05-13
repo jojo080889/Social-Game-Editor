@@ -31,31 +31,9 @@ include "header.php"
 				</div>
 				
 				<div style="padding: 20px; background: white; clear: both; height: 200px; width: 500px; ">
-				
-				<h6>Drag pieces to players</h6>
-					<div id="queen" class="draggable" class="ui-widget-content">
-						<p><img src="images/pieces/1.png"></p>
-					</div>
-					<div id="king" class="draggable" class="ui-widget-content">
-						<p><img src="images/pieces/2.png"></p>
-					</div>
-					<div id="knight" class="draggable" class="ui-widget-content">
-						<p><img src="images/pieces/3.png"></p>
-					</div>
-					<div id="pawn" class="draggable" class="ui-widget-content">
-						<p><img src="images/pieces/4.png"></p>
-					</div>
-					<div id="queen1" class="draggable" class="ui-widget-content">
-						<p><img src="images/pieces/1.png"></p>
-					</div>
-					<div id="king1" class="draggable" class="ui-widget-content">
-						<p><img src="images/pieces/2.png"></p>
-					</div>
-					<div id="knight1" class="draggable" class="ui-widget-content">
-						<p><img src="images/pieces/3.png"></p>
-					</div>
-					<div id="pawn1" class="draggable" class="ui-widget-content">
-						<p><img src="images/pieces/4.png"></p>
+					<h6>Drag pieces to players</h6>
+					<div id="pieceTypeList">
+						<button id="addPieceType">Add Piece Type</button>
 					</div>
 				</div>
 			</div><!-- End demo-description -->
@@ -88,6 +66,13 @@ include "header.php"
 	<!-- templates -->
 	<script id="playerTemplate" type="text/template">
 		<p>Player <%= id + 1 %></p>
+	</script>
+	
+	<script id="pieceTemplate" type="text/template">
+		<% if (image != null) { %>
+			<p><img src="<%= image %>"></p>
+		<% } %>
+		<span class="delete">[Delete]</span>
 	</script>
 </body>
 </html>

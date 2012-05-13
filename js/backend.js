@@ -11,15 +11,16 @@ $(document).ready(function() {
 	];
 	
 	var pieceTypes = [
-		{type: "king"},
-		{type: "queen"},
-		{type: "knight"},
-		{type: "pawn"}
+		{type: "king", image: "images/pieces/2.png"},
+		{type: "queen", image: "images/pieces/1.png"},
+		{type: "knight", image: "images/pieces/3.png"},
+		{type: "pawn", image: "images/pieces/4.png"},
+		{type: "colorPiece"}
 	];
 	
 	var pieces = [];
 	
-	/* Player */
+	/* PLAYER */
 	var Player = Backbone.Model.extend({
 		defaults: {
 			id: -1
@@ -95,6 +96,81 @@ $(document).ready(function() {
 		}
 	});
 	
+	/* PIECES */
+	var PieceType = Backbone.Model.extend({
+		defaults: {
+			name: "piece_type_name",
+			image: null, 
+			color: "#ccc" //if no image specified, will render a colored div
+		}
+	});
+	var PieceTypeView = Backbone.View.extend({
+		tagName: 'div',
+		className: "draggable ui-widget-content pieceType",
+		template: $("#pieceTemplate").html(),
+		events: {
+			"click span.delete": "remove"
+		},    
+		initialize: function() {
+			_.bindAll(this, "render", "unrender", "remove");
+			this.model.bind("change", this.render);
+			this.model.bind("remove", this.unrender);
+		},
+		render: function() {
+			var tmpl = _.template(this.template);
+			this.$el.html(tmpl(this.model.toJSON()));
+			if (this.model.get("image") == null) {
+				this.$el.css({background: this.model.get("color")});
+			}
+			return this;
+		},
+		unrender: function() {
+			$(this.el).remove();
+		},
+		remove: function() {
+			// TODO: show a warning, then also delete all pieces of the same piece type
+			this.model.destroy();
+		}
+	});
+	var PieceTypeList = Backbone.Collection.extend({
+		model: PieceType
+	});
+	var PieceTypeListView = Backbone.View.extend({
+		el: $("#pieceTypeList"),
+		events: {
+			'click button#addPieceType': 'addPieceType'
+		},
+		initialize: function() {
+			_.bindAll(this, 'render', 'renderPieceType', 'addPieceType'); 
+			this.collection = new PieceTypeList(pieceTypes);
+			this.collection.bind('add', this.renderPieceType);
+			this.render();
+		},
+		render: function() {
+			var self = this;
+			_.each(this.collection.models, function(item) {
+				self.renderPieceType(item);
+			}, this);
+		},
+		renderPieceType: function(pieceType) {
+			var pView = new PieceTypeView({
+				model: pieceType
+			});
+			this.$el.append(pView.render().el);
+		},
+		addPieceType: function() {
+			//TODO: show modal to set color, name, and image
+		}
+	});
+	
+	var Piece = Backbone.Model.extend({
+		defaults: {
+			player: -1, // Player ID. -1 means not owned.
+			type: null
+		}
+	});
+	
 	// Instantiate stuff
 	var playerList = new PlayerListView();
+	var pieceTypeList = new PieceTypeListView();
 });
