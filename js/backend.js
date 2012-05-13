@@ -257,6 +257,7 @@ $(document).ready(function() {
 	var TileTypeView = Backbone.View.extend({
 		tagName: 'div',
 		className: "draggable ui-widget-content tile ui-draggable",
+		template: $("#tileTypeTemplate").html(),
 		events: {
 			"click span.delete": "remove"
 		},    
@@ -266,6 +267,8 @@ $(document).ready(function() {
 			this.model.bind("remove", this.unrender);
 		},
 		render: function() {
+			var tmpl = _.template(this.template);
+			this.$el.html(tmpl(this.model.toJSON()));
 			if (this.model.get("image") == null) {
 				this.$el.css({background: this.model.get("color")});
 			}
@@ -288,8 +291,8 @@ $(document).ready(function() {
 				modal: true,
 				buttons: {
 					"Delete": function() {
-						var toRemove = board.where({type: self.model.get("name")});
-						board.remove(toRemove);
+						var toRemove = tileList.where({type: self.model.get("name")});
+						tileList.remove(toRemove);
 						self.model.destroy();
 						$( this ).dialog( "close" );
 					},
@@ -342,6 +345,7 @@ $(document).ready(function() {
 	var TileView = Backbone.View.extend({
 		tagName: 'div',
 		className: "draggable ui-widget-content tile ui-draggable",
+		template: $("#tileTemplate").html(),
 		events: {
 			"click": "showTileRules",
 			"click span.delete": "unrender"
@@ -354,6 +358,8 @@ $(document).ready(function() {
 		render: function() {
 			// get model for appearance attributes
 			var tileTypeModel = tileTypeList.collection.where({name: this.model.get("type")})[0];
+			var tmpl = _.template(this.template);
+			this.$el.html(tmpl(tileTypeModel.toJSON()));
 			if (tileTypeModel.get("image") == null) {
 				this.$el.css({background: tileTypeModel.get("color")});
 			}

@@ -90,4 +90,12 @@ include "header.php"
 	<span class="delete">[Delete]</span>
 </script>
 
+<script id="tileTypeTemplate" type="text/template">
+	<p><%= name %></p>
+	<span class="delete">[Delete]</span>
+</script>
+<script id="tileTemplate" type="text/template">
+	<span class="delete">[Delete]</span>
+</script>
+
 <?php include "footer.php" ?>

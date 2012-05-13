@@ -97,12 +97,15 @@ header #mode_switch .selected:hover {
 	color: #bbb;
 }
 
+.row {
+	clear: both;
+}
 .slot { 
 	height: 60px; 
 	width: 60px; 
 	background: #143E54; 
 	margin: 5px; 
-	display: inline-block
+	float: left;
 }
 .slot .tile {
 	width: 100%;
