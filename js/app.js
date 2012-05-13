@@ -18,22 +18,7 @@ $(document).ready(function() {
 		var index = $items.index($(this));
 		$('#vtab>div').hide().eq(index).show();
 	}).eq(0).click();			// sets default tab
-	
-	initDroppable();
 });
-
-function initDroppable() {
-	$("#slotsArea .droppable").droppable({
-		drop: function( event, ui ) {
-			var html = $(ui.draggable).html();
-			var bg = $(ui.draggable).css("background");
-			$(this).css("background", bg);
-		}
-	});
-	$('#slotsArea .droppable').click(function() {
-		$('div#slotRulesPanel').show();
-	});
-}
 
 function changeGridSize() {
 	var numX = $('#numX').val(); 

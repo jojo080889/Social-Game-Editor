@@ -366,7 +366,7 @@ $(document).ready(function() {
 			this.model.destroy();
 		},
 		showTileRules: function() {
-		
+			$('div#slotRulesPanel').show();
 		}
 	});
 	var TileList = Backbone.Collection.extend({
