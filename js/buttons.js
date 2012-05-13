@@ -3,13 +3,20 @@ $('#x').change(function() {
 });
 
 function initDroppable() {
-	$( ".droppable" ).droppable({
+	$("#slotsArea .droppable").droppable({
 		drop: function( event, ui ) {
 			var html = $(ui.draggable).html();
 			var ide = $(ui.draggable).attr('id');
 			$(this).css("background", ide);  
-			var parentOffset = $(this).offset();
-			$(ui.draggable).offset({ top: parentOffset.top, left: parentOffset.left });
+			//var parentOffset = $(this).offset();
+			//$(ui.draggable).offset({ top: parentOffset.top, left: parentOffset.left });
+		}
+	});
+	$("#playerList .droppable").droppable({
+		drop: function(event, ui) {
+			var html = $(ui.draggable).html();
+			var ide = $(ui.draggable).attr('id');
+			$(this).append(html);
 			if ($('div#triggersPiece').length) {
 				$('div#triggersPiece').show();
 				$('div#triggersPiece').html("Piece Triggers<br /><div style='float: right; background:white; width: 60px; text-align: center'; display:inline>" + html + "</div>"
@@ -86,8 +93,8 @@ function rulesToolbar() {
 /*** Drag and Drop ***/
 $(function() {
 	$( ".draggable" ).draggable({
-		revert:true,
-		snap:true
+		snap:true,
+		helper: "clone"
 	});
 });
 
