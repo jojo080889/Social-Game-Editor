@@ -367,7 +367,9 @@ $(document).ready(function() {
 		},
 		unrender: function(e) {
 			$(this.el).remove();
-			e.stopImmediatePropagation();
+			if (!e.cid) { // if not a model
+				e.stopImmediatePropagation();
+			}
 		},
 		remove: function() {
 			this.model.destroy();
@@ -489,7 +491,6 @@ $(document).ready(function() {
 	var pieceList = new PieceList();
 	
 	var tileTypeList = new TileTypeListView();
-	var boardView = new BoardView({sizeX: 3, sizeY: 3});
 	var tileList = new TileList();
 	
 	var boardEditView = new BoardEditView();
