@@ -21,21 +21,9 @@ include "header.php"
 			<div class="info_text">Specify grid size</div>
 		</div>
 
-		<button id="newTile">Define a new tile</button>
+		<button id="addTileType">Add Tile Type</button>
 
 		<div id="tileChoices">
-			<div class="draggable ui-widget-content tile" style="background: #002930">
-			</div>
-			<div class="draggable ui-widget-content tile" style="background: #F8F0AF">
-			</div>
-			<div class="draggable ui-widget-content tile" style="background: #AC4A00">
-			</div>
-			<div class="draggable ui-widget-content tile" style="background: #C5B475">
-			</div>
-			<div class="draggable ui-widget-content tile" style="background: #FDFDEB">
-			</div>
-			<div class="draggable ui-widget-content tile" style="background: #E6DEAD">
-			</div>
 		</div>
 				
 		<div id="slotRulesPanel" class="rules_panel">
@@ -85,6 +73,9 @@ include "header.php"
 <!-- dialogs -->
 <div id="dialog-pieceTypeDelete" title="Delete this piece type?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Deleting this piece type will delete all pieces of that type currently assigned to players. Are you sure?</p>
+</div>
+<div id="dialog-tileTypeDelete" title="Delete this tile type?">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Deleting this tile type will delete all tiles of that type currently on the board. Are you sure?</p>
 </div>
 
 <!-- templates -->
