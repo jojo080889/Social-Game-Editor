@@ -35,6 +35,42 @@ $(document).ready(function() {
 		$("#mode_switch .mode_button").removeClass("selected");
 		$(this).addClass("selected");
 	});
+	
+	/* Dialogs */
+	$( "#dialog-tileTypeDelete" ).dialog({
+		autoOpen: false,
+		resizable: false,
+		height:140,
+		modal: true,
+		buttons: {
+			"Delete": function() {
+				var toRemove = tileList.where({type: self.model.get("name")});
+				tileList.remove(toRemove);
+				self.model.destroy();
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
+	$( "#dialog-pieceTypeDelete" ).dialog({
+		autoOpen: false,
+		resizable: false,
+		height:140,
+		modal: true,
+		buttons: {
+			"Delete": function() {
+				var toRemove = pieceList.where({type: self.model.get("name")});
+				pieceList.remove(toRemove);
+				self.model.destroy();
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
 });
 
 function changeGridSize() {

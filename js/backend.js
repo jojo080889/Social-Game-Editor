@@ -161,22 +161,7 @@ $(document).ready(function() {
 		remove: function() {
 			var self = this;
 			// show a warning, then also delete all pieces of the same piece type
-			$( "#dialog-pieceTypeDelete" ).dialog({
-				resizable: false,
-				height:140,
-				modal: true,
-				buttons: {
-					"Delete": function() {
-						var toRemove = pieceList.where({type: self.model.get("name")});
-						pieceList.remove(toRemove);
-						self.model.destroy();
-						$( this ).dialog( "close" );
-					},
-					Cancel: function() {
-						$( this ).dialog( "close" );
-					}
-				}
-			});
+			$( "#dialog-pieceTypeDelete" ).dialog('open');
 		}
 	});
 	var PieceTypeList = Backbone.Collection.extend({
@@ -289,22 +274,7 @@ $(document).ready(function() {
 		remove: function() {
 			var self = this;
 			// show a warning, then also delete all pieces of the same piece type
-			$( "#dialog-tileTypeDelete" ).dialog({
-				resizable: false,
-				height:140,
-				modal: true,
-				buttons: {
-					"Delete": function() {
-						var toRemove = tileList.where({type: self.model.get("name")});
-						tileList.remove(toRemove);
-						self.model.destroy();
-						$( this ).dialog( "close" );
-					},
-					Cancel: function() {
-						$( this ).dialog( "close" );
-					}
-				}
-			});
+			$( "#dialog-tileTypeDelete" ).dialog('open');
 		}
 	});
 	var TileTypeList = Backbone.Collection.extend({
