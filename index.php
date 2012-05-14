@@ -11,18 +11,22 @@ include "header.php"
 	
 	<!-- board design tab -->
 	<div id="board_design" class="tab_content">
-		<h4>Design your board</h4>
+		<h4>Design your Board</h4>
+		
+		<div id="edit_board">
+			<button id="addTileType" class="button"><i class="icon-plus"></i> Add Tile Type</button>
+			<div id="tileChoicesContainer" class="scroll_container">
+				<div class="scrollLeft scroll"><i class="icon-chevron-left"></i></div>
+				<div class="scrollRight scroll"><i class="icon-chevron-right"></i></div>
+				<div id="tileChoices" class="scroll_list">
+				</div>
+			</div>
 
-		Set grid size: <input type="text" placeholder="Type a number..." id="size" />
-		<button id="setBoardSize">Set Board Size</button>
-
-		<div id="slotsArea">
-			<div class="info_text">Specify grid size</div>
-		</div>
-
-		<button id="addTileType">Add Tile Type</button>
-
-		<div id="tileChoices">
+			<span id="size_text">Set grid size:</span> <input type="text" placeholder="Type a number..." id="size" />
+			<button id="setBoardSize" class="button">Set Board Size</button>
+			<div id="slotsArea">
+				<div class="info_text">Specify grid size</div>
+			</div>
 		</div>
 				
 		<div id="slotRulesPanel" class="rules_panel">
@@ -39,10 +43,10 @@ include "header.php"
 		<p>Drag-and-drop pieces to assign them to players.</p>
 		
 		<button id="addPieceType" class="button"><i class="icon-plus"></i>Add Piece Type</button>
-		<div id="pieceTypeListContainer">
+		<div id="pieceTypeListContainer" class="scroll_container">
 			<div class="scrollLeft scroll"><i class="icon-chevron-left"></i></div>
 			<div class="scrollRight scroll"><i class="icon-chevron-right"></i></div>
-			<div id="pieceTypeList">
+			<div id="pieceTypeList" class="scroll_list">
 			</div>
 		</div>
 		
@@ -118,15 +122,16 @@ include "header.php"
 	<% if (image != null) { %>
 		<p><img src="<%= image %>"></p>
 	<% } else { %>
-		<div class="colorPiece" style="background: <% color %>"></div>
+		<div class="colorPiece"></div>
 	<% } %>
 	<span class="name"><%= name %></span>
 	<span class="delete"><i class="icon-remove-sign"></i></span>
 </script>
 
 <script id="tileTypeTemplate" type="text/template">
+	<div class="colorTile"></div>
 	<p><%= name %></p>
-	<span class="delete">[Delete]</span>
+	<span class="delete"><i class="icon-remove-sign"></i></span>
 </script>
 <script id="tileTemplate" type="text/template">
 	<span class="delete">[Delete]</span>

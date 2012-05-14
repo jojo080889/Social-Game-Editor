@@ -81,14 +81,24 @@ header #mode_switch .selected:hover {
 }
 
 /* Board Design Tab */
+#edit_board {
+	margin-right: 300px;
+}
+
+#board_design #size_text {
+	font-size: 15px;
+}
+#board_design #size {
+	padding: 5px;
+}
+
 #slotsArea {
-	float: left; 
 	padding: 20px;
-	height: 460px; 
-	width: 600px;
+	height: 460px;
 	overflow:auto;
 	background: #fff;
 	border: 1px solid #ccc;
+	margin-top: 10px;
 }
 
 #slotsArea .info_text {
@@ -111,17 +121,30 @@ header #mode_switch .selected:hover {
 	width: 100%;
 	height: 100%;
 	border: 0;
+	position: relative;
 }
 
 #tileChoices {
-	float: left;
-	width: 300px;
-	background: white;
-	margin: 20px;	
-	border: 1px solid #ccc;
 }
 
-#tileChoices .tile { height: 60px; width: 60px; clear: both; display: inline-block; margin: 10px;}
+#addTileType {
+	margin-bottom: 10px;
+}
+#tileChoices .tile {
+	display: inline-block;
+	position: relative;
+	text-align: center;
+	background: #E0C4AE;
+	border-radius: 5px;
+	margin: 5px;
+	min-width: 70px;
+	cursor: pointer;
+}
+#tileChoices .tile .colorTile { 
+	height: 50px; 
+	width: 50px; 
+	margin: 10px;
+}
 
 .rules_panel {
 	padding: 20px; 
@@ -129,12 +152,15 @@ header #mode_switch .selected:hover {
 	line-height: 300%; 
 	width: 260px; 
 	color: #cecece;
-	display: none;
 	float: left; 
 	background: #2b2b2b;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
 }
 /* Player Design Tab */
-#pieceTypeListContainer {
+.scroll_container {
 	position: relative;
 	background: #F4F0E5;
 	overflow: hidden;
@@ -172,7 +198,7 @@ header #mode_switch .selected:hover {
 	border-top-right-radius: 5px;
 	border-bottom-right-radius: 5px;
 }
-#pieceTypeList {
+.scroll_list {
 	margin-left: 27px;
 	margin-right: 27px;
 	padding: 12px 5px;
@@ -217,7 +243,7 @@ header #mode_switch .selected:hover {
 	margin: 6px auto;
 	border-radius: 25px;
 }
-#player_design .delete {
+#player_design .delete, #board_design .delete {
 	position: absolute;
 	color: red;
 	font-size: 20px;
@@ -241,6 +267,10 @@ header #mode_switch .selected:hover {
 #player_design .player p {
 	font-size: 18px;
 	text-align: center;
+}
+
+#player_design #triggersPiece {
+	display: none;
 }
 
 .sansa p { font-size: 70%; line-height: 200%; }

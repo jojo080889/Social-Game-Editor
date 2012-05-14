@@ -161,7 +161,22 @@ $(document).ready(function() {
 		remove: function() {
 			var self = this;
 			// show a warning, then also delete all pieces of the same piece type
-			$( "#dialog-pieceTypeDelete" ).dialog('open');
+			$( "#dialog-pieceTypeDelete" ).dialog({
+				resizable: false,
+				height:140,
+				modal: true,
+				buttons: {
+					"Delete": function() {
+						var toRemove = pieceList.where({type: self.model.get("name")});
+						pieceList.remove(toRemove);
+						self.model.destroy();
+						$( this ).dialog( "close" );
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
 		}
 	});
 	var PieceTypeList = Backbone.Collection.extend({
@@ -245,7 +260,7 @@ $(document).ready(function() {
 	});
 	var TileTypeView = Backbone.View.extend({
 		tagName: 'div',
-		className: "draggable ui-widget-content tile ui-draggable",
+		className: "tile",
 		template: $("#tileTypeTemplate").html(),
 		events: {
 			"click span.delete": "remove"
@@ -259,9 +274,10 @@ $(document).ready(function() {
 			var tmpl = _.template(this.template);
 			this.$el.html(tmpl(this.model.toJSON()));
 			if (this.model.get("image") == null) {
-				this.$el.css({background: this.model.get("color")});
+				$(".colorTile", this.$el).css({background: this.model.get("color")});
 			}
 			this.$el.draggable({
+				appendTo: "#board_design",
 				snap:true,
 				helper: "clone"
 			});
@@ -274,7 +290,22 @@ $(document).ready(function() {
 		remove: function() {
 			var self = this;
 			// show a warning, then also delete all pieces of the same piece type
-			$( "#dialog-tileTypeDelete" ).dialog('open');
+			$( "#dialog-tileTypeDelete" ).dialog({
+				resizable: false,
+				height:140,
+				modal: true,
+				buttons: {
+					"Delete": function() {
+						var toRemove = tileList.where({type: self.model.get("name")});
+						tileList.remove(toRemove);
+						self.model.destroy();
+						$( this ).dialog( "close" );
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
 		}
 	});
 	var TileTypeList = Backbone.Collection.extend({

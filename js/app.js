@@ -37,40 +37,11 @@ $(document).ready(function() {
 	});
 	
 	/* Dialogs */
-	$( "#dialog-tileTypeDelete" ).dialog({
-		autoOpen: false,
-		resizable: false,
-		height:140,
-		modal: true,
-		buttons: {
-			"Delete": function() {
-				var toRemove = tileList.where({type: self.model.get("name")});
-				tileList.remove(toRemove);
-				self.model.destroy();
-				$( this ).dialog( "close" );
-			},
-			Cancel: function() {
-				$( this ).dialog( "close" );
-			}
-		}
-	});
-	$( "#dialog-pieceTypeDelete" ).dialog({
-		autoOpen: false,
-		resizable: false,
-		height:140,
-		modal: true,
-		buttons: {
-			"Delete": function() {
-				var toRemove = pieceList.where({type: self.model.get("name")});
-				pieceList.remove(toRemove);
-				self.model.destroy();
-				$( this ).dialog( "close" );
-			},
-			Cancel: function() {
-				$( this ).dialog( "close" );
-			}
-		}
-	});
+	// initially open and close them to hide the initial div
+	$( "#dialog-tileTypeDelete" ).dialog('open');
+	$( "#dialog-tileTypeDelete" ).dialog('close');
+	$( "#dialog-pieceTypeDelete" ).dialog('open');
+	$( "#dialog-pieceTypeDelete" ).dialog('close');
 });
 
 function changeGridSize() {
