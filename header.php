@@ -12,6 +12,7 @@
 	
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
 	<link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" media="all" />
+	<link rel="stylesheet" href="css/font-awesome.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
 	
 	<!-- For edit tab -->

@@ -35,14 +35,20 @@ include "header.php"
 	<!-- player design tab -->
 	<div id="player_design" class="tab_content">
 		<h4>Create Pieces and Players</h4>
-		<div id="playerList">
-			<button id="addPlayer">Add a Player</button>
-			<button id="removePlayer">Remove a Player</button>
+		
+		<p>Drag-and-drop pieces to assign them to players.</p>
+		
+		<button id="addPieceType" class="button"><i class="icon-plus"></i>Add Piece Type</button>
+		<div id="pieceTypeListContainer">
+			<div class="scrollLeft scroll"><i class="icon-chevron-left"></i></div>
+			<div class="scrollRight scroll"><i class="icon-chevron-right"></i></div>
+			<div id="pieceTypeList">
+			</div>
 		</div>
 		
-		<h6>Drag pieces to players</h6>
-		<div id="pieceTypeList">
-			<button id="addPieceType">Add Piece Type</button>
+		<button id="addPlayer" class="button"><i class="icon-plus"></i>Add a Player</button>
+		<button id="removePlayer" class="button"><i class="icon-minus"></i>Remove a Player</button>
+		<div id="playerList">
 		</div>
 		
 		<div id="triggersPiece" class="rules_panel">
@@ -111,8 +117,11 @@ include "header.php"
 <script id="pieceTemplate" type="text/template">
 	<% if (image != null) { %>
 		<p><img src="<%= image %>"></p>
+	<% } else { %>
+		<div class="colorPiece" style="background: <% color %>"></div>
 	<% } %>
-	<span class="delete">[Delete]</span>
+	<span class="name"><%= name %></span>
+	<span class="delete"><i class="icon-remove-sign"></i></span>
 </script>
 
 <script id="tileTypeTemplate" type="text/template">

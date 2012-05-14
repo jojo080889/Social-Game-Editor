@@ -15,7 +15,7 @@ $(document).ready(function() {
 		{name: "queen", image: "images/pieces/1.png"},
 		{name: "knight", image: "images/pieces/3.png"},
 		{name: "pawn", image: "images/pieces/4.png"},
-		{name: "colorPiece"}
+		{name: "colorPiece", color: "yellow"}
 	];
 	
 	var pieces = [];
@@ -36,7 +36,7 @@ $(document).ready(function() {
 	
 	var PlayerView = Backbone.View.extend({
 		tagName: 'div',
-		className: "droppable ui-widget-header",
+		className: "player",
 		template: $("#playerTemplate").html(),
 		events: {
 		},    
@@ -79,13 +79,16 @@ $(document).ready(function() {
 	var PlayerListView = Backbone.View.extend({
 		el: $("#playerList"),
 		events: {
-			'click button#addPlayer': 'addPlayer',
-			'click button#removePlayer': 'removePlayer'
+			//'click button#addPlayer': 'addPlayer',
+			//'click button#removePlayer': 'removePlayer'
 		},
 		initialize: function() {
 			_.bindAll(this, 'render', 'renderPlayer', 'addPlayer', 'removePlayer'); 
 			this.collection = new PlayerList(players);
 			this.collection.bind('add', this.renderPlayer);
+			// TODO bind these events in a PlayerActionsView
+			$("#addPlayer").click(this.addPlayer);
+			$("#removePlayer").click(this.removePlayer);
 			this.render();
 		},
 		render: function() {
@@ -128,7 +131,7 @@ $(document).ready(function() {
 	});
 	var PieceTypeView = Backbone.View.extend({
 		tagName: 'div',
-		className: "draggable ui-widget-content pieceType",
+		className: "pieceType",
 		template: $("#pieceTemplate").html(),
 		events: {
 			"click span.delete": "remove"
@@ -142,11 +145,12 @@ $(document).ready(function() {
 			var tmpl = _.template(this.template);
 			this.$el.html(tmpl(this.model.toJSON()));
 			if (this.model.get("image") == null) {
-				this.$el.css({background: this.model.get("color")});
+				$(".colorPiece", this.$el).css({background: this.model.get("color")});
 			}
 			this.$el.draggable({
 				snap:true,
-				helper: "clone"
+				helper: "clone",
+				appendTo: '#player_design'
 			});
 			this.$el.data("backbone-view", this);
 			return this;
@@ -215,7 +219,7 @@ $(document).ready(function() {
 	});
 	var PieceView = Backbone.View.extend({
 		tagName: 'div',
-		className: "draggable ui-widget-content piece",
+		className: "piece",
 		template: $("#pieceTemplate").html(),
 		events: {
 			"click span.delete": "unrender"
@@ -231,7 +235,7 @@ $(document).ready(function() {
 			var tmpl = _.template(this.template);
 			this.$el.html(tmpl(pieceTypeModel.toJSON()));
 			if (pieceTypeModel.get("image") == null) {
-				this.$el.css({background: pieceTypeModel.get("color")});
+				$(".colorPiece",this.$el).css({background: pieceTypeModel.get("color")});
 			}
 			return this;
 		},

@@ -134,8 +134,114 @@ header #mode_switch .selected:hover {
 	background: #2b2b2b;
 }
 /* Player Design Tab */
-#player_design .draggable { width: 100px; height: 100px; padding: 0.5em; float: left; margin: 10px 10px 10px 0; }
-#player_design .droppable { width: 150px; height: 250px; padding: 0.5em; float: left; margin: 10px; background: #bed4f2}
+#pieceTypeListContainer {
+	position: relative;
+	background: #F4F0E5;
+	overflow: hidden;
+	margin-bottom: 25px;
+}
+.scroll {
+	position: absolute;
+	background: white;
+	z-index: 10;
+	top: 0;
+	bottom: 0;
+	width: 25px;
+	font-size: 25px;
+	border: 1px solid #666;
+	cursor: pointer;
+}
+.scroll i {
+	position: absolute;
+	top: 50%;
+	height: 25px;
+	margin-top: -12px;
+	text-align: center;
+	display: block;
+	left: 50%;
+	width: 25px;
+	margin-left: -12px;
+}
+.scrollLeft {
+	left: 0;
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+}
+.scrollRight {
+	right: 0;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+#pieceTypeList {
+	margin-left: 27px;
+	margin-right: 27px;
+	padding: 12px 5px;
+	position: relative;
+	white-space: nowrap;
+	left: 0;
+}
+#player_design #addPieceType {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.button i.icon-plus {
+	color: green;
+	margin-right: 3px;
+	font-size: 15px;
+}
+.button i.icon-minus {
+	color: red;
+	margin-right: 3px;
+	font-size: 15px;
+}
+.button {
+	padding:5px;
+	border-radius: 5px;
+	background: #fff;
+	border: 1px solid #AAA;
+	cursor: pointer;
+}
+#player_design .pieceType, #player_design .piece {
+	display: inline-block;
+	text-align: center;
+	background: #E0C4AE;
+	border-radius: 5px;
+	margin: 5px;
+	min-width: 70px;
+	position: relative;
+	cursor: pointer;
+}
+#player_design .pieceType .colorPiece, #player_design .piece .colorPiece {
+	width: 50px;
+	height: 50px;
+	margin: 6px auto;
+	border-radius: 25px;
+}
+#player_design .delete {
+	position: absolute;
+	color: red;
+	font-size: 20px;
+	top: -8px;
+	right: -5px;
+	cursor: pointer;
+}
+
+#player_design #playerList {
+	margin-top: 10px;
+}
+#player_design .player { 
+	width: 22%; 
+	min-height: 250px; 
+	padding: 5px; 
+	float: left;
+	background: #C3E6D4;
+	margin-right: 10px;
+	border-radius: 10px;
+}
+#player_design .player p {
+	font-size: 18px;
+	text-align: center;
+}
 
 .sansa p { font-size: 70%; line-height: 200%; }
 

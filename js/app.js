@@ -1,6 +1,17 @@
 /* App JS */
 /* Will soon be replaced with Backbone */
 $(document).ready(function() {
+	/* Pieces */
+	$("#pieceTypeListContainer .scrollLeft").click(function() {
+		// TODO check for constraints
+		var curLeft = parseInt($("#pieceTypeList").css("left"));
+		$("#pieceTypeList").css("left", (curLeft - 30) + "px");
+	});
+	$("#pieceTypeListContainer .scrollRight").click(function() {
+		var curLeft = parseInt($("#pieceTypeList").css("left"));
+		$("#pieceTypeList").css("left", (curLeft + 30) + "px");
+	});
+
 	/* Tabs */
 	var $items = $('#vtab>ul>li');
 	$items.click(function() {
