@@ -50,7 +50,7 @@
 		<table>
 		<tr>
 			<td><span class="mode_button selected" id="edit">Edit</span></td>
-			<td><span class="mode_button" id="test">Test</span></td>
+			<td><span class="mode_button" id="test">Test <i class="icon-play-circle"></i></span></td>
 		</tr>
 		</table>
 	</div>
