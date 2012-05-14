@@ -356,3 +356,8 @@ header #mode_switch .selected:hover {
 #test_tab {
 	display: none;
 }
+
+/* Dialogs */
+.dialog {
+	display: none; /* hide initially */
+}

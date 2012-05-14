@@ -106,10 +106,10 @@ include "header.php"
 </div>	
 	
 <!-- dialogs -->
-<div id="dialog-pieceTypeDelete" title="Delete this piece type?">
+<div id="dialog-pieceTypeDelete" class="dialog" title="Delete this piece type?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Deleting this piece type will delete all pieces of that type currently assigned to players. Are you sure?</p>
 </div>
-<div id="dialog-tileTypeDelete" title="Delete this tile type?">
+<div id="dialog-tileTypeDelete" class="dialog" title="Delete this tile type?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Deleting this tile type will delete all tiles of that type currently on the board. Are you sure?</p>
 </div>
 

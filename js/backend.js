@@ -161,7 +161,7 @@ $(document).ready(function() {
 		remove: function() {
 			var self = this;
 			// show a warning, then also delete all pieces of the same piece type
-			$( "#dialog-pieceTypeDelete" ).dialog({
+			$( "#dialog-pieceTypeDelete" ).show().dialog({
 				resizable: false,
 				height:140,
 				modal: true,
@@ -290,7 +290,7 @@ $(document).ready(function() {
 		remove: function() {
 			var self = this;
 			// show a warning, then also delete all pieces of the same piece type
-			$( "#dialog-tileTypeDelete" ).dialog({
+			$( "#dialog-tileTypeDelete" ).show().dialog({
 				resizable: false,
 				height:140,
 				modal: true,
