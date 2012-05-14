@@ -11,9 +11,9 @@ include "header.php"
 	
 	<!-- board design tab -->
 	<div id="board_design" class="tab_content">
-		<h4>Design your Board</h4>
-		
 		<div id="edit_board">
+			<h4>Design your Board</h4>
+		
 			<button id="addTileType" class="button"><i class="icon-plus"></i> Add Tile Type</button>
 			<div id="tileChoicesContainer" class="scroll_container">
 				<div class="scrollLeft scroll"><i class="icon-chevron-left"></i></div>

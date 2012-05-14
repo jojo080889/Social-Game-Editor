@@ -83,6 +83,13 @@ header #mode_switch .selected:hover {
 /* Board Design Tab */
 #edit_board {
 	margin-right: 300px;
+	overflow: auto;
+	position: absolute;
+	bottom: 0;
+	top: 0;
+	right: 0;
+	left: 0;
+	padding: 0 15px;
 }
 
 #board_design #size_text {
