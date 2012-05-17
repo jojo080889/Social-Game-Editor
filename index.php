@@ -24,6 +24,7 @@ include "header.php"
 
 			<span id="size_text">Set grid size:</span> <input type="text" placeholder="Type a number..." id="size" />
 			<button id="setBoardSize" class="button">Set Board Size</button>
+			<button id="clearBoard" class="button">Clear Board</button>
 			<div id="slotsArea">
 				<div class="info_text">Specify grid size</div>
 			</div>

@@ -1,7 +1,8 @@
 $(document).ready(function() {
-	Backbone.sync = function(method, model, success, error) {
+
+	//Backbone.sync = function(method, model, success, error) {
 		// TODO: write to database instead
-	}
+	//}
 
 	// Initial values
 	// TODO: read from database instead
@@ -52,11 +53,13 @@ $(document).ready(function() {
 			this.$el.droppable({
 				drop: function(event, ui) {
 					var model = $(ui.draggable).data("backbone-view").model;
-					var piece = new Piece({
+					
+					//TODO populate players with their pieces
+					var piece = pieceList.create({
 						player: self.model.get("id"),
 						type: model.get("name")
 					});
-					pieceList.push(piece); // add piece to global piece list
+					
 					var pView = new PieceView({
 						model: piece
 					});
@@ -74,7 +77,8 @@ $(document).ready(function() {
 	});
 	
 	var PlayerList = Backbone.Collection.extend({
-		model: Player
+		model: Player,
+		localStorage: new Store("PlayerList")
 	});
 	var PlayerListView = Backbone.View.extend({
 		el: $("#playerList"),
@@ -99,7 +103,8 @@ $(document).ready(function() {
 		},
 		renderPlayer: function(player) {
 			var pView = new PlayerView({
-				model: player
+				model: player,
+				id: "player_" + player.get("id")
 			});
 			this.$el.append(pView.render().el);
 		},
@@ -109,6 +114,7 @@ $(document).ready(function() {
 				player.set({
 					id: this.collection.length
 				});
+				player.save();
 				this.collection.add(player);
 			} else {
 				// TODO: show a message indicating player limit
@@ -180,7 +186,8 @@ $(document).ready(function() {
 		}
 	});
 	var PieceTypeList = Backbone.Collection.extend({
-		model: PieceType
+		model: PieceType,
+		localStorage: new Store("PieceTypeList")
 	});
 	var PieceTypeListView = Backbone.View.extend({
 		el: $("#pieceTypeList"),
@@ -222,7 +229,7 @@ $(document).ready(function() {
 		className: "piece",
 		template: $("#pieceTemplate").html(),
 		events: {
-			"click span.delete": "unrender"
+			"click span.delete": "remove"
 		},    
 		initialize: function() {
 			_.bindAll(this, "render", "unrender", "remove");
@@ -247,7 +254,8 @@ $(document).ready(function() {
 		}
 	});
 	var PieceList = Backbone.Collection.extend({
-		model: Piece
+		model: Piece,
+		localStorage: new Store("PieceList")
 	});
 	
 	/* TILE TYPES */
@@ -309,7 +317,8 @@ $(document).ready(function() {
 		}
 	});
 	var TileTypeList = Backbone.Collection.extend({
-		model: TileType
+		model: TileType,
+		localStorage: new Store("TileTypeList")
 	});
 	var TileTypeListView = Backbone.View.extend({
 		el: $("#tileChoices"),
@@ -384,7 +393,8 @@ $(document).ready(function() {
 		}
 	});
 	var TileList = Backbone.Collection.extend({
-		model: Tile
+		model: Tile,
+		localStorage: new Store("TileList")
 	});
 	
 	/* SLOT AND BOARD */
@@ -414,6 +424,7 @@ $(document).ready(function() {
 						position: self.model.get("position"),
 						type: model.get("name")
 					});
+					tile.save();
 					tileList.push(tile); // add piece to global piece list
 					var tView = new TileView({
 						model: tile
@@ -431,7 +442,8 @@ $(document).ready(function() {
 		}
 	});
 	var Board = Backbone.Collection.extend({
-		model: Slot
+		model: Slot,
+		localStorage: new Store("Board")
 	});
 	var BoardView = Backbone.View.extend({
 		el: $("#slotsArea"),
@@ -452,6 +464,8 @@ $(document).ready(function() {
 					// create slot
 					var slot = new Slot({position: {x: i, y: j}});
 					this.collection.push(slot);
+					slot.save();
+					
 					var sView = new SlotView({
 						model: slot
 					});
@@ -489,6 +503,27 @@ $(document).ready(function() {
 			var boardView = new BoardView({sizeX: size, sizeY: size});
 		}
 	});	
+	var PiecesAndPlayersView = Backbone.View.extend({
+		el: $("#player_design"),
+		events: {
+			//'click button#setBoardSize': 'setBoardSize'
+		},
+		initialize: function() {
+			_.bindAll(this, 'render', 'addOne', 'addAll');
+			pieceList.bind('reset', this.addAll, this); // when re-loading the pieces list from storage
+			this.render();
+		},
+		render: function() {
+		},
+		addOne: function(piece) {
+			var view = new PieceView({model: piece});
+			var player = piece.get("player");
+			$("#player_" + player).append(view.render().el);
+		},
+		addAll: function() {
+			pieceList.each(this.addOne);
+		}
+	});	
 	
 	// Instantiate stuff
 	var playerList = new PlayerListView();
@@ -499,4 +534,9 @@ $(document).ready(function() {
 	var tileList = new TileList();
 	
 	var boardEditView = new BoardEditView();
+	var piecesAndPlayersView = new PiecesAndPlayersView();
+	
+	// Load data
+	var data = pieceList.fetch();
+	
 });
