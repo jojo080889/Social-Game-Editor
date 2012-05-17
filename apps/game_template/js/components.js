@@ -1,0 +1,1 @@
+var data = {"players":[{"id":0},{"id":1}],"pieces":{"pieces":[{"player":1,"image":"images\/pieces\/4.png"},{"player":0,"color":"yellow"},{"player":0,"color":"yellow"}]},"board":{"board":[[{"color":"yellow"},{"color":"blue"},{"color":"green"}],[[],[],[]],[[],[],[]]]}}

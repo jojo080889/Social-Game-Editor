@@ -1,32 +1,14 @@
+var playerList;
+var pieceTypeList;
+var pieceList;
+
+var tileTypeList;
+var tileList;
+
+var boardEditView;
+var piecesAndPlayersView;
+
 $(document).ready(function() {
-
-	//Backbone.sync = function(method, model, success, error) {
-		// TODO: write to database instead
-	//}
-
-	// Initial values
-	// TODO: read from database instead
-	var players = [
-		{id: 0},
-		{id: 1}
-	];
-	
-	var pieceTypes = [
-		{name: "king", image: "images/pieces/2.png"},
-		{name: "queen", image: "images/pieces/1.png"},
-		{name: "knight", image: "images/pieces/3.png"},
-		{name: "pawn", image: "images/pieces/4.png"},
-		{name: "colorPiece", color: "yellow"}
-	];
-	
-	var pieces = [];
-	
-	var tileTypes = [
-		{name: "yellow", color: "yellow"},
-		{name: "blue", color: "blue"},
-		{name: "green", color: "green"},
-		{name: "red", color: "red"}
-	]
 	
 	/* PLAYER */
 	var Player = Backbone.Model.extend({
@@ -54,7 +36,6 @@ $(document).ready(function() {
 				drop: function(event, ui) {
 					var model = $(ui.draggable).data("backbone-view").model;
 					
-					//TODO populate players with their pieces
 					var piece = pieceList.create({
 						player: self.model.get("id"),
 						type: model.get("name")
@@ -420,12 +401,12 @@ $(document).ready(function() {
 				drop: function( event, ui ) {
 					// Create a new Tile and place on top of slot
 					var model = $(ui.draggable).data("backbone-view").model;
-					var tile = new Tile({
+					
+					var tile = tileList.create({
 						position: self.model.get("position"),
 						type: model.get("name")
 					});
-					tile.save();
-					tileList.push(tile); // add piece to global piece list
+					
 					var tView = new TileView({
 						model: tile
 					});
@@ -500,7 +481,7 @@ $(document).ready(function() {
 			$("#slotsArea", this.el).empty();
 			
 			// replace with new board
-			var boardView = new BoardView({sizeX: size, sizeY: size});
+			this.boardView = new BoardView({sizeX: size, sizeY: size});
 		}
 	});	
 	var PiecesAndPlayersView = Backbone.View.extend({
@@ -526,17 +507,17 @@ $(document).ready(function() {
 	});	
 	
 	// Instantiate stuff
-	var playerList = new PlayerListView();
-	var pieceTypeList = new PieceTypeListView();
-	var pieceList = new PieceList();
+	playerList = new PlayerListView();
+	pieceTypeList = new PieceTypeListView();
+	pieceList = new PieceList();
 	
-	var tileTypeList = new TileTypeListView();
-	var tileList = new TileList();
+	tileTypeList = new TileTypeListView();
+	tileList = new TileList();
 	
-	var boardEditView = new BoardEditView();
-	var piecesAndPlayersView = new PiecesAndPlayersView();
+	boardEditView = new BoardEditView();
+	piecesAndPlayersView = new PiecesAndPlayersView();
 	
 	// Load data
-	var data = pieceList.fetch();
+	pieceList.fetch();
 	
 });

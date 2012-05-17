@@ -10,10 +10,15 @@ var UP_RIGHT = 7;
 
 /* GAME VARIABLES */
 var title = "My Donburi Game";
-var size = Math.floor((Math.random()*10)+3);
-var playerNum = Math.floor((Math.random()*3) + 2);
+var playerNum = data.players.length;//Math.floor((Math.random()*3) + 2);
 var currentPlayer = Math.floor((Math.random()*playerNum)); // 0 to playerNum - 1
-var boardState = getBoardStateObj();
+
+var boardState = data.board.board;
+var size = boardState.length;//Math.floor((Math.random()*10)+3);
+getBoardStateObj();
+//var boardState = getBoardStateObj();
+
+var pieces = data.pieces.pieces;
 var piecesState = getPiecesStateObj();
 
 $(document).ready(function() {
@@ -40,21 +45,19 @@ $(document).ready(function() {
 });
 
 /* BOARD */
-/* TODO: change this to the actual board state
- * Format: Array of arrays (rows and columns). Each array slot has a JS object that contains 
+/* Format: Array of arrays (rows and columns). Each array slot has a JS object that contains 
  * { slot: (true or false), path: (a constant indicating a direction), rules: (format TBD) }
  */
 function getBoardStateObj() {
-	// Create board state object
-	var boardState = new Array();
 	for (var i = 0; i < size; i++) {
-		var row = new Array();
 		for (var j = 0; j < size; j++) {
 			// Create a simple circuit board
-			var tile = {};
+			var tile = boardState[i][j];
+			if (typeof(tile) == 'undefined' && tile == null) {
+				tile = {};
+			}
 			// if first row or last row
 			if (i == 0 || i == (size - 1) || j == 0 || j == (size - 1)) {
-				tile.slot == true;
 				if (i == 0 && j != 0) {
 					tile.path = LEFT;
 				} else if (j == 0 && i != (size - 1)) {
@@ -64,14 +67,9 @@ function getBoardStateObj() {
 				} else if (j == (size - 1) && i != 0) {
 					tile.path = UP;
 				}
-			} else {
-				tile.slot == false;
-			}
-			row.push(tile);
+			} 
 		}
-		boardState.push(row);
 	}
-	return boardState;
 }
 
 function generateGrid(size) {
@@ -79,7 +77,12 @@ function generateGrid(size) {
 	for (var i = 0; i < size; i++) {
 		html += "<div class='row'>";
 		for (var j = 0; j < size; j++) {
-			html += "<div class='slot'></div>";
+			var boardSlot = boardState[i][j];
+			if (typeof(boardSlot.color) !== 'undefined' && boardSlot.color !== null) {
+				html += "<div class='slot' style='background: " + boardSlot.color + "'></div>";
+			} else {
+				html += "<div class='slot'></div>";
+			}
 		}
 		html += "</div>";
 	}
@@ -105,6 +108,7 @@ function adjustGrid(size) {
 
 /* PLAYERS */
 function generatePlayers(number) {
+	// TODO actually get points
 	var pointsExistIndex = Math.floor((Math.random()*2));
 	var pointsExist = [true,false][pointsExistIndex];
 	console.log(pointsExistIndex);
@@ -137,36 +141,57 @@ function changeToNextTurn() {
 }
 
 /* PIECES */
-/* TODO: get real pieces state
- * Format: Array of array where outer index corresponds to player number. Array slots contain
+/* Format: Array of array where outer index corresponds to player number. Array slots contain
  * {x: (x position on board) and y: (y position on board) }
+ * TODO move this into app.js
  */
 function getPiecesStateObj() {
-	var piecesState = new Array();
-	for (var i = 0; i < playerNum; i++) {
-		var pieces = new Array();
+	var allPieces = new Array();
+	for (var i = 0; i < pieces.length; i++) {
+		var piece = pieces[i];
+		var playerIndex = piece.player;
+		var playerPieces = allPieces[playerIndex];
+		var mustPush = false;
+		if (typeof(playerPieces) == 'undefined' && playerPieces == null) {
+			playerPieces = new Array();
+			mustPush = true;
+		}
 		//var x = Math.floor(Math.random()*size); // random position of pieces
 		//var y = Math.floor(Math.random()*size);
 		var x = 0;
 		var y = 0;
-		var piece = {};
 		piece.x = x;
 		piece.y = y;
-		pieces.push(piece);
-		piecesState.push(pieces);
+		playerPieces.push(piece);
+		
+		if (mustPush) {
+			allPieces[playerIndex] = playerPieces;
+		}
 	}
-	return piecesState;
+	return allPieces;
 }
 
 /* Based on pieces state, place pieces on board */
 function createPieces() {
 	for (var i = 0; i < piecesState.length; i++) {
-		for (var j = 0; j < piecesState[i].length; j++) {
+		/*for (var j = 0; j < piecesState[i].length; j++) {
 			var p = piecesState[i][j];
 			// find the right slot
 			var slot = $($($("#board .row")[p.y]).find(".slot")[p.x]);
 			slot.append($("<div class='piece player" + (i + 1) + "' id='piece" + (i + 1) + "'></div>"));
+		}*/
+		// Only do first piece for each player
+		var p = piecesState[i][0];
+		var slot = $($($("#board .row")[p.y]).find(".slot")[p.x]);
+		var piece;
+		if (typeof(p.color) == undefined || p.color == null) {
+			// the piece is an image
+			piece = $("<div class='piece imagePiece' id='piece" + (i + 1) + "'><img src='" + p.image + "' /></div>");
+		} else {
+			// the piece is just a color
+			piece = $("<div class='piece colorPiece' id='piece" + (i + 1) + "' style='background: " + p.color + "'></div>");
 		}
+		slot.append(piece);
 	}
 }
 

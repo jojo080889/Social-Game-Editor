@@ -11,7 +11,7 @@ $(document).ready(function() {
 	feed = {name: "Test", uri: "", session: "test", key: ""};
 
 	$("#app_launch").click(function() {
-		launch("game_template");
+		createGameModelsFile(function() {launch("game_template");}); // generate components.js
 	});
 	$("#return_feed").click(function() {
 		var user = {name: "User 1", id: 0};
