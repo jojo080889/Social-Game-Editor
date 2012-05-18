@@ -51,6 +51,7 @@ $(document).ready(function() {
 		},
 		unrender: function() {
 			$(this.el).remove();
+			this.remove();
 		},
 		remove: function() {
 			this.model.destroy();
@@ -69,7 +70,7 @@ $(document).ready(function() {
 		},
 		initialize: function() {
 			_.bindAll(this, 'render', 'renderPlayer', 'addPlayer', 'removePlayer'); 
-			this.collection = new PlayerList(players);
+			this.collection = new PlayerList();
 			this.collection.bind('add', this.renderPlayer);
 			// TODO bind these events in a PlayerActionsView
 			$("#addPlayer").click(this.addPlayer);
@@ -91,19 +92,16 @@ $(document).ready(function() {
 		},
 		addPlayer: function() {
 			if (this.collection.length < 4) {
-				var player = new Player();
-				player.set({
+				var player = this.collection.create({
 					id: this.collection.length
 				});
-				player.save();
-				this.collection.add(player);
 			} else {
 				// TODO: show a message indicating player limit
 			}
 		},
 		removePlayer: function() {
 			if (this.collection.length > 2) {
-				this.collection.pop()
+				this.collection.pop();
 			}
 		}
 	});
@@ -492,6 +490,7 @@ $(document).ready(function() {
 		initialize: function() {
 			_.bindAll(this, 'render', 'addOne', 'addAll');
 			pieceList.bind('reset', this.addAll, this); // when re-loading the pieces list from storage
+			playerList.collection.bind('reset', playerList.render); // when re-loading the players list from storage
 			this.render();
 		},
 		render: function() {
@@ -519,5 +518,6 @@ $(document).ready(function() {
 	
 	// Load data
 	pieceList.fetch();
+	playerList.collection.fetch();
 	
 });
