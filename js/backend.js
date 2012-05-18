@@ -351,7 +351,7 @@ $(document).ready(function() {
 		},
 		initialize: function() {
 			_.bindAll(this, 'render', 'renderTileType', 'addTileType'); 
-			this.collection = new TileTypeList(tileTypes);
+			this.collection = new TileTypeList();//(tileTypes);
 			this.collection.bind('add', this.renderTileType);
 			this.render();
 		},
@@ -512,6 +512,7 @@ $(document).ready(function() {
 		},
 		initialize: function() {
 			_.bindAll(this, 'render', 'setBoardSize');
+			tileTypeList.collection.bind('reset', tileTypeList.render); 
 			this.render();
 		},
 		render: function() {
@@ -563,6 +564,14 @@ $(document).ready(function() {
 	piecesAndPlayersView = new PiecesAndPlayersView();
 	
 	// Load data
+	if (localStorage.getItem("TileTypeList") == null) {
+		for (var i = 0; i < tileTypes.length; i++) {
+			tileTypeList.collection.create(tileTypes[i]);
+		}
+	} else {
+		tileTypeList.collection.fetch(); // players MUST be loaded before pieces
+	}
+	
 	if (localStorage.getItem("PlayerList") == null) {
 		for (var i = 0; i < players.length; i++) {
 			playerList.collection.create(players[i]);
