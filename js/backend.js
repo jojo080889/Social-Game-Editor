@@ -563,8 +563,19 @@ $(document).ready(function() {
 	piecesAndPlayersView = new PiecesAndPlayersView();
 	
 	// Load data
-	playerList.collection.fetch(); // players MUST be loaded before pieces
-	pieceTypeList.collection.fetch();
+	if (localStorage.getItem("PlayerList") == null) {
+		for (var i = 0; i < players.length; i++) {
+			playerList.collection.create(players[i]);
+		}
+	} else {
+		playerList.collection.fetch(); // players MUST be loaded before pieces
+	}
+	if (localStorage.getItem("PieceTypeList") == null) {
+		for (var i = 0; i < pieceTypes.length; i++) {
+			pieceTypeList.collection.create(pieceTypes[i]);
+		}
+	} else {
+		pieceTypeList.collection.fetch();
+	}
 	pieceList.fetch();
-	
 });
