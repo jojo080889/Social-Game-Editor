@@ -120,6 +120,10 @@ include "header.php"
 	<p>Piece Type Name: <input type="text" id="new_pieceTypeName" /></p>
 	<p>Color: <input type="text" id="new_pieceTypeColor" /></p>
 </div>
+<div id="dialog-tileTypeAdd" class="dialog" title="Add a Tile Type">
+	<p>Tile Type Name: <input type="text" id="new_tileTypeName" /></p>
+	<p>Color: <input type="text" id="new_tileTypeColor" /></p>
+</div>
 
 <!-- templates -->
 <script id="playerTemplate" type="text/template">

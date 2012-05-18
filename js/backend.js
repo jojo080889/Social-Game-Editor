@@ -353,6 +353,7 @@ $(document).ready(function() {
 			_.bindAll(this, 'render', 'renderTileType', 'addTileType'); 
 			this.collection = new TileTypeList();//(tileTypes);
 			this.collection.bind('add', this.renderTileType);
+			$("#addTileType").click(this.addTileType);
 			this.render();
 		},
 		render: function() {
@@ -368,7 +369,25 @@ $(document).ready(function() {
 			this.$el.append(tView.render().el);
 		},
 		addTileType: function() {
-			//TODO: show modal to set color, name, and image
+			// show modal to set color, name, and image
+			var self = this;
+			$( "#dialog-tileTypeAdd" ).show().dialog({
+				resizable: false,
+				height:300,
+				modal: true,
+				buttons: {
+					"Add": function() {
+						var pieceType = self.collection.create({
+							name: $("#new_tileTypeName").val(), //TODO validate
+							color: $("#new_tileTypeColor").val()
+						});
+						$( this ).dialog( "close" );
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
 		}
 	});	
 	

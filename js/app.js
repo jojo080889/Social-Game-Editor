@@ -62,6 +62,7 @@ $(document).ready(function() {
 	
 	/* Dialogs */
 	$("#new_pieceTypeColor").miniColors({readonly: true});
+	$("#new_tileTypeColor").miniColors({readonly: true});
 });
 
 function changeGridSize() {
