@@ -100,8 +100,33 @@ $(document).ready(function() {
 			}
 		},
 		removePlayer: function() {
-			if (this.collection.length > 2) {
-				this.collection.pop();
+			// remove pieces attached to the player, if there are any
+			var last = this.collection.last();
+			var self = this;
+			var toRemove = pieceList.where({player: last.get("id")});
+			
+			if ($.isEmptyObject(toRemove)) {
+				if (this.collection.length > 2) {
+					this.collection.pop();
+				}
+			} else {
+				$( "#dialog-playerPieceDelete" ).show().dialog({
+					resizable: false,
+					height:140,
+					modal: true,
+					buttons: {
+						"Delete": function() {
+							if (self.collection.length > 2) {
+								self.collection.pop();
+								pieceList.remove(toRemove);
+							}
+							$( this ).dialog( "close" );
+						},
+						Cancel: function() {
+							$( this ).dialog( "close" );
+						}
+					}
+				});
 			}
 		}
 	});

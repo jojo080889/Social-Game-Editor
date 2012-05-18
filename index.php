@@ -113,6 +113,9 @@ include "header.php"
 <div id="dialog-tileTypeDelete" class="dialog" title="Delete this tile type?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Deleting this tile type will delete all tiles of that type currently on the board. Are you sure?</p>
 </div>
+<div id="dialog-playerPieceDelete" class="dialog" title="Delete this player?">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Removing this player will remove pieces assigned to this player. Are you sure?</p>
+</div>
 
 <!-- templates -->
 <script id="playerTemplate" type="text/template">
