@@ -61,11 +61,7 @@ $(document).ready(function() {
 	});
 	
 	/* Dialogs */
-	// initially open and close them to hide the initial div
-	$( "#dialog-tileTypeDelete" ).dialog('open');
-	$( "#dialog-tileTypeDelete" ).dialog('close');
-	$( "#dialog-pieceTypeDelete" ).dialog('open');
-	$( "#dialog-pieceTypeDelete" ).dialog('close');
+	$("#new_pieceTypeColor").miniColors({readonly: true});
 });
 
 function changeGridSize() {

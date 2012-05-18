@@ -116,6 +116,10 @@ include "header.php"
 <div id="dialog-playerPieceDelete" class="dialog" title="Delete this player?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Removing this player will remove pieces assigned to this player. Are you sure?</p>
 </div>
+<div id="dialog-pieceTypeAdd" class="dialog" title="Add a Piece Type">
+	<p>Piece Type Name: <input type="text" id="new_pieceTypeName" /></p>
+	<p>Color: <input type="text" id="new_pieceTypeColor" /></p>
+</div>
 
 <!-- templates -->
 <script id="playerTemplate" type="text/template">

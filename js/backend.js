@@ -196,12 +196,13 @@ $(document).ready(function() {
 	var PieceTypeListView = Backbone.View.extend({
 		el: $("#pieceTypeList"),
 		events: {
-			'click button#addPieceType': 'addPieceType'
+			//'click button#addPieceType': 'addPieceType'
 		},
 		initialize: function() {
 			_.bindAll(this, 'render', 'renderPieceType', 'addPieceType'); 
-			this.collection = new PieceTypeList(pieceTypes);
+			this.collection = new PieceTypeList();//(pieceTypes);
 			this.collection.bind('add', this.renderPieceType);
+			$("#addPieceType").click(this.addPieceType);
 			this.render();
 		},
 		render: function() {
@@ -217,7 +218,25 @@ $(document).ready(function() {
 			this.$el.append(pView.render().el);
 		},
 		addPieceType: function() {
-			//TODO: show modal to set color, name, and image
+			// show modal to set color, name, and image
+			var self = this;
+			$( "#dialog-pieceTypeAdd" ).show().dialog({
+				resizable: false,
+				height:300,
+				modal: true,
+				buttons: {
+					"Add": function() {
+						var pieceType = self.collection.create({
+							name: $("#new_pieceTypeName").val(), //TODO validate
+							color: $("#new_pieceTypeColor").val()
+						});
+						$( this ).dialog( "close" );
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
 		}
 	});
 	
@@ -252,6 +271,7 @@ $(document).ready(function() {
 		},
 		unrender: function() {
 			$(this.el).remove();
+			this.remove();
 		},
 		remove: function() {
 			this.model.destroy();
@@ -516,6 +536,7 @@ $(document).ready(function() {
 			_.bindAll(this, 'render', 'addOne', 'addAll');
 			pieceList.bind('reset', this.addAll, this); // when re-loading the pieces list from storage
 			playerList.collection.bind('reset', playerList.render); // when re-loading the players list from storage
+			pieceTypeList.collection.bind('reset', pieceTypeList.render); 
 			this.render();
 		},
 		render: function() {
@@ -543,6 +564,7 @@ $(document).ready(function() {
 	
 	// Load data
 	playerList.collection.fetch(); // players MUST be loaded before pieces
+	pieceTypeList.collection.fetch();
 	pieceList.fetch();
 	
 });
