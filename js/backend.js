@@ -517,7 +517,7 @@ $(document).ready(function() {
 	piecesAndPlayersView = new PiecesAndPlayersView();
 	
 	// Load data
+	playerList.collection.fetch(); // players MUST be loaded before pieces
 	pieceList.fetch();
-	playerList.collection.fetch();
 	
 });
