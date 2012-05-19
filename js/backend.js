@@ -574,11 +574,12 @@ $(document).ready(function() {
 			var size = $("#size", this.el).val();
 			
 			// clear existing board
-			//$("#slotsArea", this.el).empty(); // TODO unrender!
+			while (!tileList.isEmpty()) {
+				tileList.pop();
+			}
 			this.board.destroy();
 			
 			// replace with new board
-			//this.boardView = new BoardView({sizeX: size, sizeY: size});
 			this.board = new Board({id: 1, sizeX: size, sizeY: size});
 			this.board.save();
 			this.boardView = new BoardView({model: this.board});
