@@ -94,7 +94,16 @@ function convertValuesToSingleJSON() {
 }
 
 function getPlayerJSON() {
-	return players;
+	var players = JSON.parse(localStorage.PlayerList);
+	var playersArray = new Array();
+	for (var key in players) {
+		if (players.hasOwnProperty(key)) {
+			var obj = {};
+			obj.id = players[key].id;
+			playersArray.push(obj);
+		}
+	}
+	return playersArray;
 }
 function getPiecesJSON() {
 	var pieces = JSON.parse(localStorage.PieceList);
