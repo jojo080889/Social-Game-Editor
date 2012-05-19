@@ -122,6 +122,7 @@ header #mode_switch .selected:hover {
 	height: 60px; 
 	width: 60px; 
 	background: #fafafa;
+	border: 1px solid #aaa;
 	float: left;
 }
 .slot .tile {

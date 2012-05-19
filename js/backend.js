@@ -397,7 +397,8 @@ $(document).ready(function() {
 	var Tile = Backbone.Model.extend({
 		defaults: {
 			paths: [], // array of ints
-			position: {x:-1, y:-1},
+			positionX: -1, 
+			positionY: -1,
 			type: null // string
 		}
 	});
@@ -446,12 +447,13 @@ $(document).ready(function() {
 	/* The empty slot on the board a tile can be placed into. */
 	var Slot = Backbone.Model.extend({
 		defaults: {
-			position: {x:-1, y:-1}, // Player ID. -1 means not owned.
+			positionX: -1, 
+			positionY: -1
 		}
 	});
 	var SlotView = Backbone.View.extend({
 		tagName: 'div',
-		className: "slot droppable ui-widget-header ui-droppable",
+		className: "slot",
 		events: {
 		},    
 		initialize: function() {
@@ -461,13 +463,15 @@ $(document).ready(function() {
 		},
 		render: function() {
 			var self = this;
+			self.$el.addClass("slot_" + this.model.get("positionX"));
 			this.$el.droppable({
 				drop: function( event, ui ) {
 					// Create a new Tile and place on top of slot
 					var model = $(ui.draggable).data("backbone-view").model;
 					
 					var tile = tileList.create({
-						position: self.model.get("position"),
+						positionX: self.model.get("positionX"),
+						positionY: self.model.get("positionY"),
 						type: model.get("name")
 					});
 					
@@ -487,8 +491,8 @@ $(document).ready(function() {
 		}
 	});
 	var SlotList = Backbone.Collection.extend({
-		model: Slot,
-		localStorage: new Store("SlotList")
+		model: Slot//,
+		//localStorage: new Store("SlotList")
 	});
 	var Board = Backbone.Model.extend({
 		initialize: function() {
@@ -517,12 +521,15 @@ $(document).ready(function() {
 			var html = "";
 			var self = this;
 			for (var i = 0; i < this.model.get("sizeY"); i++) {
-				var row = $("<div class='row'>");
+				var row = $("<div class='row' id='row_" + i +"'>");
 				for (var j = 0; j < this.model.get("sizeX"); j++) {
 					// create slot
-					var slot = this.model.collection.create({
-						position: {x: i, y: j}
+					var slot = new Slot({
+						positionX: j, 
+						positionY: i
 					});
+					
+					this.model.collection.add(slot);
 					var sView = new SlotView({
 						model: slot
 					});
@@ -548,7 +555,8 @@ $(document).ready(function() {
 			'click button#setBoardSize': 'setBoardSize'
 		},
 		initialize: function() {
-			_.bindAll(this, 'render', 'setBoardSize');
+			_.bindAll(this, 'render', 'setBoardSize', 'addOne', 'addAll');
+			tileList.bind('reset', this.addAll, this); // when re-loading the pieces list from storage
 			tileTypeList.collection.bind('reset', tileTypeList.render);
 			this.board = new Board({id: 1}); // for some reason have to set ID for fetch() to work properly
 			this.boardView = new BoardView({model: this.board});
@@ -574,6 +582,18 @@ $(document).ready(function() {
 			this.board.save();
 			this.boardView = new BoardView({model: this.board});
 			this.boardView.render();
+		},
+		addOne: function(tile) {
+			var view = new TileView({model: tile});
+			var positionX = tile.get("positionX");
+			var positionY = tile.get("positionY");
+			
+			// get the slot of the right position
+			var destSlot = $(".slot_" + positionX, $("#row_" + positionY));
+			destSlot.append(view.render().el);
+		},
+		addAll: function() {
+			tileList.each(this.addOne);
 		}
 	});	
 	var PiecesAndPlayersView = Backbone.View.extend({
@@ -617,8 +637,9 @@ $(document).ready(function() {
 			tileTypeList.collection.create(tileTypes[i]);
 		}
 	} else {
-		tileTypeList.collection.fetch(); // players MUST be loaded before pieces
+		tileTypeList.collection.fetch();
 	}
+	tileList.fetch();
 	
 	if (localStorage.getItem("PlayerList") == null) {
 		for (var i = 0; i < players.length; i++) {
