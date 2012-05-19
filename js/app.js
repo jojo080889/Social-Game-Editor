@@ -47,12 +47,7 @@ $(document).ready(function() {
 	}).eq(0).click();			// sets default tab
 	
 	/* Mode Switch */
-	$("#mode_switch #test").click(function() {
-		$("#vtab").hide();
-		$("#test_tab").show();
-		$("#mode_switch .mode_button").removeClass("selected");
-		$(this).addClass("selected");
-	});
+	$("#mode_switch #test").click(switchTest);
 	$("#mode_switch #edit").click(function() {
 		$("#vtab").show();
 		$("#test_tab").hide();
@@ -202,7 +197,12 @@ var env;
 var feed;
 var test_user_count = 0;
 
-$(document).ready(function() {
+function switchTest() {
+	$("#vtab").hide();
+	$("#test_tab").show();
+	$("#mode_switch .mode_button").removeClass("selected");
+	$(this).addClass("selected");
+		
  	env = new Musubi.Browser.Environment(new Musubi.Browser.InterFrameTransport('test'));
 	feed = {name: "Test", uri: "", session: "test", key: ""};
 
@@ -216,9 +216,13 @@ $(document).ready(function() {
 		env.startInstance('view1', user, feed, "edu.stanford.mobisocial.dungbeetle");
 	});
 
-	addUser();
-	addUser();		
-});
+	$("#devices").empty();
+	test_user_count = 0;
+	var playerNum = getPlayerJSON().length;
+	for (var i = 0; i < playerNum; i++) {
+		addUser();
+	}
+}
  
 function addUser() {
 	var frame = 'view' + test_user_count;
