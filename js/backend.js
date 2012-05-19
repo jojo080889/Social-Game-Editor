@@ -408,7 +408,7 @@ $(document).ready(function() {
 		template: $("#tileTemplate").html(),
 		events: {
 			"click": "showTileRules",
-			"click span.delete": "unrender"
+			"click span.delete": "remove"
 		},    
 		initialize: function() {
 			_.bindAll(this, "render", "unrender", "remove", "showTileRules");
@@ -427,6 +427,7 @@ $(document).ready(function() {
 		},
 		unrender: function(e) {
 			$(this.el).remove();
+			this.remove();
 			if (!e.cid) { // if not a model
 				e.stopImmediatePropagation();
 			}
