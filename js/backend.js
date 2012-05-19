@@ -553,10 +553,11 @@ $(document).ready(function() {
 	var BoardEditView = Backbone.View.extend({
 		el: $("#board_design"),
 		events: {
-			'click button#setBoardSize': 'setBoardSize'
+			'click button#setBoardSize': 'setBoardSize',
+			'click button#clearBoard': 'clearBoardAsk'
 		},
 		initialize: function() {
-			_.bindAll(this, 'render', 'setBoardSize', 'addOne', 'addAll');
+			_.bindAll(this, 'render', 'clearBoard', 'clearBoardAsk','setBoardSize', 'addOne', 'addAll');
 			tileList.bind('reset', this.addAll, this); // when re-loading the pieces list from storage
 			tileTypeList.collection.bind('reset', tileTypeList.render);
 			this.board = new Board({id: 1}); // for some reason have to set ID for fetch() to work properly
@@ -574,9 +575,7 @@ $(document).ready(function() {
 			var size = $("#size", this.el).val();
 			
 			// clear existing board
-			while (!tileList.isEmpty()) {
-				tileList.pop();
-			}
+			this.clearBoard();
 			this.board.destroy();
 			
 			// replace with new board
@@ -584,6 +583,28 @@ $(document).ready(function() {
 			this.board.save();
 			this.boardView = new BoardView({model: this.board});
 			this.boardView.render();
+		},
+		clearBoard: function() {
+			while (!tileList.isEmpty()) {
+				tileList.pop();
+			}
+		},
+		clearBoardAsk: function() {
+			var self = this;
+			$( "#dialog-clearBoard" ).show().dialog({
+				resizable: false,
+				height:140,
+				modal: true,
+				buttons: {
+					"Clear": function() {
+						self.clearBoard();
+						$( this ).dialog( "close" );
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
 		},
 		addOne: function(tile) {
 			var view = new TileView({model: tile});

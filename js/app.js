@@ -116,13 +116,13 @@ function getPiecesJSON() {
 }
 function getBoardJSON() {
 	// Create holder array for board
-	var sizeX = boardEditView.boardView.options.sizeX;
-	var sizeY = boardEditView.boardView.options.sizeY;
+	var sizeX = boardEditView.boardView.model.get("sizeX");
+	var sizeY = boardEditView.boardView.model.get("sizeY");
 	
 	var board = new Array();
-	for (var i = 0; i < sizeX; i++) {
+	for (var i = 0; i < sizeY; i++) {
 		var row = new Array();
-		for (var j = 0; j < sizeY; j++) {
+		for (var j = 0; j < sizeX; j++) {
 			var tile = {};
 			row.push(tile);
 		}
@@ -141,8 +141,9 @@ function getBoardJSON() {
 			obj.image = tileInfo.image;
 		}
 		
-		var pos = tile.get("position");
-		board[pos.x][pos.y] = obj;
+		var posX = tile.get("positionX");
+		var posY = tile.get("positionY");
+		board[posY][posX] = obj;
 	});
 	
 	return {"board": board};

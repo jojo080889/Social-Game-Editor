@@ -124,6 +124,9 @@ include "header.php"
 	<p>Tile Type Name: <input type="text" id="new_tileTypeName" /></p>
 	<p>Color: <input type="text" id="new_tileTypeColor" /></p>
 </div>
+<div id="dialog-clearBoard" class="dialog" title="Clear Board?">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Do you really want to clear the board of all tiles?</p>
+</div>
 
 <!-- templates -->
 <script id="playerTemplate" type="text/template">
