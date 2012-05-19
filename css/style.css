@@ -137,7 +137,7 @@ header #mode_switch .selected:hover {
 #addTileType {
 	margin-bottom: 10px;
 }
-#tileChoices .tile {
+#board_design .tileType, #tileChoices .tile {
 	display: inline-block;
 	position: relative;
 	text-align: center;
@@ -147,7 +147,7 @@ header #mode_switch .selected:hover {
 	min-width: 70px;
 	cursor: pointer;
 }
-#tileChoices .tile .colorTile { 
+#board_design .tileType .colorTile, #tileChoices .tile .colorTile{ 
 	height: 50px; 
 	width: 50px; 
 	margin: 10px;

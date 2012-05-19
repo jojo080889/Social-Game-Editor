@@ -294,7 +294,7 @@ $(document).ready(function() {
 	});
 	var TileTypeView = Backbone.View.extend({
 		tagName: 'div',
-		className: "tile",
+		className: "tileType",
 		template: $("#tileTypeTemplate").html(),
 		events: {
 			"click span.delete": "remove"
@@ -403,7 +403,7 @@ $(document).ready(function() {
 	});
 	var TileView = Backbone.View.extend({
 		tagName: 'div',
-		className: "draggable ui-widget-content tile ui-draggable",
+		className: "tile",
 		template: $("#tileTemplate").html(),
 		events: {
 			"click": "showTileRules",
