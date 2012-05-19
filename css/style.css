@@ -251,6 +251,12 @@ header #mode_switch .selected:hover {
 	margin: 6px auto;
 	border-radius: 25px;
 }
+.pieceType img, .piece img {
+	height: 50px;
+}
+.pieceType p, .piece p {
+	margin: 6px auto;
+}
 #player_design .delete, #board_design .delete {
 	position: absolute;
 	color: red;

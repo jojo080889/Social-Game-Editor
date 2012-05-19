@@ -6,10 +6,10 @@ var players = [
 ];
 
 var pieceTypes = [
-	{name: "king", image: "images/pieces/2.png"},
-	{name: "queen", image: "images/pieces/1.png"},
-	{name: "knight", image: "images/pieces/3.png"},
-	{name: "pawn", image: "images/pieces/4.png"},
+	{name: "yellow", image: "images/pieces/yellow.png"},
+	{name: "blue", image: "images/pieces/blue.png"},
+	{name: "green", image: "images/pieces/green.png"},
+	{name: "red", image: "images/pieces/red.png"},
 	{name: "colorPiece", color: "yellow"}
 ];
 
