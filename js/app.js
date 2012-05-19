@@ -58,6 +58,17 @@ $(document).ready(function() {
 	/* Dialogs */
 	$("#new_pieceTypeColor").miniColors({readonly: true});
 	$("#new_tileTypeColor").miniColors({readonly: true});
+	
+	/* Testing */
+	$("#app_launch").click(function() {
+		createGameModelsFile(function() {launch("game_template");}); // generate components.js
+	});
+	$("#return_feed").click(function() {
+		var user = {name: "User 1", id: 0};
+		env.startInstance('view0', user, feed, "edu.stanford.mobisocial.dungbeetle");
+		user = {name: "User 2", id: 1};
+		env.startInstance('view1', user, feed, "edu.stanford.mobisocial.dungbeetle");
+	});
 });
 
 function changeGridSize() {
@@ -205,16 +216,6 @@ function switchTest() {
 		
  	env = new Musubi.Browser.Environment(new Musubi.Browser.InterFrameTransport('test'));
 	feed = {name: "Test", uri: "", session: "test", key: ""};
-
-	$("#app_launch").click(function() {
-		createGameModelsFile(function() {launch("game_template");}); // generate components.js
-	});
-	$("#return_feed").click(function() {
-		var user = {name: "User 1", id: 0};
-		env.startInstance('view0', user, feed, "edu.stanford.mobisocial.dungbeetle");
-		user = {name: "User 2", id: 1};
-		env.startInstance('view1', user, feed, "edu.stanford.mobisocial.dungbeetle");
-	});
 
 	$("#devices").empty();
 	test_user_count = 0;
