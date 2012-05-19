@@ -32,8 +32,7 @@
 	<script type="text/javascript" src="js/musubi/web_socket.js"> </script>
 	<script type="text/javascript" src="js/musubi/transport.js"> </script>
 	<script type="text/javascript" src="js/musubi/messageFormat.js"> </script>
-	<script type="text/javascript" src="js/lib/platforms/socialKit-browser.js"></script>	
-	<script type="text/javascript" src="js/test.js"></script>
+	<script type="text/javascript" src="js/lib/platforms/socialKit-browser.js"></script>
 	<link rel="stylesheet" href="css/test.css" type="text/css" />
 </head>
 
