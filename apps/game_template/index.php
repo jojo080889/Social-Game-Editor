@@ -77,7 +77,12 @@
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
-
+  <!-- moo4q -->
+  <script src="js/libs/mootools-1.2.4-base.js"></script>
+  <script src="js/libs/Class.Mutators.jQuery.js"></script>
+  <!-- custom Donburi classes -->
+  <script src="js/libs/donburi.js"></script>
+  
   <!-- scripts concatenated and minified via ant build script-->
   <script src="js/components.js?<?php echo time(); ?>"></script>
   <script src="js/script.js"></script>
