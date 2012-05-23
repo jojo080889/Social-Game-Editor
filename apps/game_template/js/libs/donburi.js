@@ -1,12 +1,13 @@
-/* CONSTANTS */
-var UP = 0;
-var LEFT = 1;
-var DOWN = 2;
-var RIGHT = 3;
-var UP_LEFT = 4;
-var DOWN_LEFT = 5;
-var DOWN_RIGHT = 6;
-var UP_RIGHT = 7;
+/* PATH CONSTANTS */
+var Path = {};
+Path.UP = 0;
+Path.LEFT = 1;
+Path.DOWN = 2;
+Path.RIGHT = 3;
+Path.UP_LEFT = 4;
+Path.DOWN_LEFT = 5;
+Path.DOWN_RIGHT = 6;
+Path.UP_RIGHT = 7;
 
 /* Game Class
  * Master class that controls game state.
@@ -17,17 +18,29 @@ var Game = new Class({
 		title: "title here",
 		players: null,
 		board: null,
-		pieces: null
+		pieces: null,
+		usePoints: false, // if true, use points
+		rollMin: 1,
+		rollMax: 6
 	},
 	jQuery: 'game', //namespace for new jquery method
 	initialize: function(selector, options) {
 		this.setOptions(options);
 		
 		this.playerNum = this.options.players.playerNum;
-		this.currentPlayer = Math.floor((Math.random()*this.playerNum)); // 0 to playerNum - 1
+		
+		// Set up current turn state tracker
+		this.current = {
+			player: Math.floor((Math.random()*this.playerNum)), // 0 to playerNum - 1
+			moveCount: null,
+			pieceToMove: null,
+			moveType: null
+		};
 		
 		this.render();
 	},
+	
+	/* UI */
 	render: function() {
 		this.fireEvent('start');
 		// Set title
@@ -36,7 +49,7 @@ var Game = new Class({
 
 		// Create players
 		this.options.players.render();
-		this.renderCurrentPlayer(this.currentPlayer);
+		this.renderCurrentPlayer(this.current.player);
 
 		// Create board
 		this.options.board.render();
@@ -46,10 +59,34 @@ var Game = new Class({
 		
 		// Set event handlers
 		this.bindActionHandlers();
-		//$(document).bind("orientationchange", function() { alert("hi") });
 	},
+	
+	/* Events */
+	onStart: function() {
+	},
+	onTurnStart: function() {
+	},
+	onMoveStart: function() {
+	},
+	onMoveEnd: function() {
+	},
+	onTurnEnd: function() {
+	},
+	onEnd: function() {
+	},
+	
+	/* Utility */
 	setTitle: function(newTitle) {
 		this.options.title = newTitle;
+	},
+	getPlayerById: function(players, id) {
+		for (var i = 0; i < players.length; i++) {
+			var curID = players[i].getID();
+			if (id == curID) {
+				return players[i];
+			}
+		}
+		return null;
 	},
 	
 	/* PLAYERS */
@@ -59,16 +96,16 @@ var Game = new Class({
 	},
 	changeToNextTurn: function() {
 		this.fireEvent('turnStart');
-		this.currentPlayer++;
-		if (this.currentPlayer == this.playerNum) { this.currentPlayer = 0; }
-		this.renderCurrentPlayer(this.currentPlayer);
+		this.current.player++;
+		if (this.current.player == this.playerNum) { this.current.player = 0; }
+		this.renderCurrentPlayer(this.current.player);
 	},
 
 	/* ACTIONS */
 	bindActionHandlers: function() {
 		var self = this;
 		$("#roll_move").click(function() {
-			self.startTurn();
+			self.turnStart();
 		});
 		
 		$("#skip_turn").click(function() {
@@ -77,11 +114,17 @@ var Game = new Class({
 	},
 	
 	/* GAME */
-	startTurn: function() {
+	start: function() {
+	
+	},
+	end: function() {
+	
+	},
+	turnStart: function() {
 		var self = this;
 		// get piece of current player
-		var pieceDiv = $("#piece" + (this.currentPlayer + 1));
-		var piece = this.options.pieces.getPiecesByPlayerID(this.currentPlayer)[0];
+		var pieceDiv = $("#piece" + (this.current.player + 1));
+		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
 
 		// pick random number
 		// TODO: Display on screen
@@ -93,6 +136,15 @@ var Game = new Class({
 			self.fireEvent('moveStart');
 			self.makeMove(pieceDiv, piece, diceResult);
 		});
+	},
+	moveStart: function() {
+	
+	},
+	move: function() {
+	
+	},
+	decideMove: function() {
+	
 	},
 	makeMove: function(pieceDiv, piece, moveCount) {
 		// TODO: handle multiple pieces
@@ -118,19 +170,19 @@ var Game = new Class({
 		var moveObj = {top: 0, left: 0};
 		
 		// update position
-		if (path == RIGHT || path == UP_RIGHT || path == DOWN_RIGHT) {
+		if (path == Path.RIGHT || path == Path.UP_RIGHT || path == Path.DOWN_RIGHT) {
 			curX++;
 			moveObj.left = horDistance + "px";
 		}
-		if (path == LEFT || path == UP_LEFT || path == DOWN_LEFT) {
+		if (path == Path.LEFT || path == Path.UP_LEFT || path == Path.DOWN_LEFT) {
 			curX--;
 			moveObj.left = "-" + horDistance + "px";
 		}
-		if (path == DOWN || path == DOWN_LEFT || path == DOWN_RIGHT) {
+		if (path == Path.DOWN || path == Path.DOWN_LEFT || path == Path.DOWN_RIGHT) {
 			curY++;
 			moveObj.top = verDistance + "px";
 		}
-		if (path == UP || path == UP_LEFT || path == UP_RIGHT) {
+		if (path == Path.UP || path == Path.UP_LEFT || path == Path.UP_RIGHT) {
 			curY--;
 			moveObj.top = "-" + verDistance + "px";
 		}
@@ -148,14 +200,39 @@ var Game = new Class({
 			self.makeMove(pieceDiv, piece, moveCount - 1);
 		});
 	},
-	getPlayerById: function(players, id) {
-		for (var i = 0; i < players.length; i++) {
-			var curID = players[i].getID();
-			if (id == curID) {
-				return players[i];
-			}
-		}
-		return null;
+	moveEnd: function() {
+	
+	},
+	turnEnd: function() {
+	
+	},
+	turnSetSkip: function(player, n) {
+	
+	},
+	turnSetAnother: function(player, n) {
+	
+	},
+	// Should these following events be in Slot?
+	disableLeaveEvent: function(slot, howLong) {
+	
+	},
+	disableLandEvent: function(slot, howLong) {
+	
+	},
+	enableLeaveEvent: function(slot, howLong) {
+	
+	},
+	enableLandEvent: function(slot, howLong) {
+	
+	},
+	undoTurn: function(n) {
+	
+	},
+	showChoice: function(msg, choices) {
+	
+	},
+	getActivePlayerCount: function() { // move to PlayerList?
+	
 	}
 });
 
@@ -166,13 +243,12 @@ var Player = new Class({
 	Implements: [Options, Events],
 	options: {
 		id: -1,
-		pointsAmt: 0,
-		pieces: null,
 		state: "playing" //"playing" | "won" | "lost"
 	},
 	jQuery: 'player', //namespace for new jquery method
 	initialize: function(selector, options) {
 		this.setOptions(options);
+		this.pointsAmt = 0;
 	},
 	piecesOnBoard: function() {
 	
@@ -182,6 +258,14 @@ var Player = new Class({
 	},
 	getID: function() {
 		return this.options.id;
+	},
+	getState: function() {
+		return this.options.state;
+	},
+	setState: function(state) {
+		if (state == "playing" || state == "won" || state == "lost") {
+			this.options.state = state;
+		}
 	}
 });
 
@@ -191,7 +275,7 @@ var Player = new Class({
 var Piece = new Class({
 	Implements: [Options, Events],
 	options: {
-		player: null, // ref to a player object
+		player: null, // ID of player object
 		state: "isOffBoard", // "isOnBoard" | "isOnBoard" | "isPermOffBoard"
 		positionX: -1,
 		positionY: -1,
@@ -205,10 +289,10 @@ var Piece = new Class({
 		this.setOptions(options);
 	},
 	getPlayer: function() {
-	
+		return this.options.player;
 	},
-	setPlayer: function() {
-	
+	setPlayer: function(newID) {
+		this.options.player = newID;
 	},
 	removeFromBoard: function(permanently) {
 	
@@ -254,13 +338,13 @@ var Board = new Class({
 	/* Event Handlers */
 	// master event functions that execute on EVERY
 	// slot land/leave/pass.
-	onLand: function() {
+	onLand: function(slot, piece, eventType) {
 	
 	},
-	onLeave: function() {
+	onLeave: function(slot, piece, eventType) {
 	
 	},
-	onPass: function() {
+	onPass: function(slot, piece, eventType) {
 	
 	},
 	
@@ -290,13 +374,13 @@ var Board = new Class({
 				// if first row or last row
 				if (i == 0 || i == (this.size - 1) || j == 0 || j == (this.size - 1)) {
 					if (i == 0 && j != 0) {
-						tile.path = LEFT;
+						tile.path = Path.LEFT;
 					} else if (j == 0 && i != (this.size - 1)) {
-						tile.path = DOWN;
+						tile.path = Path.DOWN;
 					} else if (i == (this.size - 1) && j != (this.size - 1)) {
-						tile.path = RIGHT;
+						tile.path = Path.RIGHT;
 					} else if (j == (this.size - 1) && i != 0) {
-						tile.path = UP;
+						tile.path = Path.UP;
 					}
 				}
 				this.slots[i][j] = tile;
