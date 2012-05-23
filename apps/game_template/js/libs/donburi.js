@@ -311,6 +311,54 @@ var Piece = new Class({
 	}
 });
 
+/* Slot Class 
+ * Represents a single slot on the board.
+ */
+var Slot = new Class({
+	Implements: [Options, Events],
+	options: {
+		path: null,
+		type: ""
+	},
+	jQuery: 'slot',
+	initialize: function(selector, options) {
+	
+	},
+	
+	/* UI */
+	render: function() {
+	
+	},
+	
+	/* Events */
+	onLand: function(piece, eventType) {
+	
+	},
+	onLeave: function(piece, eventType) {
+	
+	},
+	onPass: function(piece, eventType) {
+	
+	},
+	
+	/* Utility */
+	getPath: function() {
+		return this.options.path;
+	},
+	setPath: function(newPath) {
+		this.options.path = newPath;
+	},
+	getPieces: function() {
+	
+	},
+	showPathPicker: function() {
+	
+	},
+	showPiecePicker: function(types) {
+	
+	}
+});
+
 /* Board Class
  * Class represents the game board
  */
