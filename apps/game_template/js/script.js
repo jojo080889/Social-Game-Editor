@@ -1,23 +1,49 @@
 /* GAME VARIABLES */
-//var title = "My Donburi Game";
 var game;
 
-//var playerNum = data.players.length;//Math.floor((Math.random()*3) + 2);
-//var currentPlayer = Math.floor((Math.random()*playerNum)); // 0 to playerNum - 1
-
-//var boardState = data.board.board;
-//var size = boardState.length;//Math.floor((Math.random()*10)+3);
-//getBoardStateObj();
-//var boardState = getBoardStateObj();
-
-//var pieces = data.pieces.pieces;
-//var piecesState = getPiecesStateObj();
-
 $(document).ready(function() {
+	// convert data.players into Player Classes
+	var players = new Array();
+	for (var i = 0; i < data.players.length; i++) {
+		players.push(new Player(null, {
+			id: data.players[i].id
+		}));
+	}
+	
+	// convert data.pieces into Piece Classes
+	var pieces = new Array();
+	for (var i = 0; i < data.pieces.pieces.length; i++) {
+		pieces.push(new Piece(null, {
+			image: data.pieces.pieces[i].image,
+			player: data.pieces.pieces[i].player,
+			type: data.pieces.pieces[i].type,
+			positionX: 0,
+			positionY: 0
+		}));
+	}
+	
 	game = new Game(null, {
 		title: "My Donburi Game",
-		players: data.players,
-		board: data.board.board,
-		pieces: data.pieces.pieces
+		players: new PlayerList(null, {players: players}),
+		board: new Board(null, {tiles: data.board.board}),
+		pieces: new PieceList(null, {pieces: pieces}),
+		onStart: function() {
+			alert("onStart");
+		},
+		onTurnStart: function() {
+			alert("onTurnStart");
+		},
+		onMoveStart: function() {
+			alert("onMoveStart");
+		},
+		onMoveEnd: function() {
+			alert("onMoveEnd");
+		},
+		onTurnEnd: function() {
+			alert("onTurnEnd");
+		},
+		onEnd: function() {
+			alert("onEnd");
+		}
 	});
 });

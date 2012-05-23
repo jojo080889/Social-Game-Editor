@@ -119,6 +119,7 @@ function getPiecesJSON() {
 			var obj = {};
 			obj.player = pieces[key].player;
 			var pieceInfo = getPieceTypeInfo(pieces[key].type);
+			obj.type = pieces[key].type;
 			if (typeof(pieceInfo.color) != "undefined") {
 				obj.color = pieceInfo.color;
 			} else {

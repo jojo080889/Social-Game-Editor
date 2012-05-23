@@ -12,7 +12,7 @@ var UP_RIGHT = 7;
  * Master class that controls game state.
  */
 var Game = new Class({
-	Implements: Options,
+	Implements: [Options, Events],
 	options: {
 		title: "title here",
 		players: null,
@@ -23,33 +23,26 @@ var Game = new Class({
 	initialize: function(selector, options) {
 		this.setOptions(options);
 		
-		this.playerNum = this.options.players.length;
+		this.playerNum = this.options.players.playerNum;
 		this.currentPlayer = Math.floor((Math.random()*this.playerNum)); // 0 to playerNum - 1
-		
-		this.boardSize = this.options.board.length;
-		this.getBoardStateObj(this.boardSize, this.options.board);
-		
-		this.piecesState = this.getPiecesStateObj(this.options.pieces);
 		
 		this.render();
 	},
 	render: function() {
+		this.fireEvent('start');
 		// Set title
 		$("title").html(this.options.title);
 		$("header h1").html(this.options.title);
 
 		// Create players
-		$("#players").append($(this.generatePlayers(this.playerNum)));
+		this.options.players.render();
+		this.renderCurrentPlayer(this.currentPlayer);
 
 		// Create board
-		$("#board-container").append($(this.generateGrid(this.boardSize, this.options.board)));
-		this.adjustGrid(this.boardSize);
-		
-		// Set current player
-		this.setCurrentPlayer(this.currentPlayer);
+		this.options.board.render();
 		
 		// Create pieces and place in correct positions
-		this.createPieces(this.piecesState);
+		this.options.pieces.render();
 		
 		// Set event handlers
 		this.bindActionHandlers();
@@ -58,152 +51,18 @@ var Game = new Class({
 	setTitle: function(newTitle) {
 		this.options.title = newTitle;
 	},
-	/* BOARD */
-	/* Format: Array of arrays (rows and columns). Each array slot has a JS object that contains 
-	 * { slot: (true or false), path: (a constant indicating a direction), rules: (format TBD) }
-	 */
-	getBoardStateObj: function(size, boardState) {
-		for (var i = 0; i < size; i++) {
-			for (var j = 0; j < size; j++) {
-				// Create a simple circuit board
-				var tile = boardState[i][j];
-				if (typeof(tile) == 'undefined' && tile == null) {
-					tile = {};
-				}
-				// if first row or last row
-				if (i == 0 || i == (size - 1) || j == 0 || j == (size - 1)) {
-					if (i == 0 && j != 0) {
-						tile.path = LEFT;
-					} else if (j == 0 && i != (size - 1)) {
-						tile.path = DOWN;
-					} else if (i == (size - 1) && j != (size - 1)) {
-						tile.path = RIGHT;
-					} else if (j == (size - 1) && i != 0) {
-						tile.path = UP;
-					}
-				} 
-			}
-		}
-	},
-	generateGrid: function(size, boardState) {
-		var html = "<div id='board'>";
-		for (var i = 0; i < size; i++) {
-			html += "<div class='row'>";
-			for (var j = 0; j < size; j++) {
-				var boardSlot = boardState[i][j];
-				if (typeof(boardSlot.color) !== 'undefined' && boardSlot.color !== null) {
-					html += "<div class='slot' style='background: " + boardSlot.color + "'></div>";
-				} else {
-					html += "<div class='slot'></div>";
-				}
-			}
-			html += "</div>";
-		}
-		html += "</div>";
-		return html;
-	},
-	adjustGrid: function(size) {
-		// adjust square and board sizes to fit on screen
-		var totalWidth = $(window).width();
-		var totalHeight = $(window).height() - $("#actions").outerHeight() - 
-			$("#players").outerHeight() - $("header h1").outerHeight() - 30; // add some buffer space
-		if (totalHeight < totalWidth) {
-			totalWidth = totalHeight;
-		}
-		var maxBoxWidth = Math.floor(totalWidth / size);
-		boxWidth = maxBoxWidth - (2 * parseInt($(".slot").css("borderWidth")));
-		$(".slot").css("width", boxWidth).css("height", boxWidth);
-		
-		var boardWidth = maxBoxWidth * size;
-		$("#board").css("width", boardWidth).css("height", boardWidth);
-	},
+	
 	/* PLAYERS */
-	generatePlayers: function(number) {
-		// TODO actually get points
-		var pointsExistIndex = Math.floor((Math.random()*2));
-		var pointsExist = [true,false][pointsExistIndex];
-		console.log(pointsExistIndex);
-
-		var html = "<ul>";
-		for (var i = 0; i < number; i++) {
-			html += "<li class='player'>";
-			html += "<p><span class='player" + (i + 1) + "'></span>Player " + (i+1) + "</p>";
-			
-			// Check if there are points, and set points
-			if (pointsExist) {
-				html += "<p class='points'>0</p>";
-			}
-			html += "<p class='player-status'></p>";
-			html += "</li>";
-		}
-		html += "</ul>";
-		return html;
-	},
-	setCurrentPlayer: function(number) {
+	renderCurrentPlayer: function(number) {
 		$(".player-status").removeClass("active");
 		$($(".player")[number]).find(".player-status").addClass("active");
 	},
 	changeToNextTurn: function() {
+		this.fireEvent('turnStart');
 		this.currentPlayer++;
 		if (this.currentPlayer == this.playerNum) { this.currentPlayer = 0; }
-		this.setCurrentPlayer(this.currentPlayer);
+		this.renderCurrentPlayer(this.currentPlayer);
 	},
-	/* PIECES */
-	/* Format: Array of array where outer index corresponds to player number. Array slots contain
-	 * {x: (x position on board) and y: (y position on board) }
-	 * TODO move this into app.js
-	 */
-	getPiecesStateObj: function(pieces) {
-		var allPieces = new Array();
-		for (var i = 0; i < pieces.length; i++) {
-			var piece = pieces[i];
-			var playerIndex = piece.player;
-			var playerPieces = allPieces[playerIndex];
-			var mustPush = false;
-			if (typeof(playerPieces) == 'undefined' && playerPieces == null) {
-				playerPieces = new Array();
-				mustPush = true;
-			}
-			//var x = Math.floor(Math.random()*size); // random position of pieces
-			//var y = Math.floor(Math.random()*size);
-			var x = 0;
-			var y = 0;
-			piece.x = x;
-			piece.y = y;
-			playerPieces.push(piece);
-			
-			if (mustPush) {
-				allPieces[playerIndex] = playerPieces;
-			}
-		}
-		return allPieces;
-	},
-
-	/* Based on pieces state, place pieces on board */
-	createPieces: function(piecesState) {
-		for (var i = 0; i < piecesState.length; i++) {
-			/*for (var j = 0; j < piecesState[i].length; j++) {
-				var p = piecesState[i][j];
-				// find the right slot
-				var slot = $($($("#board .row")[p.y]).find(".slot")[p.x]);
-				slot.append($("<div class='piece player" + (i + 1) + "' id='piece" + (i + 1) + "'></div>"));
-			}*/
-			// Only do first piece for each player
-			var p = piecesState[i][0];
-			var slot = $($($("#board .row")[p.y]).find(".slot")[p.x]);
-			var piece;
-			if (typeof(p.color) == undefined || p.color == null) {
-				// the piece is an image
-				piece = $("<div class='piece imagePiece' id='piece" + (i + 1) + "'><img src='" + p.image + "' /></div>");
-			} else {
-				// the piece is just a color
-				piece = $("<div class='piece colorPiece' id='piece" + (i + 1) + "' style='background: " + p.color + "'></div>");
-			}
-			slot.append(piece);
-		}
-	},
-
-
 
 	/* ACTIONS */
 	bindActionHandlers: function() {
@@ -216,11 +75,13 @@ var Game = new Class({
 			self.changeToNextTurn();
 		});
 	},
+	
+	/* GAME */
 	startTurn: function() {
 		var self = this;
 		// get piece of current player
 		var pieceDiv = $("#piece" + (this.currentPlayer + 1));
-		var pieceState = this.piecesState[this.currentPlayer];
+		var piece = this.options.pieces.getPiecesByPlayerID(this.currentPlayer)[0];
 
 		// pick random number
 		// TODO: Display on screen
@@ -229,17 +90,20 @@ var Game = new Class({
 		$("#move-result-num").html(diceResult);
 		$("#move-result").show("fast").delay(1000).hide("fast", 
 		function() {
-			self.makeMove(pieceDiv, pieceState[0], diceResult);
+			self.fireEvent('moveStart');
+			self.makeMove(pieceDiv, piece, diceResult);
 		});
 	},
-	makeMove: function(pieceDiv, position, moveCount) {
+	makeMove: function(pieceDiv, piece, moveCount) {
 		// TODO: handle multiple pieces
-		var curX = position.x;
-		var curY = position.y;
+		var curX = piece.options.positionX;
+		var curY = piece.options.positionY;
 		
 		if (moveCount == 0) {
-			this.piecesState[this.currentPlayer][0].x = curX;
-			this.piecesState[this.currentPlayer][0].y = curY;	
+			piece.options.positionX = curX;
+			piece.options.positionY = curY;
+			this.fireEvent('moveEnd');
+			this.fireEvent('turnEnd');
 			// Change turn to next player
 			this.changeToNextTurn();
 			return;
@@ -248,7 +112,7 @@ var Game = new Class({
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 
 		// get path of current square
-		var path = this.options.board[curY][curX].path; // row first
+		var path = this.options.board.slots[curY][curX].path; // row first
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
 		var moveObj = {top: 0, left: 0};
@@ -274,14 +138,295 @@ var Game = new Class({
 
 		var self = this;
 		var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
-		position.x = curX;
-		position.y = curY;
+		piece.options.positionX = curX;
+		piece.options.positionY = curY;
 		sourceSlot.addClass("slot-moving");
 		pieceDiv.addClass("piece-moving")
 		.animate(moveObj, 1000, function() { 
 			$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
 			sourceSlot.removeClass("slot-moving");
-			self.makeMove(pieceDiv, position, moveCount - 1);
+			self.makeMove(pieceDiv, piece, moveCount - 1);
 		});
+	},
+	getPlayerById: function(players, id) {
+		for (var i = 0; i < players.length; i++) {
+			var curID = players[i].getID();
+			if (id == curID) {
+				return players[i];
+			}
+		}
+		return null;
+	}
+});
+
+/* Player Class
+ * Class represents each player
+ */
+var Player = new Class({
+	Implements: [Options, Events],
+	options: {
+		id: -1,
+		pointsAmt: 0,
+		pieces: null,
+		state: "playing" //"playing" | "won" | "lost"
+	},
+	jQuery: 'player', //namespace for new jquery method
+	initialize: function(selector, options) {
+		this.setOptions(options);
+	},
+	piecesOnBoard: function() {
+	
+	},
+	showPiecePicker: function() {
+	
+	},
+	getID: function() {
+		return this.options.id;
+	}
+});
+
+/* Piece Class
+ * Class represents a game piece
+ */
+var Piece = new Class({
+	Implements: [Options, Events],
+	options: {
+		player: null, // ref to a player object
+		state: "isOffBoard", // "isOnBoard" | "isOnBoard" | "isPermOffBoard"
+		positionX: -1,
+		positionY: -1,
+		validMoves: "followPath", //TODO extend this
+		image: null,
+		color: null,
+		type: null
+	},
+	jQuery: 'piece', //namespace for new jquery method
+	initialize: function(selector, options) {
+		this.setOptions(options);
+	},
+	getPlayer: function() {
+	
+	},
+	setPlayer: function() {
+	
+	},
+	removeFromBoard: function(permanently) {
+	
+	},
+	addToBoard: function(positionX, positionY) {
+	
+	},
+	getPosition: function() {
+	
+	},
+	setPosition: function(positionX, positionY) {
+	
+	},
+	isOnBoard: function() {
+	
+	}
+});
+
+/* Board Class
+ * Class represents the game board
+ */
+var Board = new Class({
+	Implements: [Options, Events],
+	options: {
+		tiles: null // Array of Array of objects representing tile appearance
+	},
+	jQuery: 'board', //namespace for new jquery method
+	initialize: function(selector, options) {
+		this.setOptions(options);
+		this.size = this.options.tiles.length; // TODO Assumes a square
+		this.slots = this.initBoardSlots(); //Array of Array of Slot Objects
+		
+		// set up path
+		this.initBoardPath();
+	},
+	
+	/* UI */
+	render: function (){
+		$("#board-container").append($(this.generateGrid()));
+		this.adjustGrid();
+	},
+	
+	/* Event Handlers */
+	// master event functions that execute on EVERY
+	// slot land/leave/pass.
+	onLand: function() {
+	
+	},
+	onLeave: function() {
+	
+	},
+	onPass: function() {
+	
+	},
+	
+	/* Utility */
+	initBoardSlots: function() {
+		var slots = [];
+		for (var i = 0; i < this.size; i++) {
+			var row = new Array();
+			for (var j = 0; j < this.size; j++) {
+				row.push(null);
+			}
+			slots.push(row);
+		}
+		return slots;
+	},
+	/* Format: Array of arrays (rows and columns). Each array slot has a JS object that contains 
+	 * { slot: (true or false), path: (a constant indicating a direction), rules: (format TBD) }
+	 */
+	initBoardPath: function() {
+		for (var i = 0; i < this.size; i++) {
+			for (var j = 0; j < this.size; j++) {
+				// Create a simple circuit board
+				var tile = this.slots[i][j];
+				if (typeof(tile) == 'undefined' || tile == null) {
+					tile = {};
+				}
+				// if first row or last row
+				if (i == 0 || i == (this.size - 1) || j == 0 || j == (this.size - 1)) {
+					if (i == 0 && j != 0) {
+						tile.path = LEFT;
+					} else if (j == 0 && i != (this.size - 1)) {
+						tile.path = DOWN;
+					} else if (i == (this.size - 1) && j != (this.size - 1)) {
+						tile.path = RIGHT;
+					} else if (j == (this.size - 1) && i != 0) {
+						tile.path = UP;
+					}
+				}
+				this.slots[i][j] = tile;
+			}
+		}
+	},
+	generateGrid: function() {
+		var html = "<div id='board'>";
+		for (var i = 0; i < this.size; i++) {
+			html += "<div class='row'>";
+			for (var j = 0; j < this.size; j++) {
+				var boardTile = this.options.tiles[i][j];
+				if (typeof(boardTile.color) !== 'undefined' && boardTile.color !== null) {
+					html += "<div class='slot' style='background: " + boardTile.color + "'></div>";
+				} else {
+					html += "<div class='slot'></div>";
+				}
+			}
+			html += "</div>";
+		}
+		html += "</div>";
+		return html;
+	},
+	adjustGrid: function() {
+		// adjust square and board sizes to fit on screen
+		var totalWidth = $(window).width();
+		var totalHeight = $(window).height() - $("#actions").outerHeight() - 
+			$("#players").outerHeight() - $("header h1").outerHeight() - 30; // add some buffer space
+		if (totalHeight < totalWidth) {
+			totalWidth = totalHeight;
+		}
+		var maxBoxWidth = Math.floor(totalWidth / this.size);
+		boxWidth = maxBoxWidth - (2 * parseInt($(".slot").css("borderWidth")));
+		$(".slot").css("width", boxWidth).css("height", boxWidth);
+		
+		var boardWidth = maxBoxWidth * this.size;
+		$("#board").css("width", boardWidth).css("height", boardWidth);
+	},
+	getSize: function() {
+		return this.size;
+	}
+});
+
+/*-----------------------*/
+/* PlayerList Class
+ * Class represents all the players in the game
+ */
+var PlayerList = new Class({
+	Implements: [Options, Events],
+	options: {
+		players: null //Array of Player Objects
+	},
+	jQuery: 'playerList', //namespace for new jquery method
+	initialize: function(selector, options) {
+		this.setOptions(options);
+		this.playerNum = this.options.players.length;
+	},
+	
+	/* UI */
+	render: function (){
+		$("#players").append($(this.generatePlayers()));
+	},
+	generatePlayers: function() {
+		// TODO actually get points
+		var pointsExistIndex = Math.floor((Math.random()*2));
+		var pointsExist = [true,false][pointsExistIndex];
+		console.log(pointsExistIndex);
+
+		var html = "<ul>";
+		for (var i = 0; i < this.playerNum; i++) {
+			html += "<li class='player'>";
+			html += "<p><span class='player" + (i + 1) + "'></span>Player " + (i+1) + "</p>";
+			
+			// Check if there are points, and set points
+			if (pointsExist) {
+				html += "<p class='points'>0</p>";
+			}
+			html += "<p class='player-status'></p>";
+			html += "</li>";
+		}
+		html += "</ul>";
+		return html;
+	}
+});
+
+/* PieceList Class
+ * Class represents all the pieces in the game
+ */
+var PieceList = new Class({
+	Implements: [Options, Events],
+	options: {
+		pieces: null //Array of Piece Objects
+	},
+	jQuery: 'pieceList', //namespace for new jquery method
+	initialize: function(selector, options) {
+		this.setOptions(options);
+		this.piecesNum = this.options.pieces.length;
+	},
+	
+	/* UI */
+	render: function (){
+		this.createPieces();
+	},
+	
+	/* Utility */
+	/* Based on pieces state, place pieces on board */
+	createPieces: function() {
+		for (var i = 0; i < this.piecesNum; i++) {
+			// Only do first piece for each player
+			var p = this.options.pieces[i].options;
+			var slot = $($($("#board .row")[p.positionY]).find(".slot")[p.positionX]);
+			var piece;
+			if (typeof(p.color) == undefined || p.color == null) {
+				// the piece is an image
+				piece = $("<div class='piece imagePiece' id='piece" + (i + 1) + "'><img src='" + p.image + "' /></div>");
+			} else {
+				// the piece is just a color
+				piece = $("<div class='piece colorPiece' id='piece" + (i + 1) + "' style='background: " + p.color + "'></div>");
+			}
+			slot.append(piece);
+		}
+	},
+	getPiecesByPlayerID: function(player) {
+		var playerPieces = new Array();
+		for (var i = 0; i < this.piecesNum; i++) {
+			var p = this.options.pieces[i].options;
+			if (p.player == player) {
+				playerPieces.push(this.options.pieces[i]);
+			}
+		}
+		return playerPieces;
 	}
 });
