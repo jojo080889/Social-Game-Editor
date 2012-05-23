@@ -151,6 +151,7 @@ function getBoardJSON() {
 		obj.paths = tile.paths;
 		
 		var tileInfo = getTileTypeInfo(tile.get("type"));
+		obj.type = tile.get("type");
 		if (typeof(tileInfo.color) != "undefined" || tileInfo.color == null) {
 			obj.color = tileInfo.color;
 		} else {

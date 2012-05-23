@@ -164,7 +164,7 @@ var Game = new Class({
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 
 		// get path of current square
-		var path = this.options.board.slots[curY][curX].path; // row first
+		var path = this.options.board.slots[curY][curX].options.path; // row first
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
 		var moveObj = {top: 0, left: 0};
@@ -402,7 +402,13 @@ var Board = new Class({
 		for (var i = 0; i < this.size; i++) {
 			var row = new Array();
 			for (var j = 0; j < this.size; j++) {
-				row.push(null);
+				var tileType = "";
+				if (typeof(this.options.tiles[i][j].length) == "undefined") { // TODO hacky
+					tileType = this.options.tiles[i][j].type;
+				}
+				var slot = new Slot(null, null);
+				slot.options.type = tileType;
+				row.push(slot);
 			}
 			slots.push(row);
 		}
@@ -416,22 +422,18 @@ var Board = new Class({
 			for (var j = 0; j < this.size; j++) {
 				// Create a simple circuit board
 				var tile = this.slots[i][j];
-				if (typeof(tile) == 'undefined' || tile == null) {
-					tile = {};
-				}
 				// if first row or last row
 				if (i == 0 || i == (this.size - 1) || j == 0 || j == (this.size - 1)) {
 					if (i == 0 && j != 0) {
-						tile.path = Path.LEFT;
+						tile.options.path = Path.LEFT;
 					} else if (j == 0 && i != (this.size - 1)) {
-						tile.path = Path.DOWN;
+						tile.options.path = Path.DOWN;
 					} else if (i == (this.size - 1) && j != (this.size - 1)) {
-						tile.path = Path.RIGHT;
+						tile.options.path = Path.RIGHT;
 					} else if (j == (this.size - 1) && i != 0) {
-						tile.path = Path.UP;
+						tile.options.path = Path.UP;
 					}
 				}
-				this.slots[i][j] = tile;
 			}
 		}
 	},
