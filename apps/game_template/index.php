@@ -40,8 +40,9 @@
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
   <!-- jquery mobile -->
+  <link rel="stylesheet" href="css/themes/donburi.css" />
   <link rel="stylesheet" href="css/jquery.mobile.structure-1.1.0.css" />
-  <link rel="stylesheet" type="text/css" href="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog.min.css" /> 
+  <link rel="stylesheet" type="text/css" href="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog.css" /> 
   <!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
   <script src="js/libs/modernizr-2.0.6.min.js"></script>
 </head>
@@ -76,6 +77,8 @@
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
+  <script src="js/libs/jquery.mobile-1.1.0.js"></script>
+  <script type="text/javascript" src="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog2.js"></script>
   <!-- moo4q -->
   <script src="js/libs/mootools-1.2.4-base.js"></script>
   <script src="js/libs/Class.Mutators.jQuery.js"></script>
@@ -83,12 +86,9 @@
   <script src="js/libs/donburi.js"></script>
   
   <!-- scripts concatenated and minified via ant build script-->
-  <script src="js/components.js?<?php echo time(); ?>"></script>
+  <script src="js/components.js?<?php echo time(); ?>"></script> <!-- time added to prevent caching -->
   <script src="js/script.js"></script>
   <script src="js/helper.js"></script>
-  
-  <script src="js/libs/jquery.mobile-1.1.0.js"></script>
-  <script type="text/javascript" src="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog2.min.js"></script>
   <!-- end scripts-->
 
   <!-- Debugger - remove for production -->

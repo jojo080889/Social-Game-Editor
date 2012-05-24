@@ -163,7 +163,6 @@ var Game = new Class({
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
 		var moveObj = {top: 0, left: 0};
-		
 		// update position
 		if (path == Path.RIGHT || path == Path.UP_RIGHT || path == Path.DOWN_RIGHT) {
 			curX++;
@@ -182,15 +181,17 @@ var Game = new Class({
 			moveObj.top = "-" + verDistance + "px";
 		}
 		console.log("roll:" + moveCount + ", path:" + path + ", position:" + curX + " " + curY + ", move:" + moveObj.left + " " + moveObj.top);
-
 		var self = this;
 		var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 		sourceSlot.addClass("slot-moving");
 		pieceDiv.addClass("piece-moving")
-		.animate(moveObj, 1000, function() { 
-			$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
-			sourceSlot.removeClass("slot-moving");
-			self.makeMove(pieceDiv, piece, curX, curY, moveCount - 1);
+		.animate(moveObj, {
+			duration: 1000, 
+			complete: function() { 
+				$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
+				sourceSlot.removeClass("slot-moving");
+				self.makeMove(pieceDiv, piece, curX, curY, moveCount - 1);
+			}
 		});
 	},
 	moveEnd: function(piece, curX, curY) {
@@ -333,10 +334,10 @@ var Piece = new Class({
 		this.pieceDiv;
 		if (typeof(p.color) == undefined || p.color == null) {
 			// the piece is an image
-			this.pieceDiv = $("<div class='piece imagePiece' id='piece" + (i + 1) + "'><img src='" + p.image + "' /></div>");
+			this.pieceDiv = $("<div class='piece imagePiece' id='piece" + (this.options.player + 1) + "'><img src='" + p.image + "' /></div>");
 		} else {
 			// the piece is just a color
-			this.pieceDiv = $("<div class='piece colorPiece' id='piece" + (i + 1) + "' style='background: " + p.color + "'></div>");
+			this.pieceDiv = $("<div class='piece colorPiece' id='piece" + (this.options.player + 1) + "' style='background: " + p.color + "'></div>");
 		}
 		return this.pieceDiv;
 	},
