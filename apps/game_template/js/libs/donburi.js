@@ -8,6 +8,26 @@ Path.UP_LEFT = 4;
 Path.DOWN_LEFT = 5;
 Path.DOWN_RIGHT = 6;
 Path.UP_RIGHT = 7;
+Path.toString = function(path) {
+	switch (path) {
+		case Path.UP:
+			return "Up";
+		case Path.LEFT:
+			return "Left";
+		case Path.DOWN:
+			return "Down";
+		case Path.RIGHT:
+			return "Right";
+		case Path.UP_LEFT:
+			return "Up left";
+		case Path.DOWN_LEFT:
+			return "Down left";
+		case Path.DOWN_RIGHT:
+			return "Down right";
+		case Path.UP_RIGHT:
+			return "Up right";
+	}
+}
 
 /* Game Class
  * Master class that controls game state.
@@ -118,8 +138,38 @@ var Game = new Class({
 		this.current.moveCount = null;
 		this.current.pieceToMove = null;
 		this.current.moveType = null;
-		this.current.player++;
-		if (this.current.player == this.playerNum) { this.current.player = 0; }
+		
+		// first check to see if current player gets another turn
+		var curPlayerObj = game.options.players.getPlayerByID(this.current.player);
+		if (curPlayerObj.options.moreTurnNum > 0) {
+			curPlayerObj.options.moreTurnNum--;
+			// show notice
+			$("#game-message").html("<b>Player " + (this.current.player + 1) + "</b> gets another turn!");
+			$("#game-message").show("fast").delay(1000).hide("fast");
+		} else { // if they're out of turns, move to the next player
+			this.current.player++;
+			if (this.current.player == this.playerNum) { 
+				this.current.player = 0; 
+			}
+			curPlayerObj = game.options.players.getPlayerByID(this.current.player);
+			
+			// check if new player needs to skip their turn
+			while (curPlayerObj.options.skipTurnNum > 0) {
+				// show notice
+				$("#game-message").html("<b>Player " + (this.current.player + 1) + "'s</b> turn is skipped. Sorry!");
+				$("#game-message").show("fast").delay(1000).hide("fast");
+			
+				if (curPlayerObj.options.skipTurnNum > 0) {
+					curPlayerObj.options.skipTurnNum--;
+				}
+				// move to next player
+				this.current.player++;
+				if (this.current.player == this.playerNum) { 
+					this.current.player = 0; 
+				}
+				curPlayerObj = game.options.players.getPlayerByID(this.current.player);
+			}
+		} 
 		this.renderCurrentPlayer(this.current.player);
 		
 		this.fireEvent('turnStart');
@@ -127,7 +177,7 @@ var Game = new Class({
 	moveStart: function() {
 		var self = this;
 		// get piece of current player
-		var pieceDiv = $("#piece" + (this.current.player + 1));
+		//var pieceDiv = $("#piece" + (this.current.player + 1));
 		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
 
 		// TODO: handle multiple pieces
@@ -135,11 +185,12 @@ var Game = new Class({
 		var curY = piece.getPositionY();
 
 		var diceResult = this.decideMove();
+		this.current.moveCount = diceResult;
 		$("#move-result-num").html(diceResult);
 		$("#move-result").show("fast").delay(1000).hide("fast", 
 		function() {
 			self.fireEvent('moveStart');
-			self.makeMove(pieceDiv, piece, curX, curY, diceResult);
+			self.makeMove(piece, curX, curY, diceResult);
 		});
 	},
 	decideMove: function() {
@@ -148,7 +199,8 @@ var Game = new Class({
 		var diceResult = Math.floor((Math.random()*this.options.rollMax) + this.options.rollMin); // 1 through 6
 		return diceResult;
 	},
-	makeMove: function(pieceDiv, piece, curX, curY, moveCount) {
+	makeMove: function(piece, curX, curY, moveCount) {
+		var pieceDiv = piece.pieceDiv;
 		if (moveCount == 0) {
 			this.moveEnd(piece, curX, curY);
 			return;
@@ -164,35 +216,39 @@ var Game = new Class({
 		var horDistance = sourceSlot.outerWidth();
 		var moveObj = {top: 0, left: 0};
 		// update position
-		if (path == Path.RIGHT || path == Path.UP_RIGHT || path == Path.DOWN_RIGHT) {
-			curX++;
-			moveObj.left = horDistance + "px";
-		}
-		if (path == Path.LEFT || path == Path.UP_LEFT || path == Path.DOWN_LEFT) {
-			curX--;
-			moveObj.left = "-" + horDistance + "px";
-		}
-		if (path == Path.DOWN || path == Path.DOWN_LEFT || path == Path.DOWN_RIGHT) {
-			curY++;
-			moveObj.top = verDistance + "px";
-		}
-		if (path == Path.UP || path == Path.UP_LEFT || path == Path.UP_RIGHT) {
-			curY--;
-			moveObj.top = "-" + verDistance + "px";
-		}
-		console.log("roll:" + moveCount + ", path:" + path + ", position:" + curX + " " + curY + ", move:" + moveObj.left + " " + moveObj.top);
-		var self = this;
-		var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
-		sourceSlot.addClass("slot-moving");
-		pieceDiv.addClass("piece-moving")
-		.animate(moveObj, {
-			duration: 1000, 
-			complete: function() { 
-				$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
-				sourceSlot.removeClass("slot-moving");
-				self.makeMove(pieceDiv, piece, curX, curY, moveCount - 1);
+		if (path == null) {
+			// stop automatically
+			self.makeMove(piece, curX, curY, 0);
+		} else {
+			if (path == Path.RIGHT || path == Path.UP_RIGHT || path == Path.DOWN_RIGHT) {
+				curX++;
+				moveObj.left = horDistance + "px";
 			}
-		});
+			if (path == Path.LEFT || path == Path.UP_LEFT || path == Path.DOWN_LEFT) {
+				curX--;
+				moveObj.left = "-" + horDistance + "px";
+			}
+			if (path == Path.DOWN || path == Path.DOWN_LEFT || path == Path.DOWN_RIGHT) {
+				curY++;
+				moveObj.top = verDistance + "px";
+			}
+			if (path == Path.UP || path == Path.UP_LEFT || path == Path.UP_RIGHT) {
+				curY--;
+				moveObj.top = "-" + verDistance + "px";
+			}
+			var self = this;
+			var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
+			sourceSlot.addClass("slot-moving");
+			pieceDiv.addClass("piece-moving")
+			.animate(moveObj, {
+				duration: 1000, 
+				complete: function() { 
+					$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
+					sourceSlot.removeClass("slot-moving");
+					self.makeMove(piece, curX, curY, moveCount - 1);
+				}
+			});
+		}
 	},
 	moveEnd: function(piece, curX, curY) {
 		piece.setPosition(curX, curY);
@@ -233,27 +289,19 @@ var Game = new Class({
 	undoTurn: function(n) {
 		// Hm... there's probably a better way to do things than use this
 	},
+	// choices is an Array of {"choice": string, "function": function} objects
 	showChoice: function(msg, choices) {
+		var buttons = {};
+		for (var i = 0; i < choices.length; i++) {
+			var button = {};
+			button.click = choices[i]["function"];
+			buttons[choices[i].choice] = button;
+		}
 		$('<div>').simpledialog2({
 			mode: 'button',
-			headerText: msg,
-			headerClose: true, 
 			dialogForce:true,
-			buttonPrompt: 'Please Choose One',
-			buttons : {
-			  'OK': {
-				click: function () { 
-				  $('#buttonoutput').text('OK');
-				}
-			  },
-			  'Cancel': {
-				click: function () { 
-				  $('#buttonoutput').text('Cancel');
-				},
-				icon: "delete",
-				theme: "c"
-			  }
-			}
+			buttonPrompt: msg,
+			buttons : buttons
 		});	
 	}
 });
@@ -434,11 +482,11 @@ var Slot = new Class({
 	getPieces: function() {
 		return game.options.pieces.getPiecesByPosition(this.options.positionX, this.options.positionY);
 	},
-	showPathPicker: function() {
-		showThePathPicker("Choose where to move next:");
+	showPathPicker: function(paths) {
+		showThePathPicker("Choose where to move next:", paths);
 	},
 	showPiecePicker: function(types) {
-		showThePiecePicker("Choose which piece to move");
+		showThePiecePicker("Choose which piece to move", types);
 	}
 });
 
@@ -628,27 +676,23 @@ var PieceList = new Class({
  * Given an array of ints (paths), have the user choose between them
  */
  // TODO
-function showThePathPicker(msg, paths) { 
+function showThePathPicker(msg, paths, callbackClose) {
+	var buttons = {};
+	for (var i = 0; i < paths.length; i++) {
+		var button = {
+			click: function () { 
+			  $("#buttonoutput").text(paths[i]);
+			},
+			icon: ""
+		};
+		buttons[Path.toString(paths[i])] = button;
+	}
 	$('<div>').simpledialog2({
 		mode: 'button',
-		headerText: msg,
-		headerClose: true, 
 		dialogForce:true,
-		buttonPrompt: 'Please Choose One',
-		buttons : {
-		  'OK': {
-			click: function () { 
-			  $('#buttonoutput').text('OK');
-			}
-		  },
-		  'Cancel': {
-			click: function () { 
-			  $('#buttonoutput').text('Cancel');
-			},
-			icon: "delete",
-			theme: "c"
-		  }
-		}
+		buttonPrompt: msg,
+		buttons : buttons,
+		callbackClose: callbackClose
 	});
 }
 
@@ -656,26 +700,34 @@ function showThePathPicker(msg, paths) {
  * Given an array of Pieces (pieces), have the user choose between them
  */
  // TODO
-function showThePiecePicker(msg, pieces) { 
+function showThePiecePicker(msg, pieces, callbackClose) { 
+	var buttons = {};
+	for (var i = 0; i < pieces.length; i++) {
+		var p = pieces[i].options;
+		var button = {
+			click: function () { 
+			  return pieces[i];
+			},
+			icon: ""
+		};
+		var buttonText = "";
+		if (p.image != null) {
+			buttonText += ("<img src='" + p.image + "' class='button-piece' />");
+		} else if (p.color != null) {
+			buttonText += ("<div class='button-piece' style='background:" + p.color + "'></div>");
+		}
+		if (p.type != null) {
+			buttonText += p.type;
+		}
+		if (p.positionX != -1 && p.positionY != -1) {
+			buttonText += (" at (" + p.positionX + ", " + p.positionY + ")");
+		}
+		buttons[buttonText] = button;
+	}
 	$('<div>').simpledialog2({
 		mode: 'button',
-		headerText: msg,
-		headerClose: true, 
 		dialogForce:true,
-		buttonPrompt: 'Please Choose One',
-		buttons : {
-		  'OK': {
-			click: function () { 
-			  $('#buttonoutput').text('OK');
-			}
-		  },
-		  'Cancel': {
-			click: function () { 
-			  $('#buttonoutput').text('Cancel');
-			},
-			icon: "delete",
-			theme: "c"
-		  }
-		}
+		buttonPrompt: msg,
+		buttons : buttons
 	});
 }

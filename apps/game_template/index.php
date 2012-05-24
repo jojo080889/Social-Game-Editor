@@ -64,6 +64,9 @@
 			<p>You rolled a</p>
 			<p id="move-result-num">6</p>
 		</div>
+		<div id="game-message">
+			<p></p>
+		</div>
     </div>
 
     <footer>
