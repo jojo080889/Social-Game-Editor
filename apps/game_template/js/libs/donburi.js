@@ -78,17 +78,11 @@ var Game = new Class({
 	},
 	
 	/* Utility */
+	getTitle: function() {
+		return this.options.title;
+	},
 	setTitle: function(newTitle) {
 		this.options.title = newTitle;
-	},
-	getPlayerById: function(players, id) {
-		for (var i = 0; i < players.length; i++) {
-			var curID = players[i].getID();
-			if (id == curID) {
-				return players[i];
-			}
-		}
-		return null;
 	},
 	
 	/* PLAYERS */
@@ -119,9 +113,15 @@ var Game = new Class({
 	},
 	changeToNextTurn: function() {
 		this.fireEvent('turnEnd');
+		
+		// reset current turn
+		this.current.moveCount = null;
+		this.current.pieceToMove = null;
+		this.current.moveType = null;
 		this.current.player++;
 		if (this.current.player == this.playerNum) { this.current.player = 0; }
 		this.renderCurrentPlayer(this.current.player);
+		
 		this.fireEvent('turnStart');
 	},
 	moveStart: function() {
@@ -130,41 +130,36 @@ var Game = new Class({
 		var pieceDiv = $("#piece" + (this.current.player + 1));
 		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
 
-		// pick random number
-		// TODO: Display on screen
-		// TODO: make flexible with different kinds of dice
-		var diceResult = Math.floor((Math.random()*6) + 1); // 1 through 6
+		// TODO: handle multiple pieces
+		var curX = piece.getPositionX();
+		var curY = piece.getPositionY();
+
+		var diceResult = this.decideMove();
 		$("#move-result-num").html(diceResult);
 		$("#move-result").show("fast").delay(1000).hide("fast", 
 		function() {
 			self.fireEvent('moveStart');
-			self.makeMove(pieceDiv, piece, diceResult);
+			self.makeMove(pieceDiv, piece, curX, curY, diceResult);
 		});
 	},
-	move: function() {
-	
-	},
 	decideMove: function() {
-	
+		// pick random number
+		// TODO: make flexible with different kinds of dice
+		var diceResult = Math.floor((Math.random()*this.options.rollMax) + this.options.rollMin); // 1 through 6
+		return diceResult;
 	},
-	makeMove: function(pieceDiv, piece, moveCount) {
-		// TODO: handle multiple pieces
-		var curX = piece.options.positionX;
-		var curY = piece.options.positionY;
-		
+	makeMove: function(pieceDiv, piece, curX, curY, moveCount) {
 		if (moveCount == 0) {
-			piece.options.positionX = curX;
-			piece.options.positionY = curY;
-			this.fireEvent('moveEnd');
-			// Change turn to next player
-			this.changeToNextTurn();
+			this.moveEnd(piece, curX, curY);
 			return;
 		}
+		
+		console.log("moving..");
 		
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 
 		// get path of current square
-		var path = this.options.board.options.slots[curY][curX].options.path; // row first
+		var path = this.options.board.options.slots[curY][curX].getPath(); // row first
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
 		var moveObj = {top: 0, left: 0};
@@ -190,49 +185,75 @@ var Game = new Class({
 
 		var self = this;
 		var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
-		piece.options.positionX = curX;
-		piece.options.positionY = curY;
 		sourceSlot.addClass("slot-moving");
 		pieceDiv.addClass("piece-moving")
 		.animate(moveObj, 1000, function() { 
 			$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
 			sourceSlot.removeClass("slot-moving");
-			self.makeMove(pieceDiv, piece, moveCount - 1);
+			self.makeMove(pieceDiv, piece, curX, curY, moveCount - 1);
 		});
 	},
-	moveEnd: function() {
-	
+	moveEnd: function(piece, curX, curY) {
+		piece.setPosition(curX, curY);
+		this.fireEvent('moveEnd');
+		// Change turn to next player
+		this.changeToNextTurn();
 	},
 	turnEnd: function() {
 	
 	},
 	turnSetSkip: function(player, n) {
-	
+		player.options.skipTurnNum += n;
 	},
 	turnSetAnother: function(player, n) {
-	
+		player.options.moreTurnNum += n;
 	},
-	// Should these following events be in Slot?
 	disableLeaveEvent: function(slot, howLong) {
-	
+		howLong = typeof howLong !== 'undefined' ? howLong : -1;
+		slot.options.disableLeaveEventNum = howLong;
 	},
 	disableLandEvent: function(slot, howLong) {
-	
+		howLong = typeof howLong !== 'undefined' ? howLong : -1;
+		slot.options.disableLandEventNum = howLong;
 	},
-	enableLeaveEvent: function(slot, howLong) {
-	
+	disablePassEvent: function(slot, howLong) {
+		howLong = typeof howLong !== 'undefined' ? howLong : -1;
+		slot.options.disablePassEventNum = howLong;
 	},
-	enableLandEvent: function(slot, howLong) {
-	
+	enableLeaveEvent: function(slot) {
+		slot.options.disableLeaveEventNum = 0;
+	},
+	enableLandEvent: function(slot) {
+		slot.options.disableLandEventNum = 0;
+	},
+	enablePassEvent: function(slot) {
+		slot.options.disablePassEventNum = 0;
 	},
 	undoTurn: function(n) {
-	
+		// Hm... there's probably a better way to do things than use this
 	},
 	showChoice: function(msg, choices) {
-	
-	},
-	getActivePlayerCount: function() { // move to PlayerList?
-	
+		$('<div>').simpledialog2({
+			mode: 'button',
+			headerText: msg,
+			headerClose: true, 
+			dialogForce:true,
+			buttonPrompt: 'Please Choose One',
+			buttons : {
+			  'OK': {
+				click: function () { 
+				  $('#buttonoutput').text('OK');
+				}
+			  },
+			  'Cancel': {
+				click: function () { 
+				  $('#buttonoutput').text('Cancel');
+				},
+				icon: "delete",
+				theme: "c"
+			  }
+			}
+		});	
 	}
 });
 
@@ -243,7 +264,9 @@ var Player = new Class({
 	Implements: [Options, Events],
 	options: {
 		id: -1,
-		state: "playing" //"playing" | "won" | "lost"
+		state: "playing", //"playing" | "won" | "lost"
+		skipTurnNum: 0,
+		moreTurnNum: 0
 	},
 	jQuery: 'player', //namespace for new jquery method
 	initialize: function(selector, options) {
@@ -374,7 +397,10 @@ var Slot = new Class({
 		image: null,
 		positionX: -1,
 		positionY: -1,
-		pieces: null // Array of Pieces currently in the slot
+		pieces: null, // Array of Pieces currently in the slot
+		disableLandEventNum: 0, // if -1, disable until further notice
+		disableLeaveEventNum: 0,
+		disablePassEventNum: 0
 	},
 	jQuery: 'slot',
 	initialize: function(selector, options) {
@@ -533,6 +559,16 @@ var PlayerList = new Class({
 				return this.options.players[i];
 			}
 		}
+	},
+	getActivePlayers: function() {
+		var playerArr = new Array();
+		for (var i = 0; i < this.playerNum; i++) {
+			var p = this.options.players[i].options;
+			if (p.state == "playing") {
+				playerArr.push(this.options.players[i]);
+			}
+		}
+		return playerArr;
 	}
 });
 
