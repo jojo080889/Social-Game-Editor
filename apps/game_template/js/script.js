@@ -56,22 +56,22 @@ $("#container").live("pageinit", function() {
 		board: new Board(null, {slots: slots}),
 		pieces: new PieceList(null, {pieces: pieces}),
 		onStart: function() {
-			alert("onStart");
+			console.log("onStart");
 		},
 		onTurnStart: function() {
-			alert("onTurnStart");
+			console.log("onTurnStart");
 		},
 		onMoveStart: function() {
-			alert("onMoveStart");
+			console.log("onMoveStart");
 		},
 		onMoveEnd: function() {
-			alert("onMoveEnd");
+			console.log("onMoveEnd");
 		},
 		onTurnEnd: function() {
-			alert("onTurnEnd");
+			console.log("onTurnEnd");
 		},
 		onEnd: function() {
-			alert("onEnd");
+			console.log("onEnd");
 		}
 	});
 });

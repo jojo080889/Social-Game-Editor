@@ -250,8 +250,18 @@ var Player = new Class({
 		this.setOptions(options);
 		this.pointsAmt = 0;
 	},
-	piecesOnBoard: function() {
-	
+	getPieces: function() {
+		return game.options.pieces.getPiecesByPlayerID(this.options.id);
+	},
+	getPiecesOnBoard: function() {
+		var pieces = new Array();
+		for (var i = 0; i < game.options.pieces.options.pieces.length; i++) {
+			var p = game.options.pieces.options.pieces[i].options;
+			if (p.player == this.options.id && p.state == "isOnBoard") {
+				pieces.push(game.options.pieces.options.pieces[i]);
+			}
+		}
+		return pieces;
 	},
 	showPiecePicker: function(types) {
 		showThePiecePicker("Choose which piece to move");
@@ -262,9 +272,14 @@ var Player = new Class({
 	getState: function() {
 		return this.options.state;
 	},
-	setState: function(state) {
-		if (state == "playing" || state == "won" || state == "lost") {
-			this.options.state = state;
+	win: function() {
+		if (this.options.state == "playing") {
+			this.options.state = "won";
+		}
+	},
+	lose: function() {
+		if (this.options.state == "playing") {
+			this.options.state = "lose";
 		}
 	}
 });
@@ -322,6 +337,8 @@ var Piece = new Class({
 		positionX = typeof positionX !== 'undefined' ? positionX : p.positionX;
 		positionY = typeof positionY !== 'undefined' ? positionY : p.positionY;
 		
+		this.setPosition(positionX, positionY);
+		
 		this.render();
 		var slotDiv = $($($("#board .row")[positionY]).find(".slot")[positionX]);
 		slotDiv.append(this.pieceDiv);
@@ -339,6 +356,9 @@ var Piece = new Class({
 	},
 	isOnBoard: function() {
 		return (this.options.state == "isOnBoard")
+	},
+	getState: function() {
+		return this.options.state;
 	}
 });
 
