@@ -34,6 +34,24 @@ include "header.php"
 			<h4>Rules for this board slot...</h4>
 			1. On land ... <br/>
 			2. On land ... <br />
+			
+			<table>
+			<tr>
+				<td><img src="images/arrows/nw.png" class="arrow" /></td>
+				<td><img src="images/arrows/n.png" class="arrow" /></td>
+				<td><img src="images/arrows/ne.png" class="arrow" /></td>
+			</tr>
+			<tr>
+				<td><img src="images/arrows/w.png" class="arrow" /></td>
+				<td><img src="images/arrows/center.png"  /></td>
+				<td><img src="images/arrows/e.png" class="arrow" /></td>
+			</tr>
+			<tr>
+				<td><img src="images/arrows/sw.png" class="arrow" /></td>
+				<td><img src="images/arrows/s.png" class="arrow" /></td>
+				<td><img src="images/arrows/se.png" class="arrow" /></td>
+			</tr>
+			</table>
 		</div>
 	</div>
 	

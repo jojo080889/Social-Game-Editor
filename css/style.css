@@ -154,6 +154,15 @@ header #mode_switch .selected:hover {
 	margin: 10px;
 }
 
+#slotRulesPanel table {
+	background: white;
+	
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
 .rules_panel {
 	padding: 20px; 
 	font-size: 60%; 
