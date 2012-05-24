@@ -253,8 +253,8 @@ var Player = new Class({
 	piecesOnBoard: function() {
 	
 	},
-	showPiecePicker: function() {
-	
+	showPiecePicker: function(types) {
+		showThePiecePicker("Choose which piece to move");
 	},
 	getID: function() {
 		return this.options.id;
@@ -276,7 +276,7 @@ var Piece = new Class({
 	Implements: [Options, Events],
 	options: {
 		player: null, // ID of player object
-		state: "isOffBoard", // "isOnBoard" | "isOnBoard" | "isPermOffBoard"
+		state: "isOffBoard", // "isOffBoard" | "isOnBoard" | "isPermOffBoard"
 		positionX: -1,
 		positionY: -1,
 		validMoves: "followPath", //TODO extend this
@@ -288,26 +288,57 @@ var Piece = new Class({
 	initialize: function(selector, options) {
 		this.setOptions(options);
 	},
+	
+	/* UI */
+	render: function() {
+		var p = this.options;
+		this.pieceDiv;
+		if (typeof(p.color) == undefined || p.color == null) {
+			// the piece is an image
+			this.pieceDiv = $("<div class='piece imagePiece' id='piece" + (i + 1) + "'><img src='" + p.image + "' /></div>");
+		} else {
+			// the piece is just a color
+			this.pieceDiv = $("<div class='piece colorPiece' id='piece" + (i + 1) + "' style='background: " + p.color + "'></div>");
+		}
+		return this.pieceDiv;
+	},
+	
+	/* Utility */
 	getPlayer: function() {
-		return this.options.player;
+		return game.options.players.getPlayerByID(this.options.player);
 	},
 	setPlayer: function(newID) {
 		this.options.player = newID;
 	},
 	removeFromBoard: function(permanently) {
-	
+		permanently = typeof permanently !== 'undefined' ? permanently : false;
+		
+		this.pieceDiv.remove();
+		
+		permanently ? this.options.state = "isPermOffBoard" : this.options.state = "isOffBoard";
 	},
 	addToBoard: function(positionX, positionY) {
-	
+		var p = this.options;
+		positionX = typeof positionX !== 'undefined' ? positionX : p.positionX;
+		positionY = typeof positionY !== 'undefined' ? positionY : p.positionY;
+		
+		this.render();
+		var slotDiv = $($($("#board .row")[positionY]).find(".slot")[positionX]);
+		slotDiv.append(this.pieceDiv);
+		this.options.state = "isOnBoard";
 	},
-	getPosition: function() {
-	
+	getPositionX: function() {
+		return this.options.positionX;
+	},
+	getPositionY: function() {
+		return this.options.positionY;
 	},
 	setPosition: function(positionX, positionY) {
-	
+		this.options.positionX = positionX;
+		this.options.positionY = positionY;
 	},
 	isOnBoard: function() {
-	
+		return (this.options.state == "isOnBoard")
 	}
 });
 
@@ -474,6 +505,14 @@ var PlayerList = new Class({
 		}
 		html += "</ul>";
 		return html;
+	},
+	getPlayerByID: function(id) {
+		for (var i = 0; i < this.playerNum; i++) {
+			var p = this.options.players[i].options;
+			if (p.id == id) {
+				return this.options.players[i];
+			}
+		}
 	}
 });
 
@@ -502,18 +541,7 @@ var PieceList = new Class({
 		for (var i = 0; i < this.piecesNum; i++) {
 			// Only do first piece for each player
 			var piece = this.options.pieces[i];
-			
-			var p = piece.options;
-			var slotDiv = $($($("#board .row")[p.positionY]).find(".slot")[p.positionX]);
-			var pieceDiv;
-			if (typeof(p.color) == undefined || p.color == null) {
-				// the piece is an image
-				pieceDiv = $("<div class='piece imagePiece' id='piece" + (i + 1) + "'><img src='" + p.image + "' /></div>");
-			} else {
-				// the piece is just a color
-				pieceDiv = $("<div class='piece colorPiece' id='piece" + (i + 1) + "' style='background: " + p.color + "'></div>");
-			}
-			slotDiv.append(pieceDiv);
+			piece.addToBoard();
 		}
 	},
 	getPiecesByPlayerID: function(player) {
