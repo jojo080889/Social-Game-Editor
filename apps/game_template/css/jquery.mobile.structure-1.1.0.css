@@ -18,7 +18,7 @@ div.ui-mobile-viewport { overflow-x: hidden; }
 .ui-mobile .ui-page-active { display: block; overflow: visible; }
 .ui-page { outline: none; }
 @media screen and (orientation: portrait){
-.ui-mobile, .ui-mobile .ui-page { min-height: 420px; }
+/*.ui-mobile, .ui-mobile .ui-page { min-height: 420px; }*/
 }
 @media screen and (orientation: landscape){
 .ui-mobile, .ui-mobile .ui-page { min-height: 300px; }

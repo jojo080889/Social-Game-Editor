@@ -40,15 +40,15 @@
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
   <!-- jquery mobile -->
-  <!--<link rel="stylesheet" href="css/jquery.mobile-1.1.0.min.css" />-->
-
+  <link rel="stylesheet" href="css/jquery.mobile.structure-1.1.0.css" />
+  <link rel="stylesheet" type="text/css" href="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog.min.css" /> 
   <!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
   <script src="js/libs/modernizr-2.0.6.min.js"></script>
 </head>
 
 <body>
 
-  <div id="container">
+  <div id="container" data-role="page">
     <header>
 		<h1>My First Game</h1>
     </header>
@@ -70,8 +70,7 @@
 		</div>
     </footer>
   </div> <!--! end of #container -->
-
-
+  
   <!-- JavaScript at the bottom for fast page loading -->
 
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
@@ -88,7 +87,8 @@
   <script src="js/script.js"></script>
   <script src="js/helper.js"></script>
   
-  <!--<script src="js/libs/jquery.mobile-1.1.0.js"></script>-->
+  <script src="js/libs/jquery.mobile-1.1.0.js"></script>
+  <script type="text/javascript" src="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog2.min.js"></script>
   <!-- end scripts-->
 
   <!-- Debugger - remove for production -->

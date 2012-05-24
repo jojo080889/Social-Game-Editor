@@ -42,7 +42,6 @@ var Game = new Class({
 	
 	/* UI */
 	render: function() {
-		this.fireEvent('start');
 		// Set title
 		$("title").html(this.options.title);
 		$("header h1").html(this.options.title);
@@ -59,18 +58,21 @@ var Game = new Class({
 		
 		// Set event handlers
 		this.bindActionHandlers();
+		
+		// Start Game
+		this.start();
 	},
 	
 	/* Events */
 	onStart: function() {
 	},
-	onTurnStart: function() {
+	onTurnStart: function(player) {
 	},
-	onMoveStart: function() {
+	onMoveStart: function(player) {
 	},
-	onMoveEnd: function() {
+	onMoveEnd: function(player) {
 	},
-	onTurnEnd: function() {
+	onTurnEnd: function(player) {
 	},
 	onEnd: function() {
 	},
@@ -94,18 +96,12 @@ var Game = new Class({
 		$(".player-status").removeClass("active");
 		$($(".player")[number]).find(".player-status").addClass("active");
 	},
-	changeToNextTurn: function() {
-		this.fireEvent('turnStart');
-		this.current.player++;
-		if (this.current.player == this.playerNum) { this.current.player = 0; }
-		this.renderCurrentPlayer(this.current.player);
-	},
 
 	/* ACTIONS */
 	bindActionHandlers: function() {
 		var self = this;
 		$("#roll_move").click(function() {
-			self.turnStart();
+			self.moveStart();
 		});
 		
 		$("#skip_turn").click(function() {
@@ -115,12 +111,20 @@ var Game = new Class({
 	
 	/* GAME */
 	start: function() {
-	
+		this.fireEvent('start');
+		this.fireEvent('turnStart'); // first player's turn start
 	},
 	end: function() {
-	
+		this.fireEvent('end');
 	},
-	turnStart: function() {
+	changeToNextTurn: function() {
+		this.fireEvent('turnEnd');
+		this.current.player++;
+		if (this.current.player == this.playerNum) { this.current.player = 0; }
+		this.renderCurrentPlayer(this.current.player);
+		this.fireEvent('turnStart');
+	},
+	moveStart: function() {
 		var self = this;
 		// get piece of current player
 		var pieceDiv = $("#piece" + (this.current.player + 1));
@@ -137,9 +141,6 @@ var Game = new Class({
 			self.makeMove(pieceDiv, piece, diceResult);
 		});
 	},
-	moveStart: function() {
-	
-	},
 	move: function() {
 	
 	},
@@ -155,7 +156,6 @@ var Game = new Class({
 			piece.options.positionX = curX;
 			piece.options.positionY = curY;
 			this.fireEvent('moveEnd');
-			this.fireEvent('turnEnd');
 			// Change turn to next player
 			this.changeToNextTurn();
 			return;
@@ -164,7 +164,7 @@ var Game = new Class({
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 
 		// get path of current square
-		var path = this.options.board.slots[curY][curX].options.path; // row first
+		var path = this.options.board.options.slots[curY][curX].options.path; // row first
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
 		var moveObj = {top: 0, left: 0};
@@ -318,11 +318,16 @@ var Slot = new Class({
 	Implements: [Options, Events],
 	options: {
 		path: null,
-		type: ""
+		type: "",
+		color: null,
+		image: null,
+		positionX: -1,
+		positionY: -1,
+		pieces: null // Array of Pieces currently in the slot
 	},
 	jQuery: 'slot',
 	initialize: function(selector, options) {
-	
+		this.setOptions(options);
 	},
 	
 	/* UI */
@@ -349,13 +354,13 @@ var Slot = new Class({
 		this.options.path = newPath;
 	},
 	getPieces: function() {
-	
+		return game.options.pieces.getPiecesByPosition(this.options.positionX, this.options.positionY);
 	},
 	showPathPicker: function() {
-	
+		showThePathPicker("Choose where to move next:");
 	},
 	showPiecePicker: function(types) {
-	
+		showThePiecePicker("Choose which piece to move");
 	}
 });
 
@@ -365,16 +370,12 @@ var Slot = new Class({
 var Board = new Class({
 	Implements: [Options, Events],
 	options: {
-		tiles: null // Array of Array of objects representing tile appearance
+		slots: null // Array of Array of objects representing tile appearance
 	},
 	jQuery: 'board', //namespace for new jquery method
 	initialize: function(selector, options) {
 		this.setOptions(options);
-		this.size = this.options.tiles.length; // TODO Assumes a square
-		this.slots = this.initBoardSlots(); //Array of Array of Slot Objects
-		
-		// set up path
-		this.initBoardPath();
+		this.size = this.options.slots.length; // TODO Assumes a square
 	},
 	
 	/* UI */
@@ -397,52 +398,12 @@ var Board = new Class({
 	},
 	
 	/* Utility */
-	initBoardSlots: function() {
-		var slots = [];
-		for (var i = 0; i < this.size; i++) {
-			var row = new Array();
-			for (var j = 0; j < this.size; j++) {
-				var tileType = "";
-				if (typeof(this.options.tiles[i][j].length) == "undefined") { // TODO hacky
-					tileType = this.options.tiles[i][j].type;
-				}
-				var slot = new Slot(null, null);
-				slot.options.type = tileType;
-				row.push(slot);
-			}
-			slots.push(row);
-		}
-		return slots;
-	},
-	/* Format: Array of arrays (rows and columns). Each array slot has a JS object that contains 
-	 * { slot: (true or false), path: (a constant indicating a direction), rules: (format TBD) }
-	 */
-	initBoardPath: function() {
-		for (var i = 0; i < this.size; i++) {
-			for (var j = 0; j < this.size; j++) {
-				// Create a simple circuit board
-				var tile = this.slots[i][j];
-				// if first row or last row
-				if (i == 0 || i == (this.size - 1) || j == 0 || j == (this.size - 1)) {
-					if (i == 0 && j != 0) {
-						tile.options.path = Path.LEFT;
-					} else if (j == 0 && i != (this.size - 1)) {
-						tile.options.path = Path.DOWN;
-					} else if (i == (this.size - 1) && j != (this.size - 1)) {
-						tile.options.path = Path.RIGHT;
-					} else if (j == (this.size - 1) && i != 0) {
-						tile.options.path = Path.UP;
-					}
-				}
-			}
-		}
-	},
 	generateGrid: function() {
 		var html = "<div id='board'>";
 		for (var i = 0; i < this.size; i++) {
 			html += "<div class='row'>";
 			for (var j = 0; j < this.size; j++) {
-				var boardTile = this.options.tiles[i][j];
+				var boardTile = this.options.slots[i][j].options;
 				if (typeof(boardTile.color) !== 'undefined' && boardTile.color !== null) {
 					html += "<div class='slot' style='background: " + boardTile.color + "'></div>";
 				} else {
@@ -540,17 +501,19 @@ var PieceList = new Class({
 	createPieces: function() {
 		for (var i = 0; i < this.piecesNum; i++) {
 			// Only do first piece for each player
-			var p = this.options.pieces[i].options;
-			var slot = $($($("#board .row")[p.positionY]).find(".slot")[p.positionX]);
-			var piece;
+			var piece = this.options.pieces[i];
+			
+			var p = piece.options;
+			var slotDiv = $($($("#board .row")[p.positionY]).find(".slot")[p.positionX]);
+			var pieceDiv;
 			if (typeof(p.color) == undefined || p.color == null) {
 				// the piece is an image
-				piece = $("<div class='piece imagePiece' id='piece" + (i + 1) + "'><img src='" + p.image + "' /></div>");
+				pieceDiv = $("<div class='piece imagePiece' id='piece" + (i + 1) + "'><img src='" + p.image + "' /></div>");
 			} else {
 				// the piece is just a color
-				piece = $("<div class='piece colorPiece' id='piece" + (i + 1) + "' style='background: " + p.color + "'></div>");
+				pieceDiv = $("<div class='piece colorPiece' id='piece" + (i + 1) + "' style='background: " + p.color + "'></div>");
 			}
-			slot.append(piece);
+			slotDiv.append(pieceDiv);
 		}
 	},
 	getPiecesByPlayerID: function(player) {
@@ -562,5 +525,72 @@ var PieceList = new Class({
 			}
 		}
 		return playerPieces;
+	},
+	getPiecesByPosition: function(x, y) {
+		var posPieces = new Array();
+		for (var i = 0; i < this.piecesNum; i++) {
+			var p = this.options.pieces[i].options;
+			if (p.positionX == x && p.positionY == y) {
+				posPieces.push(this.options.pieces[i]);
+			}
+		}
+		return posPieces;	
 	}
 });
+
+/* FUNCTIONS */
+/* showThePathPicker 
+ * Given an array of ints (paths), have the user choose between them
+ */
+ // TODO
+function showThePathPicker(msg, paths) { 
+	$('<div>').simpledialog2({
+		mode: 'button',
+		headerText: msg,
+		headerClose: true, 
+		dialogForce:true,
+		buttonPrompt: 'Please Choose One',
+		buttons : {
+		  'OK': {
+			click: function () { 
+			  $('#buttonoutput').text('OK');
+			}
+		  },
+		  'Cancel': {
+			click: function () { 
+			  $('#buttonoutput').text('Cancel');
+			},
+			icon: "delete",
+			theme: "c"
+		  }
+		}
+	});
+}
+
+/* showThePiecePicker 
+ * Given an array of Pieces (pieces), have the user choose between them
+ */
+ // TODO
+function showThePiecePicker(msg, pieces) { 
+	$('<div>').simpledialog2({
+		mode: 'button',
+		headerText: msg,
+		headerClose: true, 
+		dialogForce:true,
+		buttonPrompt: 'Please Choose One',
+		buttons : {
+		  'OK': {
+			click: function () { 
+			  $('#buttonoutput').text('OK');
+			}
+		  },
+		  'Cancel': {
+			click: function () { 
+			  $('#buttonoutput').text('Cancel');
+			},
+			icon: "delete",
+			theme: "c"
+		  }
+		}
+	});
+}
