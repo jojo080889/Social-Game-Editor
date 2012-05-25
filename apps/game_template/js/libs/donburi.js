@@ -190,6 +190,16 @@ var Game = new Class({
 		$("#move-result").show("fast").delay(1000).hide("fast", 
 		function() {
 			self.fireEvent('moveStart');
+			var currentSlot = self.options.board.getSlotByPosition(curX, curY);
+			
+			if (currentSlot.options.disableLeaveEventNum == 0) {
+				self.options.board.fireEvent('leave');
+				currentSlot.fireEvent('leave');
+			} else {
+				if (currentSlot.options.disableLeaveEventNum != -1) {
+					currentSlot.options.disableLeaveEventNum--;
+				}
+			}
 			self.makeMove(piece, curX, curY, diceResult);
 		});
 	},
@@ -205,8 +215,6 @@ var Game = new Class({
 			this.moveEnd(piece, curX, curY);
 			return;
 		}
-		
-		console.log("moving..");
 		
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 
@@ -245,6 +253,19 @@ var Game = new Class({
 				complete: function() { 
 					$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
 					sourceSlot.removeClass("slot-moving");
+
+					if (moveCount - 1 > 0) {
+						var currentSlot = self.options.board.getSlotByPosition(curX, curY);
+						
+						if (currentSlot.options.disablePassEventNum == 0) {
+							self.options.board.fireEvent('pass');
+							currentSlot.fireEvent('pass');
+						} else {
+							if (currentSlot.options.disablePassEventNum != -1) {
+								currentSlot.options.disablePassEventNum--;
+							}
+						}
+					}
 					self.makeMove(piece, curX, curY, moveCount - 1);
 				}
 			});
@@ -253,6 +274,16 @@ var Game = new Class({
 	moveEnd: function(piece, curX, curY) {
 		piece.setPosition(curX, curY);
 		this.fireEvent('moveEnd');
+		var currentSlot = this.options.board.getSlotByPosition(curX, curY);
+		
+		if (currentSlot.options.disableLandEventNum == 0) {
+			this.options.board.fireEvent('land');
+			currentSlot.fireEvent('land');
+		} else {
+			if (currentSlot.options.disableLandEventNum != -1) {
+				currentSlot.options.disableLandEventNum--;
+			}
+		}
 		// Change turn to next player
 		this.changeToNextTurn();
 	},
@@ -454,6 +485,11 @@ var Slot = new Class({
 	jQuery: 'slot',
 	initialize: function(selector, options) {
 		this.setOptions(options);
+		this.addEvents({
+			"land": this.onLand,
+			"leave": this.onLeave,
+			"pass": this.onPass
+		});
 	},
 	
 	/* UI */
@@ -463,13 +499,13 @@ var Slot = new Class({
 	
 	/* Events */
 	onLand: function(piece, eventType) {
-	
+		console.log("onLand (" + this.options.positionX + ", " + this.options.positionY + ")");
 	},
 	onLeave: function(piece, eventType) {
-	
+		console.log("onLeave (" + this.options.positionX + ", " + this.options.positionY + ")");
 	},
 	onPass: function(piece, eventType) {
-	
+		console.log("onPass (" + this.options.positionX + ", " + this.options.positionY + ")");
 	},
 	
 	/* Utility */
@@ -501,6 +537,11 @@ var Board = new Class({
 	jQuery: 'board', //namespace for new jquery method
 	initialize: function(selector, options) {
 		this.setOptions(options);
+		this.addEvents({
+			"land": this.onLand,
+			"leave": this.onLeave,
+			"pass": this.onPass
+		});
 		this.size = this.options.slots.length; // TODO Assumes a square
 	},
 	
@@ -514,13 +555,13 @@ var Board = new Class({
 	// master event functions that execute on EVERY
 	// slot land/leave/pass.
 	onLand: function(slot, piece, eventType) {
-	
+		console.log("onLand");
 	},
 	onLeave: function(slot, piece, eventType) {
-	
+		console.log("onLeave");
 	},
 	onPass: function(slot, piece, eventType) {
-	
+		console.log("onPass");
 	},
 	
 	/* Utility */
@@ -558,6 +599,9 @@ var Board = new Class({
 	},
 	getSize: function() {
 		return this.size;
+	},
+	getSlotByPosition: function(x, y) {
+		return this.options.slots[y][x];
 	}
 });
 
