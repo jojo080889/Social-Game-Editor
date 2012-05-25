@@ -58,16 +58,16 @@ $("#container").live("pageinit", function() {
 		onStart: function() {
 			console.log("onStart");
 		},
-		onTurnStart: function() {
+		onTurnStart: function(player) {
 			console.log("onTurnStart");
 		},
-		onMoveStart: function() {
+		onMoveStart: function(player) {
 			console.log("onMoveStart");
 		},
-		onMoveEnd: function() {
+		onMoveEnd: function(player) {
 			console.log("onMoveEnd");
 		},
-		onTurnEnd: function() {
+		onTurnEnd: function(player) {
 			console.log("onTurnEnd");
 		},
 		onEnd: function() {

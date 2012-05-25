@@ -126,13 +126,18 @@ var Game = new Class({
 	/* GAME */
 	start: function() {
 		this.fireEvent('start');
-		this.fireEvent('turnStart'); // first player's turn start
+		
+		// get piece of current player
+		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
+		this.current.pieceToMove = piece;
+		
+		this.fireEvent('turnStart', this.current.player); // first player's turn start
 	},
 	end: function() {
 		this.fireEvent('end');
 	},
 	changeToNextTurn: function() {
-		this.fireEvent('turnEnd');
+		this.fireEvent('turnEnd', this.current.player);
 		
 		// reset current turn
 		this.current.moveCount = null;
@@ -172,35 +177,36 @@ var Game = new Class({
 		} 
 		this.renderCurrentPlayer(this.current.player);
 		
-		this.fireEvent('turnStart');
+		// get piece of current player
+		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
+		this.current.pieceToMove = piece;
+		
+		this.fireEvent('turnStart', this.current.player);
 	},
 	moveStart: function() {
 		var self = this;
-		// get piece of current player
-		//var pieceDiv = $("#piece" + (this.current.player + 1));
-		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
 
 		// TODO: handle multiple pieces
-		var curX = piece.getPositionX();
-		var curY = piece.getPositionY();
+		var curX = this.current.pieceToMove.getPositionX();
+		var curY = this.current.pieceToMove.getPositionY();
 
 		var diceResult = this.decideMove();
 		this.current.moveCount = diceResult;
 		$("#move-result-num").html(diceResult);
 		$("#move-result").show("fast").delay(1000).hide("fast", 
 		function() {
-			self.fireEvent('moveStart');
+			self.fireEvent('moveStart', self.current.player);
 			var currentSlot = self.options.board.getSlotByPosition(curX, curY);
 			
 			if (currentSlot.options.disableLeaveEventNum == 0) {
-				self.options.board.fireEvent('leave');
-				currentSlot.fireEvent('leave');
+				self.options.board.fireEvent('leave', [currentSlot, self.current.pieceToMove, "normal"]);
+				currentSlot.fireEvent('leave', [self.current.pieceToMove, "normal"]);
 			} else {
 				if (currentSlot.options.disableLeaveEventNum != -1) {
 					currentSlot.options.disableLeaveEventNum--;
 				}
 			}
-			self.makeMove(piece, curX, curY, diceResult);
+			self.makeMove(self.current.pieceToMove, curX, curY, diceResult);
 		});
 	},
 	decideMove: function() {
@@ -258,8 +264,8 @@ var Game = new Class({
 						var currentSlot = self.options.board.getSlotByPosition(curX, curY);
 						
 						if (currentSlot.options.disablePassEventNum == 0) {
-							self.options.board.fireEvent('pass');
-							currentSlot.fireEvent('pass');
+							self.options.board.fireEvent('pass', [currentSlot, self.current.pieceToMove, "normal"]);
+							currentSlot.fireEvent('pass', [self.current.pieceToMove, "normal"]);
 						} else {
 							if (currentSlot.options.disablePassEventNum != -1) {
 								currentSlot.options.disablePassEventNum--;
@@ -273,12 +279,12 @@ var Game = new Class({
 	},
 	moveEnd: function(piece, curX, curY) {
 		piece.setPosition(curX, curY);
-		this.fireEvent('moveEnd');
+		this.fireEvent('moveEnd', this.current.player);
 		var currentSlot = this.options.board.getSlotByPosition(curX, curY);
 		
 		if (currentSlot.options.disableLandEventNum == 0) {
-			this.options.board.fireEvent('land');
-			currentSlot.fireEvent('land');
+			this.options.board.fireEvent('land', [currentSlot, this.current.pieceToMove, "normal"]);
+			currentSlot.fireEvent('land', [this.current.pieceToMove, "normal"]);
 		} else {
 			if (currentSlot.options.disableLandEventNum != -1) {
 				currentSlot.options.disableLandEventNum--;
