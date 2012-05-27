@@ -120,8 +120,8 @@ function getPiecesJSON() {
 			obj.player = pieces[key].player;
 			var pieceInfo = getPieceTypeInfo(pieces[key].type);
 			obj.type = pieces[key].type;
-			if (typeof(pieceInfo.color) != "undefined") {
-				obj.color = pieceInfo.color;
+			if (typeof(pieceInfo.image) == "undefined" || pieceInfo.image == null) {
+				obj.color = pieceInfo.color; // color as backup
 			} else {
 				obj.image = pieceInfo.image;
 			}
@@ -152,7 +152,7 @@ function getBoardJSON() {
 		
 		var tileInfo = getTileTypeInfo(tile.get("type"));
 		obj.type = tile.get("type");
-		if (typeof(tileInfo.color) != "undefined" || tileInfo.color == null) {
+		if (typeof(tileInfo.image) != "undefined" || tileInfo.image == null) {
 			obj.color = tileInfo.color;
 		} else {
 			obj.image = tileInfo.image;
@@ -167,25 +167,13 @@ function getBoardJSON() {
 }
 
 function getPieceTypeInfo(pieceType) {
-	for (var key in pieceTypes) {
-		if (pieceTypes.hasOwnProperty(key)) {
-			if (pieceTypes[key].name == pieceType) {
-				return pieceTypes[key];
-			}
-		}
-	}
-	return null;
+	var pieceTypeModel = pieceTypeList.collection.where({name: pieceType})[0];
+	return pieceTypeModel.attributes;
 }
 
 function getTileTypeInfo(tileType) {
-	for (var key in tileTypes) {
-		if (tileTypes.hasOwnProperty(key)) {
-			if (tileTypes[key].name == tileType) {
-				return tileTypes[key];
-			}
-		}
-	}
-	return null;
+	var tileTypeModel = tileTypeList.collection.where({name: tileType})[0];
+	return tileTypeModel.attributes;
 }
 
 function createGameModelsFile(successCallback) {
