@@ -69,46 +69,6 @@ $(document).ready(function() {
 		user = {name: "User 2", id: 1};
 		env.startInstance('view1', user, feed, "edu.stanford.mobisocial.dungbeetle");
 	});
-	
-	/* Path picker */
-	
-	$(".arrow").mouseover(function() {
-		var originalsource=$(this).attr('src');
-		var select_pos=originalsource.search("select");
-		if(select_pos < 0) {								// if currently not selected
-			var stem = originalsource.split(".");
-			var src = stem[0] + "_select." + stem[1];
-			$(this).css('opacity', 0.6);
-			$(this).attr('src', src);
-		}
-	});
-	$(".arrow").mouseout(function() {
-		var opacity = $(this).css('opacity');
-		if(opacity < 1) {									// if currently not selected
-			var originalsource= $(this).attr('src');
-			var select_pos = originalsource.search("_select");
-			var src=originalsource.slice(0, select_pos) + ".png";
-			$(this).css('opacity', 1.0);					
-			$(this).attr('src', src);
-		}
-	});
-	$(".arrow").click(function() {
-		var originalsource=$(this).attr('src');
-		var	select_pos =originalsource.search("_select");
-		var opacity = $(this).css('opacity');
-		if((opacity == 1) && (select_pos > 0)) {			// if already selected, undo selection
-			var src=originalsource.slice(0, select_pos) + ".png";
-			$(this).attr('src', src);
-		} else {											// if not currently selected, make the selection
-			if (select_pos > 0) {							// currently hovering
-				$(this).css('opacity', 1.0);
-			} else {
-				var stem = originalsource.split(".");
-				var src = stem[0] + "_select." + stem[1];
-				$(this).attr('src', src);
-			}
-		}
-	});
 });
 
 function changeGridSize() {

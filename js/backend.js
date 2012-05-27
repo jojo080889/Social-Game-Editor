@@ -435,13 +435,176 @@ $(document).ready(function() {
 		remove: function() {
 			this.model.destroy();
 		},
-		showTileRules: function() {
+		showTileRules: function(e) {
+			$("div#boardRulesPanel").hide();
 			$('div#slotRulesPanel').show();
+			var tileRulesView = new TileRulesView({
+				model: this.model
+			});
+			tileRulesView.render();
+			if (!e.cid) { // if not a model
+				e.stopImmediatePropagation();
+			}
 		}
 	});
 	var TileList = Backbone.Collection.extend({
 		model: Tile,
 		localStorage: new Store("TileList")
+	});
+	var TileRulesView = Backbone.View.extend({
+		el: $("#slotRulesPanel"),
+		className: "rules_panel",
+		//template: $("#tileTemplate").html(),
+		events: {
+			"click #pathPicker td": "changeTilePaths"
+		},    
+		initialize: function() {
+			_.bindAll(this, "render", "unrender", "changeTilePaths", "showNormalArrow", "showSelectedArrow", "setArrowAsSelected");
+			this.model.bind("change", this.render);
+			this.model.bind("remove", this.unrender);
+		},
+		render: function() {
+			var self = this;
+			$("#slot_pos", this.el).html("(" + this.model.get("positionX") + ", " + this.model.get("positionY") + ")");
+			
+			// bind path picker events (TODO find more backbone way to do this)
+			$("#pathPicker td").mouseenter(function() {
+				self.showSelectedArrow(this);
+			});
+			$("#pathPicker td").mouseleave(function() {
+				self.showNormalArrow(this);
+			});
+			
+			// update path picker
+			var paths = this.model.get("paths");
+			// reset all paths
+			$("#pathPicker .arrow").removeClass("arrow-hide");
+			$("#pathPicker .arrow-selected").removeClass("arrow-show");
+			$("#pathPicker td").removeClass("hover");
+			
+			for (var i = 0; i < paths.length; i++) {
+				// depending on paths array, select
+				var tdId = "";
+				switch(paths[i]) {
+					case 0:
+						tdId = "up";
+						break;
+					case 1:
+						tdId = "left";
+						break;
+					case 2:
+						tdId = "down";
+						break;
+					case 3:
+						tdId = "right";
+						break;
+					case 4:
+						tdId = "up_left";
+						break;
+					case 5:
+						tdId = "down_left";
+						break;
+					case 6:
+						tdId = "down_right";
+						break;
+					case 7:
+						tdId = "up_right";
+						break;
+				}
+				this.setArrowAsSelected($("#pathPicker td#" + tdId));
+			}
+			
+			return this;
+		},
+		unrender: function(e) {
+		},
+		changeTilePaths: function(e) {
+			// update Tile path attribute
+			var self = this;
+			var arrowId = e.currentTarget.id;
+			var addPath = false;
+			var removePath = false;
+			
+			var arrowTd = $("#pathPicker td#" + arrowId);
+			if (arrowTd.hasClass("hover")) {
+				this.setArrowAsSelected(arrowTd);
+				addPath = true;
+			} else {
+				$(".arrow", arrowTd).removeClass("arrow-hide");
+				$(".arrow-selected", arrowTd).removeClass("arrow-show");
+		
+				arrowTd.mouseleave(function() {
+					self.showNormalArrow(this);
+					console.log("mouseout");
+				});
+				arrowTd.mouseenter(function() {
+					self.showSelectedArrow(this);
+					console.log("mouseover");
+				});
+				removePath = true;
+			}
+		
+			var pathClicked = -1;
+			switch(arrowId) {
+				case "up_left":
+					pathClicked = 4;
+					break;
+				case "up":
+					pathClicked = 0;
+					break;
+				case "up_right":
+					pathClicked = 7;
+					break;
+				case "left":
+					pathClicked = 1;
+					break;
+				case "right":
+					pathClicked = 3;
+					break;
+				case "down_left":
+					pathClicked = 5;
+					break;
+				case "down":
+					pathClicked = 2;
+					break;
+				case "down_right":
+					pathClicked = 6;
+					break;
+			}
+			
+			var paths = this.model.get("paths");
+			if (pathClicked != -1 && ($.inArray(pathClicked, paths) == -1) && addPath) {
+				paths.push(pathClicked);
+			} else if (pathClicked != -1 && removePath) {
+				var index = paths.indexOf(pathClicked);
+				while (index != -1) {
+					paths.splice(index, 1);
+					index = paths.indexOf(pathClicked);
+				}
+			}
+			this.model.set("paths", paths);
+			this.model.save();
+			if (!e.cid) { // if not a model
+				e.stopImmediatePropagation();
+			}
+		},
+		setArrowAsSelected: function(self) {
+			$(".arrow", $(self)).addClass("arrow-hide");
+			$(".arrow-selected", $(self)).addClass("arrow-show");
+			$(self).unbind("mouseleave");
+			$(self).unbind("mouseenter");
+			$(self).removeClass("hover");
+		},
+		showSelectedArrow: function(self) {
+			$(".arrow", $(self)).addClass("arrow-hide");
+			$(".arrow-selected", $(self)).addClass("arrow-show");
+			$(self).addClass("hover");
+		},
+		showNormalArrow: function(self) {
+			$(".arrow", $(self)).removeClass("arrow-hide");
+			$(".arrow-selected", $(self)).removeClass("arrow-show");
+			$(self).removeClass("hover");	
+		}
 	});
 	
 	/* SLOT AND BOARD */
@@ -545,7 +708,8 @@ $(document).ready(function() {
 			$(".info_text", this.el).show();
 		},
 		showBoardRules: function() {
-			// TODO: show board rules
+			$("div#boardRulesPanel").show();
+			$('div#slotRulesPanel').hide();
 		}
 	});	
 	

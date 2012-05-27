@@ -154,13 +154,29 @@ header #mode_switch .selected:hover {
 	margin: 10px;
 }
 
-#slotRulesPanel table {
+#slotRulesPanel #pathPicker {
 	background: white;
-	
 	border-top-left-radius: 5px;
 	border-bottom-left-radius: 5px;
 	border-top-right-radius: 5px;
 	border-bottom-right-radius: 5px;
+	margin: 0 auto;
+}
+#slotRulesPanel {
+	display: none;
+}
+
+#pathPicker .arrow {
+
+}
+#pathPicker .arrow.arrow-hide {
+	display: none;
+}
+#pathPicker .arrow-selected {
+	display: none;
+}
+#pathPicker .arrow-selected.arrow-show {
+	display: inline;
 }
 
 .rules_panel {

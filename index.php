@@ -31,27 +31,58 @@ include "header.php"
 		</div>
 				
 		<div id="slotRulesPanel" class="rules_panel">
-			<h4>Rules for this board slot...</h4>
+			<h4>Rules for Slot <span id="slot_pos"></span></h4>
 			1. On land ... <br/>
 			2. On land ... <br />
 			
-			<table>
+			<table id="pathPicker">
 			<tr>
-				<td><img src="images/arrows/nw.png" class="arrow" /></td>
-				<td><img src="images/arrows/n.png" class="arrow" /></td>
-				<td><img src="images/arrows/ne.png" class="arrow" /></td>
+				<td id="up_left">
+					<img src="images/arrows/nw.png" class="arrow" />
+					<img src="images/arrows/nw_select.png" class="arrow arrow-selected" />
+				</td>
+				<td id="up">
+					<img src="images/arrows/n.png" class="arrow"/>
+					<img src="images/arrows/n_select.png" class="arrow arrow-selected" />
+				</td>
+				<td id="up_right">
+					<img src="images/arrows/ne.png" class="arrow" />
+					<img src="images/arrows/ne_select.png" class="arrow arrow-selected" />
+				</td>
 			</tr>
 			<tr>
-				<td><img src="images/arrows/w.png" class="arrow" /></td>
-				<td><img src="images/arrows/center.png"  /></td>
-				<td><img src="images/arrows/e.png" class="arrow" /></td>
+				<td id="left">
+					<img src="images/arrows/w.png" class="arrow"/>
+					<img src="images/arrows/w_select.png" class="arrow arrow-selected" />
+				</td>
+				<td>
+					<img src="images/arrows/center.png"  />
+				</td>
+				<td id="right">
+					<img src="images/arrows/e.png" class="arrow" />
+					<img src="images/arrows/e_select.png" class="arrow arrow-selected" />
+				</td>
 			</tr>
 			<tr>
-				<td><img src="images/arrows/sw.png" class="arrow" /></td>
-				<td><img src="images/arrows/s.png" class="arrow" /></td>
-				<td><img src="images/arrows/se.png" class="arrow" /></td>
+				<td id="down_left">
+					<img src="images/arrows/sw.png" class="arrow" />
+					<img src="images/arrows/sw_select.png" class="arrow arrow-selected" />
+				</td>
+				<td id="down">
+					<img src="images/arrows/s.png" class="arrow" />
+					<img src="images/arrows/s_select.png" class="arrow arrow-selected" />
+				</td>
+				<td id="down_right">
+					<img src="images/arrows/se.png" class="arrow" />
+					<img src="images/arrows/se_select.png" class="arrow arrow-selected" />
+				</td>
 			</tr>
 			</table>
+		</div>
+		<div id="boardRulesPanel" class="rules_panel">
+			<h4>Rules for Game</span></h4>
+			1. On land ... <br/>
+			2. On land ... <br />
 		</div>
 	</div>
 	
