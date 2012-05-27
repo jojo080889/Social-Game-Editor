@@ -178,8 +178,12 @@ var Game = new Class({
 		this.renderCurrentPlayer(this.current.player);
 		
 		// get piece of current player
-		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
-		this.current.pieceToMove = piece;
+		var pieces = this.options.pieces.getPiecesByPlayerID(this.current.player);
+		if (pieces.length == 1) {
+			this.current.pieceToMove = pieces[0]; // TODO make this default
+		} else if (pieces.length > 1) {
+			showThePiecePicker("Choose a piece to move:", pieces);
+		}
 		
 		this.fireEvent('turnStart', this.current.player);
 	},
@@ -230,11 +234,7 @@ var Game = new Class({
 			path = paths[0];
 			this.makeMoveHelper(piece, curX, curY, moveCount, path);
 		} else if (paths.length > 1) {
-			//path = this.options.board.options.slots[curY][curX].showPathPicker(function() {
-			//	self.makeMoveHelper(piece, curX, curY, moveCount, arguments[0]);
-			//});
 			showThePathPicker("Choose where to move next:", paths, [piece, curX, curY, moveCount]);
-			//});
 		}
 	},
 	makeMoveHelper: function(piece, curX, curY, moveCount, path) {
@@ -768,11 +768,11 @@ function showThePathPicker(msg, paths, makeMoveHelperArgs) {
  // TODO
 function showThePiecePicker(msg, pieces, callbackClose) { 
 	var buttons = {};
-	for (var i = 0; i < pieces.length; i++) {
+	$.each(pieces, function(i, piece) {
 		var p = pieces[i].options;
 		var button = {
 			click: function () { 
-			  return pieces[i];
+			  game.current.pieceToMove = pieces[i];
 			},
 			icon: ""
 		};
@@ -788,8 +788,12 @@ function showThePiecePicker(msg, pieces, callbackClose) {
 		if (p.positionX != -1 && p.positionY != -1) {
 			buttonText += (" at (" + p.positionX + ", " + p.positionY + ")");
 		}
-		buttons[buttonText] = button;
-	}
+		if (typeof(buttons[buttonText]) == "undefined") {
+			buttons[buttonText] = button;
+		} else {
+			buttons[buttonText + " " + i] = button;
+		}
+	});
 	$('<div>').simpledialog2({
 		mode: 'button',
 		dialogForce:true,
