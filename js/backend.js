@@ -441,7 +441,9 @@ $(document).ready(function() {
 			var tileRulesView = new TileRulesView({
 				model: this.model
 			});
-			tileRulesView.render();
+			$("#slotRulesPanel").empty().append(tileRulesView.render().el);
+			tileRulesView.initPathPicker();
+			
 			if (!e.cid) { // if not a model
 				e.stopImmediatePropagation();
 			}
@@ -452,21 +454,25 @@ $(document).ready(function() {
 		localStorage: new Store("TileList")
 	});
 	var TileRulesView = Backbone.View.extend({
-		el: $("#slotRulesPanel"),
-		className: "rules_panel",
-		//template: $("#tileTemplate").html(),
+		tagName: 'div',
+		template: $("#tileRulesTemplate").html(),
 		events: {
 			"click #pathPicker td": "changeTilePaths"
 		},    
 		initialize: function() {
-			_.bindAll(this, "render", "unrender", "changeTilePaths", "showNormalArrow", "showSelectedArrow", "setArrowAsSelected");
+			_.bindAll(this, "render", "unrender", "changeTilePaths", "initPathPicker", "showNormalArrow", "showSelectedArrow", "setArrowAsSelected");
 			this.model.bind("change", this.render);
 			this.model.bind("remove", this.unrender);
 		},
 		render: function() {
-			var self = this;
-			$("#slot_pos", this.el).html("(" + this.model.get("positionX") + ", " + this.model.get("positionY") + ")");
+			var tmpl = _.template(this.template);
+			this.$el.html(tmpl(this.model.toJSON()));
 			
+			return this;
+		},
+		initPathPicker: function() {
+			var self = this;
+		
 			// bind path picker events (TODO find more backbone way to do this)
 			$("#pathPicker td").mouseenter(function() {
 				self.showSelectedArrow(this);
@@ -513,8 +519,6 @@ $(document).ready(function() {
 				}
 				this.setArrowAsSelected($("#pathPicker td#" + tdId));
 			}
-			
-			return this;
 		},
 		unrender: function(e) {
 		},
