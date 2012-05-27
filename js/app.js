@@ -148,7 +148,7 @@ function getBoardJSON() {
 	// Iterate through tiles and place correctly
 	tileList.each(function(tile) {
 		var obj = {};
-		obj.paths = tile.paths;
+		obj.paths = tile.get("paths");
 		
 		var tileInfo = getTileTypeInfo(tile.get("type"));
 		obj.type = tile.get("type");

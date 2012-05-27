@@ -35,20 +35,19 @@ $("#container").live("pageinit", function() {
 					image: tile.image,
 					type: tile.type,
 					positionX: j,
-					positionY: i
+					positionY: i,
+					paths: tile.paths
 				});
 			} else {
 				slot = new Slot(null, {
 					positionX: j,
-					positionY: i
+					positionY: i,
 				});
 			}
 			row.push(slot);
 		}
 		slots.push(row);
 	}
-	// TODO replace this later. For now, set up circuit path around board.
-	slots = initBoardPath(slots);
 		
 	game = new Game(null, {
 		title: "My Donburi Game",
@@ -80,7 +79,7 @@ $("#container").live("pageinit", function() {
 /* Format: Array of arrays (rows and columns). Each array slot has a JS object that contains 
  * { slot: (true or false), path: (a constant indicating a direction), rules: (format TBD) }
  */
-function initBoardPath(slots) {
+function initBoardPathWithCircuit(slots) {
 	var size = slots.length;
 	for (var i = 0; i < size; i++) {
 		for (var j = 0; j < size; j++) {

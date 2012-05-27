@@ -225,7 +225,7 @@ var Game = new Class({
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 
 		// get path of current square
-		var path = this.options.board.options.slots[curY][curX].getPath(); // row first
+		var path = this.options.board.options.slots[curY][curX].getPaths()[0]; // row first
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
 		var moveObj = {top: 0, left: 0};
@@ -477,7 +477,7 @@ var Piece = new Class({
 var Slot = new Class({
 	Implements: [Options, Events],
 	options: {
-		path: null,
+		paths: null,
 		type: "",
 		color: null,
 		image: null,
@@ -515,17 +515,17 @@ var Slot = new Class({
 	},
 	
 	/* Utility */
-	getPath: function() {
-		return this.options.path;
+	getPaths: function() {
+		return this.options.paths;
 	},
-	setPath: function(newPath) {
-		this.options.path = newPath;
+	setPaths: function(newPaths) {
+		this.options.paths = newPaths;
 	},
 	getPieces: function() {
 		return game.options.pieces.getPiecesByPosition(this.options.positionX, this.options.positionY);
 	},
-	showPathPicker: function(paths) {
-		showThePathPicker("Choose where to move next:", paths);
+	showPathPicker: function() {
+		showThePathPicker("Choose where to move next:", this.option.paths);
 	},
 	showPiecePicker: function(types) {
 		showThePiecePicker("Choose which piece to move", types);
