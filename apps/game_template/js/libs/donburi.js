@@ -216,23 +216,37 @@ var Game = new Class({
 		return diceResult;
 	},
 	makeMove: function(piece, curX, curY, moveCount) {
-		var pieceDiv = piece.pieceDiv;
 		if (moveCount == 0) {
 			this.moveEnd(piece, curX, curY);
 			return;
 		}
-		
-		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 
 		// get path of current square
-		var path = this.options.board.options.slots[curY][curX].getPaths()[0]; // row first
+		var paths = this.options.board.options.slots[curY][curX].getPaths(); // row first
+		var path = null;
+		
+		var self = this;
+		if (paths.length == 1) {
+			path = paths[0];
+			this.makeMoveHelper(piece, curX, curY, moveCount, path);
+		} else if (paths.length > 1) {
+			//path = this.options.board.options.slots[curY][curX].showPathPicker(function() {
+			//	self.makeMoveHelper(piece, curX, curY, moveCount, arguments[0]);
+			//});
+			showThePathPicker("Choose where to move next:", paths, [piece, curX, curY, moveCount]);
+			//});
+		}
+	},
+	makeMoveHelper: function(piece, curX, curY, moveCount, path) {
+		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
 		var moveObj = {top: 0, left: 0};
+		
 		// update position
 		if (path == null) {
 			// stop automatically
-			self.makeMove(piece, curX, curY, 0);
+			this.makeMove(piece, curX, curY, 0);
 		} else {
 			if (path == Path.RIGHT || path == Path.UP_RIGHT || path == Path.DOWN_RIGHT) {
 				curX++;
@@ -253,6 +267,8 @@ var Game = new Class({
 			var self = this;
 			var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 			sourceSlot.addClass("slot-moving");
+			
+			var pieceDiv = piece.pieceDiv;
 			pieceDiv.addClass("piece-moving")
 			.animate(moveObj, {
 				duration: 1000, 
@@ -524,8 +540,8 @@ var Slot = new Class({
 	getPieces: function() {
 		return game.options.pieces.getPiecesByPosition(this.options.positionX, this.options.positionY);
 	},
-	showPathPicker: function() {
-		showThePathPicker("Choose where to move next:", this.option.paths);
+	showPathPicker: function(callback) {
+		showThePathPicker("Choose where to move next:", this.options.paths, callback);
 	},
 	showPiecePicker: function(types) {
 		showThePiecePicker("Choose which piece to move", types);
@@ -726,23 +742,23 @@ var PieceList = new Class({
  * Given an array of ints (paths), have the user choose between them
  */
  // TODO
-function showThePathPicker(msg, paths, callbackClose) {
+function showThePathPicker(msg, paths, makeMoveHelperArgs) {
 	var buttons = {};
-	for (var i = 0; i < paths.length; i++) {
+	$.each(paths, function(i, path) {
 		var button = {
 			click: function () { 
-			  $("#buttonoutput").text(paths[i]);
+			  $("#buttonoutput").text(path);
+			  game.makeMoveHelper(makeMoveHelperArgs[0], makeMoveHelperArgs[1], makeMoveHelperArgs[2], makeMoveHelperArgs[3], path);
 			},
 			icon: ""
 		};
 		buttons[Path.toString(paths[i])] = button;
-	}
+	});
 	$('<div>').simpledialog2({
 		mode: 'button',
 		dialogForce:true,
 		buttonPrompt: msg,
-		buttons : buttons,
-		callbackClose: callbackClose
+		buttons : buttons
 	});
 }
 
@@ -780,4 +796,87 @@ function showThePiecePicker(msg, pieces, callbackClose) {
 		buttonPrompt: msg,
 		buttons : buttons
 	});
+}
+
+function convertToMooToolsPlayers() {
+	// convert data.players into Player Classes
+	var players = new Array();
+	for (var i = 0; i < data.players.length; i++) {
+		players.push(new Player(null, {
+			id: data.players[i].id
+		}));
+	}
+	return players;
+}
+
+function convertToMooToolsPieces() {
+	// convert data.pieces into Piece Classes
+	var pieces = new Array();
+	for (var i = 0; i < data.pieces.pieces.length; i++) {
+		pieces.push(new Piece(null, {
+			image: data.pieces.pieces[i].image,
+			player: data.pieces.pieces[i].player,
+			type: data.pieces.pieces[i].type,
+			positionX: 0,
+			positionY: 0
+		}));
+	}
+	return pieces;
+}
+
+function convertToMooToolsBoard() {
+	// convert data.board.board into Slot Classes
+	var slots = new Array();
+	for (var i = 0; i < data.board.board.length; i++) {
+		var row = new Array(); //data.board.board[i];
+		for (var j = 0; j < data.board.board[i].length; j++) {
+			var tile = null;
+			var slot;
+			if (typeof(data.board.board[i][j].length) == "undefined") { // TODO checks if it's an object. hacky
+				tile = data.board.board[i][j];
+				slot = new Slot(null, {
+					color: tile.color,
+					image: tile.image,
+					type: tile.type,
+					positionX: j,
+					positionY: i,
+					paths: tile.paths
+				});
+			} else {
+				slot = new Slot(null, {
+					positionX: j,
+					positionY: i,
+				});
+			}
+			row.push(slot);
+		}
+		slots.push(row);
+	}
+	return slots;
+}
+
+/* Format: Array of arrays (rows and columns). Each array slot has a JS object that contains 
+ * { slot: (true or false), path: (a constant indicating a direction), rules: (format TBD) }
+ */
+function initBoardPathWithCircuit(slots) {
+	var size = slots.length;
+	for (var i = 0; i < size; i++) {
+		for (var j = 0; j < size; j++) {
+			// Create a simple circuit board
+			var tile = slots[i][j];
+			// if first row or last row
+			if (i == 0 || i == (size - 1) || j == 0 || j == (size - 1)) {
+				if (i == 0 && j != 0) {
+					tile.options.path = Path.LEFT;
+				} else if (j == 0 && i != (size - 1)) {
+					tile.options.path = Path.DOWN;
+				} else if (i == (size - 1) && j != (size - 1)) {
+					tile.options.path = Path.RIGHT;
+				} else if (j == (size - 1) && i != 0) {
+					tile.options.path = Path.UP;
+				}
+			}
+		}
+	}
+	return slots;
 }
