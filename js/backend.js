@@ -426,14 +426,19 @@ $(document).ready(function() {
 			return this;
 		},
 		unrender: function(e) {
+			$("div#boardRulesPanel").show();
+			$('div#slotRulesPanel').hide();
 			$(this.el).remove();
 			this.remove();
 			if (!e.cid) { // if not a model
 				e.stopImmediatePropagation();
 			}
 		},
-		remove: function() {
+		remove: function(e) {
 			this.model.destroy();
+			if (e) {
+				e.stopImmediatePropagation();
+			}
 		},
 		showTileRules: function(e) {
 			$("div#boardRulesPanel").hide();
@@ -640,7 +645,8 @@ $(document).ready(function() {
 					var tile = tileList.create({
 						positionX: self.model.get("positionX"),
 						positionY: self.model.get("positionY"),
-						type: model.get("name")
+						type: model.get("name"),
+						paths: []
 					});
 					
 					var tView = new TileView({
