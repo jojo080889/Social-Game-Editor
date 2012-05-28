@@ -85,7 +85,7 @@ var Game = new Class({
 	},
 	onTurnStart: function(player) {
 	},
-	onMoveStart: function(player) {
+	onMoveStart: function(player, callback) {
 	},
 	onMoveEnd: function(player) {
 	},
@@ -128,12 +128,18 @@ var Game = new Class({
 		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
 		this.current.pieceToMove = piece;
 		
-		this.fireEvent('turnStart', this.options.players.getPlayerByID(this.current.player)); // first player's turn start
-		
-		//this.onTurnStart(this.options.players.getPlayerByID(this.current.player));
+		this.onTurnStart(this.options.players.getPlayerByID(this.current.player)); // first player's turn start
 	},
 	end: function() {
 		this.fireEvent('end');
+		
+		// show notice
+		$("#game-message").html("<b>Player " + (this.current.player + 1) + "</b> has won the game!");
+		$("#game-message").show("fast");
+		
+		// disable actions
+		$("#roll_move").unbind();
+		$("#skip_turn").unbind();
 	},
 	changeToNextTurn: function() {
 		this.fireEvent('turnEnd', this.options.players.getPlayerByID(this.current.player));
@@ -179,9 +185,21 @@ var Game = new Class({
 		// get piece of current player
 		var pieces = this.options.pieces.getPiecesByPlayerID(this.current.player);
 		this.current.pieceToMove = pieces[0]; // this is default unless otherwise indicated by the coder
-		
-		//this.fireEvent('turnStart', this.options.players.getPlayerByID(this.current.player));
+
 		this.onTurnStart(this.options.players.getPlayerByID(this.current.player));
+	},
+	getCurrentSlotPosition: function() {
+		var pieceToMove = game.current.pieceToMove;
+		var curX, curY;
+		if (typeof pieceToMove.length == "number") {
+			// if pieceToMove is an array
+			curX = pieceToMove[0].getPositionX(); // assume all pieces are in the same position
+			curY = pieceToMove[0].getPositionY();
+		} else {
+			curX = pieceToMove.getPositionX();
+			curY = pieceToMove.getPositionY();
+		}
+		return {x:curX, y:curY}
 	},
 	moveStart: function() {
 		this.onMoveStart(this.options.players.getPlayerByID(this.current.player), this.moveStartHelper);
@@ -190,26 +208,50 @@ var Game = new Class({
 		/* Must write this callback function using game instead of this, because this is the dialog widget */
 		// TODO: handle multiple pieces
 		var pieceToMove = game.current.pieceToMove;
-		var curX = pieceToMove.getPositionX();
-		var curY = pieceToMove.getPositionY();
+		var curX = game.getCurrentSlotPosition().x;
+		var curY = game.getCurrentSlotPosition().y;
 
 		var diceResult = game.decideMove();
 		game.current.moveCount = diceResult;
 		$("#move-result-num").html(diceResult);
 		$("#move-result").show("fast").delay(1000).hide("fast", 
 		function() {
+			// check if currentSlot has changed in moveStart
+			curX = game.getCurrentSlotPosition().x;
+			curY = game.getCurrentSlotPosition().y;
+			
 			var currentSlot = game.options.board.getSlotByPosition(curX, curY);
 			
 			if (currentSlot.options.disableLeaveEventNum == 0) {
-				game.options.board.fireEvent('leave', [currentSlot, pieceToMove, "normal"]);
-				currentSlot.fireEvent('leave', [pieceToMove, "normal"]);
+				game.options.board.onLeave(currentSlot, pieceToMove, "normal", function() {
+					game.current.moveFlags = game.createMoveFlags(game.current.pieceToMove);
+					currentSlot.onLeave(pieceToMove, "normal", function() {
+						game.makeMove(curX, curY);
+					});
+				});
 			} else {
 				if (currentSlot.options.disableLeaveEventNum != -1) {
 					currentSlot.options.disableLeaveEventNum--;
 				}
+				game.current.moveFlags = game.createMoveFlags(game.current.pieceToMove);
+				game.makeMove(curX, curY);
 			}
-			game.makeMove(pieceToMove, curX, curY, diceResult);
 		});
+	},
+	createMoveFlags: function(pieceToMove) {
+		var moveFlags = new Array();
+		for (var i = 1; i <= game.current.moveCount; i++) {
+			var flagRow = new Array();
+			if (typeof pieceToMove.length == "number") {
+				for (var j = 0; j < pieceToMove.length; j++) {
+					flagRow.push(false);
+				}
+			} else {
+				flagRow.push(false);
+			}
+			moveFlags[i] = flagRow;
+		}
+		return moveFlags;
 	},
 	decideMove: function() {
 		// pick random number
@@ -217,7 +259,9 @@ var Game = new Class({
 		var diceResult = Math.floor((Math.random()*this.options.rollMax) + this.options.rollMin); // 1 through 6
 		return diceResult;
 	},
-	makeMove: function(piece, curX, curY, moveCount) {
+	makeMove: function(curX, curY) {
+		var piece = game.current.pieceToMove;
+		var moveCount = game.current.moveCount;
 		if (moveCount == 0) {
 			this.moveEnd(piece, curX, curY);
 			return;
@@ -230,12 +274,14 @@ var Game = new Class({
 		var self = this;
 		if (paths.length == 1) {
 			path = paths[0];
-			this.makeMoveHelper(piece, curX, curY, moveCount, path);
+			this.makeMoveHelper(curX, curY, path);
 		} else if (paths.length > 1) {
-			showThePathPicker("Choose where to move next:", paths, [piece, curX, curY, moveCount]);
+			showThePathPicker("Choose where to move next:", paths, [curX, curY]);
 		}
 	},
-	makeMoveHelper: function(piece, curX, curY, moveCount, path) {
+	makeMoveHelper: function(curX, curY, path) {
+		var piece = game.current.pieceToMove;
+		var moveCount = game.current.moveCount;
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
@@ -244,7 +290,7 @@ var Game = new Class({
 		// update position
 		if (path == null) {
 			// stop automatically
-			this.makeMove(piece, curX, curY, 0);
+			this.makeMove(curX, curY, 0);
 		} else {
 			if (path == Path.RIGHT || path == Path.UP_RIGHT || path == Path.DOWN_RIGHT) {
 				curX++;
@@ -262,50 +308,96 @@ var Game = new Class({
 				curY--;
 				moveObj.top = "-" + verDistance + "px";
 			}
-			var self = this;
-			var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
-			sourceSlot.addClass("slot-moving");
 			
-			var pieceDiv = piece.pieceDiv;
+			if (typeof piece.length == "number") {
+				// if piece is an array
+				var pieceDivs = new Array();
+				for (var i = 0; i < piece.length; i++) {
+					pieceDivs.push(piece[i].pieceDiv);
+				}
+				this.makeMovePiece(pieceDivs, sourceSlot, moveObj, curX, curY);
+			} else {
+				this.makeMovePiece(piece.pieceDiv, sourceSlot, moveObj, curX, curY);
+			}
+		}
+	},
+	makeMovePiece: function(pieceDivs, sourceSlot, moveObj, curX, curY) {
+		var self = this;
+		var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
+		sourceSlot.addClass("slot-moving");
+		var moveCount = game.current.moveCount;
+		if (!$.isArray(pieceDivs)) {
+			pieceDivs = [pieceDivs];
+		}
+		$.each(pieceDivs, function(i, pieceDiv) {
 			pieceDiv.addClass("piece-moving")
 			.animate(moveObj, {
 				duration: 1000, 
 				complete: function() { 
 					$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
-					sourceSlot.removeClass("slot-moving");
-
-					if (moveCount - 1 > 0) {
-						var currentSlot = self.options.board.getSlotByPosition(curX, curY);
-						
-						if (currentSlot.options.disablePassEventNum == 0) {
-							self.options.board.fireEvent('pass', [currentSlot, self.current.pieceToMove, "normal"]);
-							currentSlot.fireEvent('pass', [self.current.pieceToMove, "normal"]);
-						} else {
-							if (currentSlot.options.disablePassEventNum != -1) {
-								currentSlot.options.disablePassEventNum--;
-							}
+					
+					game.current.moveFlags[moveCount][i] = true;
+					
+					// Check if this pieceDiv is the last to animate for the current move step
+					var allFlagged = true;
+					for (var j = 0; j < game.current.moveFlags[moveCount].length; j++) {
+						if (game.current.moveFlags[moveCount][j] == false) {
+							allFlagged = false;
 						}
 					}
-					self.makeMove(piece, curX, curY, moveCount - 1);
+					if (allFlagged) {
+						sourceSlot.removeClass("slot-moving");
+
+						if (moveCount - 1 > 0) {
+							var currentSlot = self.options.board.getSlotByPosition(curX, curY);
+							
+							if (currentSlot.options.disablePassEventNum == 0) {
+								game.options.board.onPass(currentSlot, self.current.pieceToMove, "normal", function() {
+									currentSlot.onPass(self.current.pieceToMove, "normal", function() {
+										game.current.moveCount--;
+										self.makeMove(curX, curY);
+									});
+								});
+							} else {
+								if (currentSlot.options.disablePassEventNum != -1) {
+									currentSlot.options.disablePassEventNum--;
+								}
+								game.current.moveCount--;
+								self.makeMove(curX, curY);
+							}
+						} else {
+							game.current.moveCount--;
+							self.makeMove(curX, curY);
+						}
+					}
 				}
 			});
-		}
+		});
 	},
 	moveEnd: function(piece, curX, curY) {
-		piece.setPosition(curX, curY);
-		this.fireEvent('moveEnd', this.options.players.getPlayerByID(this.current.player));
+		if (!$.isArray(piece)) {
+			piece = [piece];
+		}
+		for (var i = 0; i < piece.length; i++) {
+			piece[i].setPosition(curX, curY);
+		}
 		var currentSlot = this.options.board.getSlotByPosition(curX, curY);
 		
 		if (currentSlot.options.disableLandEventNum == 0) {
-			this.options.board.fireEvent('land', [currentSlot, this.current.pieceToMove, "normal"]);
-			currentSlot.fireEvent('land', [this.current.pieceToMove, "normal"]);
+			this.options.board.onLand(currentSlot, game.current.pieceToMove, "normal", function() {		
+				currentSlot.onLand(game.current.pieceToMove, "normal", function() {
+					// Change turn to next player
+					game.changeToNextTurn();
+				});
+			});
 		} else {
 			if (currentSlot.options.disableLandEventNum != -1) {
 				currentSlot.options.disableLandEventNum--;
 			}
+			// Change turn to next player
+			this.changeToNextTurn();
 		}
-		// Change turn to next player
-		this.changeToNextTurn();
+		this.fireEvent('moveEnd', this.options.players.getPlayerByID(this.current.player));
 	},
 	turnEnd: function() {
 	
@@ -473,8 +565,8 @@ var Piece = new Class({
 		return this.options.positionY;
 	},
 	setPosition: function(positionX, positionY) {
-		this.options.positionX = positionX;
-		this.options.positionY = positionY;
+		this.options.positionX = parseInt(positionX);
+		this.options.positionY = parseInt(positionY);
 		if (this.isOnBoard()) {
 			// also move its visual representation
 			if (typeof this.pieceDiv != "undefined") {
@@ -514,11 +606,6 @@ var Slot = new Class({
 	jQuery: 'slot',
 	initialize: function(selector, options) {
 		this.setOptions(options);
-		this.addEvents({
-			"land": this.onLand,
-			"leave": this.onLeave,
-			"pass": this.onPass
-		});
 	},
 	
 	/* UI */
@@ -527,14 +614,24 @@ var Slot = new Class({
 	},
 	
 	/* Events */
-	onLand: function(piece, eventType) {
+	onLand: function(piece, eventType, callback) {
 		console.log("onLand (" + this.options.positionX + ", " + this.options.positionY + ")");
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
-	onLeave: function(piece, eventType) {
+	onLeave: function(piece, eventType, callback) {
 		console.log("onLeave (" + this.options.positionX + ", " + this.options.positionY + ")");
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
-	onPass: function(piece, eventType) {
+	onPass: function(piece, eventType, callback) {
 		console.log("onPass (" + this.options.positionX + ", " + this.options.positionY + ")");
+		
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	
 	/* Utility */
@@ -566,11 +663,6 @@ var Board = new Class({
 	jQuery: 'board', //namespace for new jquery method
 	initialize: function(selector, options) {
 		this.setOptions(options);
-		this.addEvents({
-			"land": this.onLand,
-			"leave": this.onLeave,
-			"pass": this.onPass
-		});
 		this.size = this.options.slots.length; // TODO Assumes a square
 	},
 	
@@ -583,14 +675,17 @@ var Board = new Class({
 	/* Event Handlers */
 	// master event functions that execute on EVERY
 	// slot land/leave/pass.
-	onLand: function(slot, piece, eventType) {
+	onLand: function(slot, piece, eventType, callback) {
 		console.log("onLand");
+		callback();
 	},
-	onLeave: function(slot, piece, eventType) {
+	onLeave: function(slot, piece, eventType, callback) {
 		console.log("onLeave");
+		callback();
 	},
-	onPass: function(slot, piece, eventType) {
+	onPass: function(slot, piece, eventType, callback) {
 		console.log("onPass");
+		callback();
 	},
 	
 	/* Utility */
@@ -737,7 +832,7 @@ var PieceList = new Class({
 		var posPieces = new Array();
 		for (var i = 0; i < this.piecesNum; i++) {
 			var p = this.options.pieces[i].options;
-			if (p.positionX == x && p.positionY == y) {
+			if (p.positionX == x && p.positionY == y && p.state == "isOnBoard") {
 				posPieces.push(this.options.pieces[i]);
 			}
 		}
@@ -758,7 +853,7 @@ var PieceList = new Class({
 			
 			if (typeof searchcrit.player != "undefined") {
 				if (typeof searchcrit.player == "object") {
-					var subcriteria = true;
+					var subcriteria = false;
 					for (var j = 0; j < searchcrit.player.length; j++) {
 						subcriteria = subcriteria || (searchcrit.player[j] == p.player);
 					}
@@ -769,7 +864,7 @@ var PieceList = new Class({
 			}
 			if (typeof searchcrit.piecestate != "undefined") {
 				if (typeof searchcrit.piecestate == "object") {
-					var subcriteria = true;
+					var subcriteria = false;
 					for (var j = 0; j < searchcrit.piecestate.length; j++) {
 						subcriteria = subcriteria || (searchcrit.piecestate[j] == p.state);
 					}
@@ -797,7 +892,7 @@ function showThePathPicker(msg, paths, makeMoveHelperArgs) {
 		var button = {
 			click: function () { 
 			  $("#buttonoutput").text(path);
-			  game.makeMoveHelper(makeMoveHelperArgs[0], makeMoveHelperArgs[1], makeMoveHelperArgs[2], makeMoveHelperArgs[3], path);
+			  game.makeMoveHelper(makeMoveHelperArgs[0], makeMoveHelperArgs[1], path);
 			},
 			icon: ""
 		};
@@ -822,7 +917,6 @@ function showThePiecePicker(msg, pieces, callbackClose) {
 		var button = {
 			click: function () { 
 			  game.current.pieceToMove = pieces[i];
-			  console.log("button clicked");
 			},
 			icon: ""
 		};
