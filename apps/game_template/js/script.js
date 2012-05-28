@@ -11,29 +11,35 @@ $("#container").live("pageinit", function() {
 		players: new PlayerList(null, {players: players}),
 		board: new Board(null, {slots: slots}),
 		pieces: new PieceList(null, {pieces: pieces}),
-		rollMax = 5,
-		onStart: function() {
-			console.log("onStart");
-		},
-		onTurnStart: function(player) {
-			console.log("onTurnStart");
-			this.current.pieceToMove = player.showPiecePicker("allButPermRemoved");
-			if (!this.current.pieceToMove.isOnBoard()) {
-				this.current.pieceToMove.addToBoard(5, 5);
-				game.disableLeaveEventThisTurn(this.board.options.slots[5][5]);
-			});
-		},
-		onMoveStart: function(player) {
-			console.log("onMoveStart");
-		},
-		onMoveEnd: function(player) {
-			console.log("onMoveEnd");
-		},
-		onTurnEnd: function(player) {
-			console.log("onTurnEnd");
-		},
-		onEnd: function() {
-			console.log("onEnd");
-		}
+		rollMax: 5
 	});
+
+	game.addEvent('start', function() {
+		console.log("onStart");
+	});
+	game.addEvent('turnStart', function(player) {
+		console.log("onTurnStart");
+	});
+	game.onMoveStart = function(player, callback) {
+		player.showPiecePicker(["isOffBoard","isOnBoard"], function() {
+			callback();
+			if (!game.current.pieceToMove.isOnBoard()) {
+				game.current.pieceToMove.addToBoard(5, 5);
+				game.disableLeaveEventThisTurn(game.board.options.slots[5][5]);
+			}
+		});
+	}
+	game.addEvent('moveEnd', function(player) {
+		console.log("onMoveEnd");
+	});
+	game.addEvent('turnEnd', function(player) {
+		console.log("onTurnEnd");
+	});
+	game.addEvent('end', function() {
+		console.log("onEnd");
+	});
+});
+
+$("#container").live("pageshow", function() {
+	game.start();
 });

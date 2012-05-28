@@ -112,6 +112,9 @@ function getPlayerJSON() {
 	return playersArray;
 }
 function getPiecesJSON() {
+	if (typeof localStorage.PieceList == "undefined") {
+		return {};
+	}
 	var pieces = JSON.parse(localStorage.PieceList);
 	var piecesArray = new Array();
 	for (var key in pieces) {

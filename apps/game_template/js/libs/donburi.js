@@ -78,9 +78,6 @@ var Game = new Class({
 		
 		// Set event handlers
 		this.bindActionHandlers();
-		
-		// Start Game
-		this.start();
 	},
 	
 	/* Events */
@@ -131,13 +128,15 @@ var Game = new Class({
 		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
 		this.current.pieceToMove = piece;
 		
-		this.fireEvent('turnStart', this.current.player); // first player's turn start
+		this.fireEvent('turnStart', this.options.players.getPlayerByID(this.current.player)); // first player's turn start
+		
+		//this.onTurnStart(this.options.players.getPlayerByID(this.current.player));
 	},
 	end: function() {
 		this.fireEvent('end');
 	},
 	changeToNextTurn: function() {
-		this.fireEvent('turnEnd', this.current.player);
+		this.fireEvent('turnEnd', this.options.players.getPlayerByID(this.current.player));
 		
 		// reset current turn
 		this.current.moveCount = null;
@@ -179,38 +178,37 @@ var Game = new Class({
 		
 		// get piece of current player
 		var pieces = this.options.pieces.getPiecesByPlayerID(this.current.player);
-		if (pieces.length == 1) {
-			this.current.pieceToMove = pieces[0]; // TODO make this default
-		} else if (pieces.length > 1) {
-			showThePiecePicker("Choose a piece to move:", pieces);
-		}
+		this.current.pieceToMove = pieces[0]; // this is default unless otherwise indicated by the coder
 		
-		this.fireEvent('turnStart', this.current.player);
+		//this.fireEvent('turnStart', this.options.players.getPlayerByID(this.current.player));
+		this.onTurnStart(this.options.players.getPlayerByID(this.current.player));
 	},
 	moveStart: function() {
-		var self = this;
-
+		this.onMoveStart(this.options.players.getPlayerByID(this.current.player), this.moveStartHelper);
+	},
+	moveStartHelper: function() {
+		/* Must write this callback function using game instead of this, because this is the dialog widget */
 		// TODO: handle multiple pieces
-		var curX = this.current.pieceToMove.getPositionX();
-		var curY = this.current.pieceToMove.getPositionY();
+		var pieceToMove = game.current.pieceToMove;
+		var curX = pieceToMove.getPositionX();
+		var curY = pieceToMove.getPositionY();
 
-		var diceResult = this.decideMove();
-		this.current.moveCount = diceResult;
+		var diceResult = game.decideMove();
+		game.current.moveCount = diceResult;
 		$("#move-result-num").html(diceResult);
 		$("#move-result").show("fast").delay(1000).hide("fast", 
 		function() {
-			self.fireEvent('moveStart', self.current.player);
-			var currentSlot = self.options.board.getSlotByPosition(curX, curY);
+			var currentSlot = game.options.board.getSlotByPosition(curX, curY);
 			
 			if (currentSlot.options.disableLeaveEventNum == 0) {
-				self.options.board.fireEvent('leave', [currentSlot, self.current.pieceToMove, "normal"]);
-				currentSlot.fireEvent('leave', [self.current.pieceToMove, "normal"]);
+				game.options.board.fireEvent('leave', [currentSlot, pieceToMove, "normal"]);
+				currentSlot.fireEvent('leave', [pieceToMove, "normal"]);
 			} else {
 				if (currentSlot.options.disableLeaveEventNum != -1) {
 					currentSlot.options.disableLeaveEventNum--;
 				}
 			}
-			self.makeMove(self.current.pieceToMove, curX, curY, diceResult);
+			game.makeMove(pieceToMove, curX, curY, diceResult);
 		});
 	},
 	decideMove: function() {
@@ -295,7 +293,7 @@ var Game = new Class({
 	},
 	moveEnd: function(piece, curX, curY) {
 		piece.setPosition(curX, curY);
-		this.fireEvent('moveEnd', this.current.player);
+		this.fireEvent('moveEnd', this.options.players.getPlayerByID(this.current.player));
 		var currentSlot = this.options.board.getSlotByPosition(curX, curY);
 		
 		if (currentSlot.options.disableLandEventNum == 0) {
@@ -388,8 +386,9 @@ var Player = new Class({
 		}
 		return pieces;
 	},
-	showPiecePicker: function(types) {
-		showThePiecePicker("Choose which piece to move");
+	showPiecePicker: function(types, callback) {
+		var pickpieces = game.options.pieces.getPieces({player:this.options.id, piecestate: types});
+		showThePiecePicker("Choose which piece to move", pickpieces, callback);
 	},
 	getID: function() {
 		return this.options.id;
@@ -458,16 +457,14 @@ var Piece = new Class({
 		permanently ? this.options.state = "isPermOffBoard" : this.options.state = "isOffBoard";
 	},
 	addToBoard: function(positionX, positionY) {
-		var p = this.options;
-		positionX = typeof positionX !== 'undefined' ? positionX : p.positionX;
-		positionY = typeof positionY !== 'undefined' ? positionY : p.positionY;
-		
-		this.setPosition(positionX, positionY);
-		
-		this.render();
-		var slotDiv = $($($("#board .row")[positionY]).find(".slot")[positionX]);
-		slotDiv.append(this.pieceDiv);
-		this.options.state = "isOnBoard";
+		if (!this.isOnBoard()) {
+			this.options.state = "isOnBoard";
+			var p = this.options;
+			positionX = typeof positionX !== 'undefined' ? positionX : p.positionX;
+			positionY = typeof positionY !== 'undefined' ? positionY : p.positionY;
+			
+			this.setPosition(positionX, positionY);
+		}
 	},
 	getPositionX: function() {
 		return this.options.positionX;
@@ -478,6 +475,14 @@ var Piece = new Class({
 	setPosition: function(positionX, positionY) {
 		this.options.positionX = positionX;
 		this.options.positionY = positionY;
+		if (this.isOnBoard()) {
+			// also move its visual representation
+			this.pieceDiv.remove();
+			
+			this.render();
+			var slotDiv = $($($("#board .row")[positionY]).find(".slot")[positionX]);
+			slotDiv.append(this.pieceDiv);
+		}
 	},
 	isOnBoard: function() {
 		return (this.options.state == "isOnBoard")
@@ -734,6 +739,47 @@ var PieceList = new Class({
 			}
 		}
 		return posPieces;	
+	},
+	// searchcrit is an object that may includes search criteria. By default, searches for criteria using AND.
+	// searchcrit = {
+	//	player: <id>,
+	//	piecestate: <piece state>
+	//}
+	// if you want the criterion to match multiple values, pass an array instead of a single value.
+	getPieces: function(searchcrit) {
+		var resPieces = new Array();
+		for (var i = 0; i < this.piecesNum; i++) {
+			var p = this.options.pieces[i].options;	
+			// build criteria
+			var criteria = true;
+			
+			if (typeof searchcrit.player != "undefined") {
+				if (typeof searchcrit.player == "object") {
+					var subcriteria = true;
+					for (var j = 0; j < searchcrit.player.length; j++) {
+						subcriteria = subcriteria || (searchcrit.player[j] == p.player);
+					}
+					criteria = criteria && subcriteria;
+				} else if (typeof searchcrit.player == "number") {
+					criteria = criteria && (searchcrit.player == p.player);
+				}
+			}
+			if (typeof searchcrit.piecestate != "undefined") {
+				if (typeof searchcrit.piecestate == "object") {
+					var subcriteria = true;
+					for (var j = 0; j < searchcrit.piecestate.length; j++) {
+						subcriteria = subcriteria || (searchcrit.piecestate[j] == p.state);
+					}
+					criteria = criteria && subcriteria;
+				} else if (typeof searchcrit.piecestate == "string") {
+					criteria = criteria && (searchcrit.piecestate == p.state);
+				}
+			}
+			if (criteria) {
+				resPieces.push(this.options.pieces[i]);
+			}
+		}
+		return resPieces;		
 	}
 });
 
@@ -773,6 +819,7 @@ function showThePiecePicker(msg, pieces, callbackClose) {
 		var button = {
 			click: function () { 
 			  game.current.pieceToMove = pieces[i];
+			  console.log("button clicked");
 			},
 			icon: ""
 		};
@@ -798,7 +845,8 @@ function showThePiecePicker(msg, pieces, callbackClose) {
 		mode: 'button',
 		dialogForce:true,
 		buttonPrompt: msg,
-		buttons : buttons
+		buttons : buttons,
+		callbackClose: callbackClose
 	});
 }
 
@@ -815,6 +863,9 @@ function convertToMooToolsPlayers() {
 
 function convertToMooToolsPieces() {
 	// convert data.pieces into Piece Classes
+	if (data.pieces.length == 0) {
+		return [];
+	}
 	var pieces = new Array();
 	for (var i = 0; i < data.pieces.pieces.length; i++) {
 		pieces.push(new Piece(null, {
