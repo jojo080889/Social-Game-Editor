@@ -121,6 +121,9 @@ function getPiecesJSON() {
 		if (pieces.hasOwnProperty(key)) {
 			var obj = {};
 			obj.player = pieces[key].player;
+			obj.startPositionX = pieces[key].startPositionX;
+			obj.startPositionY = pieces[key].startPositionY;
+			obj.startState = pieces[key].startState;
 			var pieceInfo = getPieceTypeInfo(pieces[key].type);
 			obj.type = pieces[key].type;
 			if (typeof(pieceInfo.image) == "undefined" || pieceInfo.image == null) {

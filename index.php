@@ -41,27 +41,26 @@ include "header.php"
 	
 	<!-- player design tab -->
 	<div id="player_design" class="tab_content">
-		<h4>Create Pieces and Players</h4>
-		
-		<p>Drag-and-drop pieces to assign them to players.</p>
-		
-		<button id="addPieceType" class="button"><i class="icon-plus"></i>Add Piece Type</button>
-		<div id="pieceTypeListContainer" class="scroll_container">
-			<div class="scrollLeft scroll"><i class="icon-chevron-left"></i></div>
-			<div class="scrollRight scroll"><i class="icon-chevron-right"></i></div>
-			<div id="pieceTypeList" class="scroll_list">
+		<div id="edit_pieces">
+			<h4>Create Pieces and Players</h4>
+			
+			<p>Drag-and-drop pieces to assign them to players.</p>
+			
+			<button id="addPieceType" class="button"><i class="icon-plus"></i>Add Piece Type</button>
+			<div id="pieceTypeListContainer" class="scroll_container">
+				<div class="scrollLeft scroll"><i class="icon-chevron-left"></i></div>
+				<div class="scrollRight scroll"><i class="icon-chevron-right"></i></div>
+				<div id="pieceTypeList" class="scroll_list">
+				</div>
+			</div>
+			
+			<button id="addPlayer" class="button"><i class="icon-plus"></i>Add a Player</button>
+			<button id="removePlayer" class="button"><i class="icon-minus"></i>Remove a Player</button>
+			<div id="playerList">
 			</div>
 		</div>
 		
-		<button id="addPlayer" class="button"><i class="icon-plus"></i>Add a Player</button>
-		<button id="removePlayer" class="button"><i class="icon-minus"></i>Remove a Player</button>
-		<div id="playerList">
-		</div>
-		
 		<div id="triggersPiece" class="rules_panel">
-			<h4>Trigger for Piece</h4>
-			1. On land ... <br/>
-			2. On land ... <br />
 		</div>	
 	</div>
 	
@@ -202,5 +201,30 @@ include "header.php"
 		</td>
 	</tr>
 	</table>
+</script>
+
+<script id="pieceOptionsTemplate" type="text/template">
+	<h4>Starting location</h4>
+	X: <input type="text" size="2" id="startX" value="<%= startPositionX %>" />
+	Y: <input type="text" size="2" id="startY" value="<%= startPositionY %>" />
+	
+	<h4>Starting state</h4>
+	<select id="startState">
+		<% if (startState == "isOnBoard") { %>
+			<option selected="selected">isOnBoard</option>
+		<% } else { %>
+			<option>isOnBoard</option>
+		<% } %>
+		<% if (startState == "isOffBoard") { %>
+			<option selected="selected">isOffBoard</option>
+		<% } else { %>
+			<option>isOffBoard</option>
+		<% } %>
+		<% if (startState == "isPermOffBoard") { %>
+			<option selected="selected">isPermOffBoard</option>
+		<% } else { %>
+			<option>isPermOffBoard</option>
+		<% } %>
+	</select>
 </script>
 <?php include "footer.php" ?>

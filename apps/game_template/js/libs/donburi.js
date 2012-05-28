@@ -477,7 +477,9 @@ var Piece = new Class({
 		this.options.positionY = positionY;
 		if (this.isOnBoard()) {
 			// also move its visual representation
-			this.pieceDiv.remove();
+			if (typeof this.pieceDiv != "undefined") {
+				this.pieceDiv.remove();
+			}
 			
 			this.render();
 			var slotDiv = $($($("#board .row")[positionY]).find(".slot")[positionX]);
@@ -717,7 +719,8 @@ var PieceList = new Class({
 		for (var i = 0; i < this.piecesNum; i++) {
 			// Only do first piece for each player
 			var piece = this.options.pieces[i];
-			piece.addToBoard();
+			// implicitly only draws pieces that are already on the board
+			piece.setPosition(piece.options.positionX, piece.options.positionY);
 		}
 	},
 	getPiecesByPlayerID: function(player) {
@@ -872,8 +875,9 @@ function convertToMooToolsPieces() {
 			image: data.pieces.pieces[i].image,
 			player: data.pieces.pieces[i].player,
 			type: data.pieces.pieces[i].type,
-			positionX: 0,
-			positionY: 0
+			positionX: data.pieces.pieces[i].startPositionX,
+			positionY: data.pieces.pieces[i].startPositionY,
+			state: data.pieces.pieces[i].startState
 		}));
 	}
 	return pieces;

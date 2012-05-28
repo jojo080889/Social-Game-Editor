@@ -27,6 +27,10 @@ $("#container").live("pageinit", function() {
 				game.current.pieceToMove.addToBoard(5, 5);
 				game.disableLeaveEventThisTurn(game.board.options.slots[5][5]);
 			}
+			
+			if (game.current.moveCount == 4 || game.current.moveCount == 5) {
+					game.turnSetAnother(player, 1);
+			}
 		});
 	}
 	game.addEvent('moveEnd', function(player) {

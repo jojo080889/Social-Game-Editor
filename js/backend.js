@@ -246,7 +246,10 @@ $(document).ready(function() {
 	var Piece = Backbone.Model.extend({
 		defaults: {
 			player: -1, // Player ID. -1 means not owned.
-			type: null
+			type: null,
+			startPositionX: 0,
+			startPositionY: 0,
+			startState: "isOffBoard"
 		}
 	});
 	var PieceView = Backbone.View.extend({
@@ -254,6 +257,7 @@ $(document).ready(function() {
 		className: "piece",
 		template: $("#pieceTemplate").html(),
 		events: {
+			"click": "showPieceOptions",
 			"click span.delete": "remove"
 		},    
 		initialize: function() {
@@ -277,11 +281,66 @@ $(document).ready(function() {
 		},
 		remove: function() {
 			this.model.destroy();
+			if (e) {
+				e.stopImmediatePropagation();
+			}
+		},
+		showPieceOptions: function(e) {
+			var pieceOptionsView = new PieceOptionsView({
+				model: this.model
+			});
+			$("#triggersPiece").empty().append(pieceOptionsView.render().el);
+			pieceOptionsView.initOptions();
+			
+			if (!e.cid) { // if not a model
+				e.stopImmediatePropagation();
+			}
 		}
 	});
 	var PieceList = Backbone.Collection.extend({
 		model: Piece,
 		localStorage: new Store("PieceList")
+	});
+	var PieceOptionsView = Backbone.View.extend({
+		tagName: 'div',
+		template: $("#pieceOptionsTemplate").html(),
+		events: {
+			"change #startX": "changeStartX",
+			"change #startY": "changeStartY",
+			"change #startState": "changeStartState"
+		},    
+		initialize: function() {
+			_.bindAll(this, "render", "unrender", "initOptions", "changeStartX", "changeStartY", "changeStartState");
+			this.model.bind("change", this.render);
+			this.model.bind("remove", this.unrender);
+		},
+		render: function() {
+			var tmpl = _.template(this.template);
+			this.$el.html(tmpl(this.model.toJSON()));
+			
+			return this;
+		},
+		initOptions: function() {
+			var self = this;
+			this.model.set("startPositionX", $("#startX").val());
+			this.model.set("startPositionY", $("#startY").val());
+			this.model.set("startState", $("#startState").val());
+			this.model.save();
+		},
+		unrender: function(e) {
+		},
+		changeStartX: function(e) {
+			this.model.set("startPositionX", $("#startX").val());
+			this.model.save();
+		},
+		changeStartY: function() {
+			this.model.set("startPositionY", $("#startY").val());
+			this.model.save();
+		},
+		changeStartState: function() {
+			this.model.set("startState", $("#startState").val());
+			this.model.save();
+		}
 	});
 	
 	/* TILE TYPES */

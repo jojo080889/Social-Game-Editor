@@ -81,7 +81,7 @@ header #mode_switch .selected:hover {
 }
 
 /* Board Design Tab */
-#edit_board {
+#edit_board, #edit_pieces {
 	margin-right: 300px;
 	overflow: auto;
 	position: absolute;
@@ -306,10 +306,6 @@ header #mode_switch .selected:hover {
 #player_design .player p {
 	font-size: 18px;
 	text-align: center;
-}
-
-#player_design #triggersPiece {
-	display: none;
 }
 
 .sansa p { font-size: 70%; line-height: 200%; }
