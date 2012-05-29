@@ -15,9 +15,6 @@ $("#container").live("pageinit", function() {
 	});
 
 	/* Game Events */
-	game.onStart = function() {
-		console.log("onStart");
-	};
 	game.onTurnStart = function(player) {
 		console.log("onTurnStart");
 	};
@@ -41,9 +38,6 @@ $("#container").live("pageinit", function() {
 	};
 	game.onTurnEnd = function(player) {
 		console.log("onTurnEnd");
-	};
-	game.onEnd = function() {
-		console.log("onEnd");
 	};
 	
 	/* Board and Slot Events */

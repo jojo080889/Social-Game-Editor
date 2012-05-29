@@ -81,17 +81,23 @@ var Game = new Class({
 	},
 	
 	/* Events */
-	onStart: function() {
+	onStart: function(callback) {
+		callback();
 	},
-	onTurnStart: function(player) {
+	onTurnStart: function(player,callback) {
+		callback();
 	},
 	onMoveStart: function(player, callback) {
+		callback();
 	},
-	onMoveEnd: function(player) {
+	onMoveEnd: function(player, callback) {
+		callback();
 	},
-	onTurnEnd: function(player) {
+	onTurnEnd: function(player, callback) {
+		callback();
 	},
-	onEnd: function() {
+	onEnd: function(callback) {
+		callback();
 	},
 	
 	/* Utility */
@@ -122,24 +128,26 @@ var Game = new Class({
 	
 	/* GAME */
 	start: function() {
-		this.fireEvent('start');
-		
-		// get piece of current player
-		var piece = this.options.pieces.getPiecesByPlayerID(this.current.player)[0];
-		this.current.pieceToMove = piece;
-		
-		this.onTurnStart(this.options.players.getPlayerByID(this.current.player)); // first player's turn start
+		var self = this;
+		this.onStart(function() {
+			// get piece of current player
+			var piece = self.options.pieces.getPiecesByPlayerID(self.current.player)[0];
+			self.current.pieceToMove = piece;
+			
+			self.onTurnStart(self.options.players.getPlayerByID(self.current.player)); // first player's turn start
+		});
 	},
 	end: function() {
-		this.fireEvent('end');
-		
-		// show notice
-		$("#game-message").html("<b>Player " + (this.current.player + 1) + "</b> has won the game!");
-		$("#game-message").show("fast");
-		
-		// disable actions
-		$("#roll_move").unbind();
-		$("#skip_turn").unbind();
+		var self = this;
+		this.onEnd(function() {
+			// show notice
+			$("#game-message").html("<b>Player " + (self.current.player + 1) + "</b> has won the game!");
+			$("#game-message").show("fast");
+			
+			// disable actions
+			$("#roll_move").unbind();
+			$("#skip_turn").unbind();
+		});
 	},
 	changeToNextTurn: function() {
 		this.fireEvent('turnEnd', this.options.players.getPlayerByID(this.current.player));
