@@ -82,22 +82,34 @@ var Game = new Class({
 	
 	/* Events */
 	onStart: function(callback) {
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	onTurnStart: function(player,callback) {
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	onMoveStart: function(player, callback) {
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	onMoveEnd: function(player, callback) {
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	onTurnEnd: function(player, callback) {
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	onEnd: function(callback) {
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	
 	/* Utility */
@@ -150,51 +162,52 @@ var Game = new Class({
 		});
 	},
 	changeToNextTurn: function() {
-		this.fireEvent('turnEnd', this.options.players.getPlayerByID(this.current.player));
-		
-		// reset current turn
-		this.current.moveCount = null;
-		this.current.pieceToMove = null;
-		this.current.moveType = null;
-		
-		// first check to see if current player gets another turn
-		var curPlayerObj = game.options.players.getPlayerByID(this.current.player);
-		if (curPlayerObj.options.moreTurnNum > 0) {
-			curPlayerObj.options.moreTurnNum--;
-			// show notice
-			$("#game-message").html("<b>Player " + (this.current.player + 1) + "</b> gets another turn!");
-			$("#game-message").show("fast").delay(1000).hide("fast");
-		} else { // if they're out of turns, move to the next player
-			this.current.player++;
-			if (this.current.player == this.playerNum) { 
-				this.current.player = 0; 
-			}
-			curPlayerObj = game.options.players.getPlayerByID(this.current.player);
+		var self = this;
+		this.onTurnEnd(self.options.players.getPlayerByID(self.current.player), function() {
+			// reset current turn
+			self.current.moveCount = null;
+			self.current.pieceToMove = null;
+			self.current.moveType = null;
 			
-			// check if new player needs to skip their turn
-			while (curPlayerObj.options.skipTurnNum > 0) {
+			// first check to see if current player gets another turn
+			var curPlayerObj = game.options.players.getPlayerByID(self.current.player);
+			if (curPlayerObj.options.moreTurnNum > 0) {
+				curPlayerObj.options.moreTurnNum--;
 				// show notice
-				$("#game-message").html("<b>Player " + (this.current.player + 1) + "'s</b> turn is skipped. Sorry!");
+				$("#game-message").html("<b>Player " + (self.current.player + 1) + "</b> gets another turn!");
 				$("#game-message").show("fast").delay(1000).hide("fast");
+			} else { // if they're out of turns, move to the next player
+				self.current.player++;
+				if (self.current.player == self.playerNum) { 
+					self.current.player = 0; 
+				}
+				curPlayerObj = game.options.players.getPlayerByID(self.current.player);
+				
+				// check if new player needs to skip their turn
+				while (curPlayerObj.options.skipTurnNum > 0) {
+					// show notice
+					$("#game-message").html("<b>Player " + (self.current.player + 1) + "'s</b> turn is skipped. Sorry!");
+					$("#game-message").show("fast").delay(1000).hide("fast");
+				
+					if (curPlayerObj.options.skipTurnNum > 0) {
+						curPlayerObj.options.skipTurnNum--;
+					}
+					// move to next player
+					self.current.player++;
+					if (self.current.player == self.playerNum) { 
+						self.current.player = 0; 
+					}
+					curPlayerObj = game.options.players.getPlayerByID(self.current.player);
+				}
+			} 
+			self.renderCurrentPlayer(self.current.player);
 			
-				if (curPlayerObj.options.skipTurnNum > 0) {
-					curPlayerObj.options.skipTurnNum--;
-				}
-				// move to next player
-				this.current.player++;
-				if (this.current.player == this.playerNum) { 
-					this.current.player = 0; 
-				}
-				curPlayerObj = game.options.players.getPlayerByID(this.current.player);
-			}
-		} 
-		this.renderCurrentPlayer(this.current.player);
-		
-		// get piece of current player
-		var pieces = this.options.pieces.getPiecesByPlayerID(this.current.player);
-		this.current.pieceToMove = pieces[0]; // this is default unless otherwise indicated by the coder
+			// get piece of current player
+			var pieces = self.options.pieces.getPiecesByPlayerID(self.current.player);
+			self.current.pieceToMove = pieces[0]; // this is default unless otherwise indicated by the coder
 
-		this.onTurnStart(this.options.players.getPlayerByID(this.current.player));
+			self.onTurnStart(self.options.players.getPlayerByID(self.current.player));
+		});
 	},
 	getCurrentSlotPosition: function() {
 		var pieceToMove = game.current.pieceToMove;
@@ -405,7 +418,7 @@ var Game = new Class({
 			// Change turn to next player
 			this.changeToNextTurn();
 		}
-		this.fireEvent('moveEnd', this.options.players.getPlayerByID(this.current.player));
+		this.onMoveEnd(this.options.players.getPlayerByID(this.current.player));
 	},
 	turnEnd: function() {
 	
@@ -685,15 +698,21 @@ var Board = new Class({
 	// slot land/leave/pass.
 	onLand: function(slot, piece, eventType, callback) {
 		console.log("onLand");
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	onLeave: function(slot, piece, eventType, callback) {
 		console.log("onLeave");
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	onPass: function(slot, piece, eventType, callback) {
 		console.log("onPass");
-		callback();
+		if (typeof callback != "undefined" && callback != null) {
+			callback();
+		}
 	},
 	
 	/* Utility */

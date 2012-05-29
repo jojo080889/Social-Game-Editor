@@ -15,9 +15,6 @@ $("#container").live("pageinit", function() {
 	});
 
 	/* Game Events */
-	game.onTurnStart = function(player) {
-		console.log("onTurnStart");
-	};
 	game.onMoveStart = function(player, callback) {
 		console.log("onMoveStartb");
 		player.showPiecePicker(["isOffBoard","isOnBoard"], function() {
@@ -33,12 +30,6 @@ $("#container").live("pageinit", function() {
 			}
 		});
 	}
-	game.onMoveEnd = function(player) {
-		console.log("onMoveEnd");
-	};
-	game.onTurnEnd = function(player) {
-		console.log("onTurnEnd");
-	};
 	
 	/* Board and Slot Events */
 	game.options.board.onLand = function(slot, piece, eventType, callback) {
