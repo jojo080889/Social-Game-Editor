@@ -546,7 +546,7 @@ var Piece = new Class({
 	render: function() {
 		var p = this.options;
 		this.pieceDiv;
-		if (typeof(p.color) == undefined || p.color == null) {
+		if (typeof(p.color) == "undefined" || p.color == null) {
 			// the piece is an image
 			this.pieceDiv = $("<div class='piece imagePiece' id='piece" + (this.options.player + 1) + "'><img src='" + p.image + "' /></div>");
 		} else {
