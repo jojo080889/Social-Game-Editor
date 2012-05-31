@@ -1,16 +1,16 @@
 /* GAME VARIABLES */
-var game;
 
 $("#container").live("pageinit", function() {
-	var players = convertToMooToolsPlayers();
-	var pieces = convertToMooToolsPieces();
-	var slots = convertToMooToolsBoard();
-		
-	game = new Game(null, {
-		title: "My Donburi Game",
-		players: new PlayerList(null, {players: players}),
-		board: new Board(null, {slots: slots}),
-		pieces: new PieceList(null, {pieces: pieces})
-	});
-	game.start();
+});
+
+
+/*
+ * App launch when Musubi is ready
+ */
+var game = null;
+var donburiGame = null;
+Musubi.ready(function(context) {
+    console.info("launching DonburiGame");
+    donburiGame = new DonburiGame(context);
+	game.start(); 
 });

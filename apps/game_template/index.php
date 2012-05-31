@@ -82,6 +82,9 @@
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
   <script src="js/libs/jquery.mobile-1.1.0.js"></script>
   <script type="text/javascript" src="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog2.js"></script>
+  <!-- SocialKit --> 
+  <script type="text/javascript" src="js/socialKit.js"></script>
+  <script type="text/javascript" src="js/turnBasedGame.js"></script>
   <!-- moo4q -->
   <script src="js/libs/mootools-1.2.4-base.js"></script>
   <script src="js/libs/Class.Mutators.jQuery.js"></script>

@@ -100,6 +100,7 @@ include "header.php"
 	<div id="test_area">
 		<div id="test_actions">
 			<button id="app_launch" class="button"><i class="icon-play"></i> Launch Game</button>
+			<button id="sk_app_launch" class="button">Launch SK</button>
 			<button id="app_restart" class="button"><i class="icon-refresh"></i> Restart Game</button>
 			<button id="return_feed" class="button"><i class="icon-stop"></i> Return to Feed</button>
 		</div>

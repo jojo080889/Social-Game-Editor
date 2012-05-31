@@ -1,32 +1,108 @@
+/*
+ * DonburiGame is the application's main class
+ */
+function DonburiGame(context) {
+	this.state = {
+		board: null, 
+		players: null, 
+		pieces: null, 
+		pieceToMove: null, 
+		moveCount: null, 
+		moveType: null,
+		moveFlags: null
+	};
+    this.init(context);
+}
+DonburiGame.prototype = new SocialKit.Multiplayer.TurnBasedMultiplayerGame;
+
 /* PATH CONSTANTS */
-var Path = {};
-Path.UP = 0;
-Path.LEFT = 1;
-Path.DOWN = 2;
-Path.RIGHT = 3;
-Path.UP_LEFT = 4;
-Path.DOWN_LEFT = 5;
-Path.DOWN_RIGHT = 6;
-Path.UP_RIGHT = 7;
-Path.toString = function(path) {
+DonburiGame.UP = 0;
+DonburiGame.LEFT = 1;
+DonburiGame.DOWN = 2;
+DonburiGame.RIGHT = 3;
+DonburiGame.UP_LEFT = 4;
+DonburiGame.DOWN_LEFT = 5;
+DonburiGame.DOWN_RIGHT = 6;
+DonburiGame.UP_RIGHT = 7;
+
+DonburiGame.prototype.pathToString = function(path) {
 	switch (path) {
-		case Path.UP:
+		case DonburiGame.UP:
 			return "Up";
-		case Path.LEFT:
+		case DonburiGame.LEFT:
 			return "Left";
-		case Path.DOWN:
+		case DonburiGame.DOWN:
 			return "Down";
-		case Path.RIGHT:
+		case DonburiGame.RIGHT:
 			return "Right";
-		case Path.UP_LEFT:
+		case DonburiGame.UP_LEFT:
 			return "Up left";
-		case Path.DOWN_LEFT:
+		case DonburiGame.DOWN_LEFT:
 			return "Down left";
-		case Path.DOWN_RIGHT:
+		case DonburiGame.DOWN_RIGHT:
 			return "Down right";
-		case Path.UP_RIGHT:
+		case DonburiGame.UP_RIGHT:
 			return "Up right";
 	}
+}
+
+// App initializations
+DonburiGame.prototype.init = function(context) {
+	game = new Game(null, {
+		title: "My Donburi Game"
+	});
+	
+    this.onUpdate(function(state) {
+		game.update(this, state);
+    });
+    SocialKit.Multiplayer.TurnBasedMultiplayerGame.prototype.init.call(this, context);
+};
+
+DonburiGame.prototype.createInitialState = function() {
+	console.log("creating Initial State");
+	console.log(this.players);
+
+	var players = convertToMooToolsPlayers(this);
+	var pieces = convertToMooToolsPieces();
+	var slots = convertToMooToolsBoard();
+	
+	state = {
+		board: new Board(null, {slots: slots}), 
+		players: new PlayerList(null, {players: players}), 
+		pieces: new PieceList(null, {pieces: pieces}), 
+		pieceToMove: null, 
+		moveCount: null, 
+		moveType: null,
+		moveFlags: null
+	};
+	
+	return state;
+}
+
+// Returns the state
+DonburiGame.prototype.makeState = function() {
+    if (DBG) console.log("making state...");
+    return this.state;
+};
+
+/*Pretty sure we don't need this one.
+/*DonburiGame.prototype.reset = function() {
+    if (this.isMyTurn()) {
+        this.box = [0,0];
+        this.takeTurn(this.makeState())
+    }
+};*/
+
+DonburiGame.prototype.feedView = function() {
+    var container = $('<div></div>');
+    var cssRules = document.styleSheets[0].cssRules;
+    var css = "";
+    for (var i=0; i<cssRules.length; i++) {// cssRules.length; i++) {
+        if (cssRules[i].cssText)
+            css += cssRules[i].cssText + " ";
+        
+    }
+    return '<html><head><style>' + css + '</style></head><body><div id="divbox">' + container.html() + '</div></body></html>';
 }
 
 /* Game Class
@@ -36,9 +112,6 @@ var Game = new Class({
 	Implements: [Options, Events],
 	options: {
 		title: "title here",
-		players: null,
-		board: null,
-		pieces: null,
 		usePoints: false, // if true, use points
 		rollMin: 1,
 		rollMax: 6
@@ -46,38 +119,22 @@ var Game = new Class({
 	jQuery: 'game', //namespace for new jquery method
 	initialize: function(selector, options) {
 		this.setOptions(options);
-		
-		this.playerNum = this.options.players.playerNum;
-		
-		// Set up current turn state tracker
-		this.current = {
-			player: Math.floor((Math.random()*this.playerNum)), // 0 to playerNum - 1
-			moveCount: null,
-			pieceToMove: null,
-			moveType: null
-		};
-		
-		this.render();
 	},
 	
 	/* UI */
-	render: function() {
+	render: function(context) {
 		// Set title
 		$("title").html(this.options.title);
 		$("header h1").html(this.options.title);
-
+		
 		// Create players
-		this.options.players.render();
-		this.renderCurrentPlayer(this.current.player);
-
+		context.state.players.render();
+		
 		// Create board
-		this.options.board.render();
-		
-		// Create pieces and place in correct positions
-		this.options.pieces.render();
-		
-		// Set event handlers
-		this.bindActionHandlers();
+		context.state.board.render();
+        
+        // Create pieces and place in correct positions
+        context.state.pieces.render();
 	},
 	
 	/* Events */
@@ -92,6 +149,9 @@ var Game = new Class({
 		}
 	},
 	onMoveStart: function(player, callback) {
+		// by default, set piece to move to be the first piece owned
+		// by the current player
+		donburiGame.state.pieceToMove = player.getPieces()[0];
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
@@ -127,15 +187,36 @@ var Game = new Class({
 	},
 
 	/* ACTIONS */
-	bindActionHandlers: function() {
-		var self = this;
-		$("#roll_move").click(function() {
-			self.moveStart();
-		});
-		
-		$("#skip_turn").click(function() {
-			self.changeToNextTurn();
-		});
+	bindActionHandlers: function(donburiGame) {
+        if(donburiGame.isMyTurn()) {
+            $("#roll_move").html("Roll Dice");
+            
+            /*During initialization, the function below is bound to this button, 
+             *and then on update it is bound again. This unbind (and the one below) 
+             *prevent that from being a problem. There has to be a more elegant solution.
+             */
+            $("#roll_move").unbind(); 
+                
+            $("#roll_move").click(function() {
+                $("#roll_move").unbind();
+                $("#skip_turn").unbind();
+                game.moveStart();
+            });
+            $("#skip_turn").unbind();
+            $("#skip_turn").click(function(){
+                $("#roll_move").unbind();
+                $("#skip_turn").unbind();
+                game.changeToNextTurn();
+            });
+        } else {
+            $("#roll_move").html("Waiting...");
+            $("#roll_move").click(function() {
+                return;
+            });
+            $("#skip_turn").click(function(){
+                return;
+            });
+        }
 	},
 	
 	/* GAME */
@@ -143,17 +224,17 @@ var Game = new Class({
 		var self = this;
 		this.onStart(function() {
 			// get piece of current player
-			var piece = self.options.pieces.getPiecesByPlayerID(self.current.player)[0];
-			self.current.pieceToMove = piece;
+			//var piece = self.options.pieces.getPiecesByPlayerID(self.current.player)[0];
+			//self.current.pieceToMove = piece;
 			
-			self.onTurnStart(self.options.players.getPlayerByID(self.current.player)); // first player's turn start
+			//self.onTurnStart(self.options.players.getPlayerByID(self.current.player)); // first player's turn start
 		});
 	},
 	end: function() {
 		var self = this;
 		this.onEnd(function() {
 			// show notice
-			$("#game-message").html("<b>Player " + (self.current.player + 1) + "</b> has won the game!");
+			$("#game-message").html("<b>Player " + (donburiGame.whoseTurn() + 1) + "</b> has won the game!");
 			$("#game-message").show("fast");
 			
 			// disable actions
@@ -161,56 +242,57 @@ var Game = new Class({
 			$("#skip_turn").unbind();
 		});
 	},
+	update: function(context) {
+        console.info("Updating...");
+        console.info(context.whoAmI());
+        console.info(context.state.pieces);
+		
+		var currentPlayer = context.whoseTurn();
+		
+		game.render(context);
+		
+        // Set current player
+        game.renderCurrentPlayer(currentPlayer);
+		
+        // Set event handlers
+        this.bindActionHandlers(context);
+
+		this.onTurnStart(context.state.players.getPlayerByID(currentPlayer));
+	
+		var curPlayerObj = context.state.players.getPlayerByID(currentPlayer);
+		
+		// check if new player needs to skip their turn
+		if (curPlayerObj.options.skipTurnNum > 0) {
+			// show notice
+			$("#game-message").html("<b>Player " + (currentPlayer + 1) + "'s</b> turn is skipped. Sorry!");
+			$("#game-message").show("fast").delay(1000).hide("fast");
+		
+			if (curPlayerObj.options.skipTurnNum > 0) {
+				curPlayerObj.options.skipTurnNum--;
+			}
+			
+			this.changeToNextTurn();
+		}
+	},
 	changeToNextTurn: function() {
 		var self = this;
-		this.onTurnEnd(self.options.players.getPlayerByID(self.current.player), function() {
-			// reset current turn
-			self.current.moveCount = null;
-			self.current.pieceToMove = null;
-			self.current.moveType = null;
+		this.onTurnEnd(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), function() {
 			
 			// first check to see if current player gets another turn
-			var curPlayerObj = game.options.players.getPlayerByID(self.current.player);
+			var curPlayerObj = donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn());
 			if (curPlayerObj.options.moreTurnNum > 0) {
 				curPlayerObj.options.moreTurnNum--;
 				// show notice
-				$("#game-message").html("<b>Player " + (self.current.player + 1) + "</b> gets another turn!");
+				$("#game-message").html("<b>Player " + (donburiGame.whoseTurn() + 1) + "</b> gets another turn!");
 				$("#game-message").show("fast").delay(1000).hide("fast");
-			} else { // if they're out of turns, move to the next player
-				self.current.player++;
-				if (self.current.player == self.playerNum) { 
-					self.current.player = 0; 
-				}
-				curPlayerObj = game.options.players.getPlayerByID(self.current.player);
-				
-				// check if new player needs to skip their turn
-				while (curPlayerObj.options.skipTurnNum > 0) {
-					// show notice
-					$("#game-message").html("<b>Player " + (self.current.player + 1) + "'s</b> turn is skipped. Sorry!");
-					$("#game-message").show("fast").delay(1000).hide("fast");
-				
-					if (curPlayerObj.options.skipTurnNum > 0) {
-						curPlayerObj.options.skipTurnNum--;
-					}
-					// move to next player
-					self.current.player++;
-					if (self.current.player == self.playerNum) { 
-						self.current.player = 0; 
-					}
-					curPlayerObj = game.options.players.getPlayerByID(self.current.player);
-				}
+			} else { 
+				// if they're out of turns, move to the next player
+				donburiGame.takeTurn(donburiGame.makeState());
 			} 
-			self.renderCurrentPlayer(self.current.player);
-			
-			// get piece of current player
-			var pieces = self.options.pieces.getPiecesByPlayerID(self.current.player);
-			self.current.pieceToMove = pieces[0]; // this is default unless otherwise indicated by the coder
-
-			self.onTurnStart(self.options.players.getPlayerByID(self.current.player));
 		});
 	},
 	getCurrentSlotPosition: function() {
-		var pieceToMove = game.current.pieceToMove;
+		var pieceToMove = donburiGame.state.pieceToMove;
 		var curX, curY;
 		if (typeof pieceToMove.length == "number") {
 			// if pieceToMove is an array
@@ -223,17 +305,17 @@ var Game = new Class({
 		return {x:curX, y:curY}
 	},
 	moveStart: function() {
-		this.onMoveStart(this.options.players.getPlayerByID(this.current.player), this.moveStartHelper);
+		this.onMoveStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), this.moveStartHelper);
 	},
 	moveStartHelper: function() {
 		/* Must write this callback function using game instead of this, because this is the dialog widget */
 		// TODO: handle multiple pieces
-		var pieceToMove = game.current.pieceToMove;
+		var pieceToMove = donburiGame.state.pieceToMove;
 		var curX = game.getCurrentSlotPosition().x;
 		var curY = game.getCurrentSlotPosition().y;
 
 		var diceResult = game.decideMove();
-		game.current.moveCount = diceResult;
+		donburiGame.state.moveCount = diceResult;
 		$("#move-result-num").html(diceResult);
 		$("#move-result").show("fast").delay(1000).hide("fast", 
 		function() {
@@ -241,11 +323,11 @@ var Game = new Class({
 			curX = game.getCurrentSlotPosition().x;
 			curY = game.getCurrentSlotPosition().y;
 			
-			var currentSlot = game.options.board.getSlotByPosition(curX, curY);
+			var currentSlot = donburiGame.state.board.getSlotByPosition(curX, curY);
 			
 			if (currentSlot.options.disableLeaveEventNum == 0) {
-				game.options.board.onLeave(currentSlot, pieceToMove, "normal", function() {
-					game.current.moveFlags = game.createMoveFlags(game.current.pieceToMove);
+				donburiGame.state.board.onLeave(currentSlot, pieceToMove, "normal", function() {
+					donburiGame.state.moveFlags = game.createMoveFlags(donburiGame.state.pieceToMove);
 					currentSlot.onLeave(pieceToMove, "normal", function() {
 						game.makeMove(curX, curY);
 					});
@@ -254,14 +336,14 @@ var Game = new Class({
 				if (currentSlot.options.disableLeaveEventNum != -1) {
 					currentSlot.options.disableLeaveEventNum--;
 				}
-				game.current.moveFlags = game.createMoveFlags(game.current.pieceToMove);
+				donburiGame.state.moveFlags = game.createMoveFlags(donburiGame.state.pieceToMove);
 				game.makeMove(curX, curY);
 			}
 		});
 	},
 	createMoveFlags: function(pieceToMove) {
 		var moveFlags = new Array();
-		for (var i = 1; i <= game.current.moveCount; i++) {
+		for (var i = 1; i <= donburiGame.state.moveCount; i++) {
 			var flagRow = new Array();
 			if (typeof pieceToMove.length == "number") {
 				for (var j = 0; j < pieceToMove.length; j++) {
@@ -281,18 +363,17 @@ var Game = new Class({
 		return diceResult;
 	},
 	makeMove: function(curX, curY) {
-		var piece = game.current.pieceToMove;
-		var moveCount = game.current.moveCount;
+		var piece = donburiGame.state.pieceToMove;
+		var moveCount = donburiGame.state.moveCount;
 		if (moveCount == 0) {
 			this.moveEnd(piece, curX, curY);
 			return;
 		}
 
 		// get path of current square
-		var paths = this.options.board.options.slots[curY][curX].getPaths(); // row first
+		var paths = donburiGame.state.board.options.slots[curY][curX].getPaths(); // row first
 		var path = null;
-		
-		var self = this;
+
 		if (paths.length == 1) {
 			path = paths[0];
 			this.makeMoveHelper(curX, curY, path);
@@ -301,8 +382,8 @@ var Game = new Class({
 		}
 	},
 	makeMoveHelper: function(curX, curY, path) {
-		var piece = game.current.pieceToMove;
-		var moveCount = game.current.moveCount;
+		var piece = donburiGame.state.pieceToMove;
+		var moveCount = donburiGame.state.moveCount;
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
@@ -313,19 +394,19 @@ var Game = new Class({
 			// stop automatically
 			this.makeMove(curX, curY, 0);
 		} else {
-			if (path == Path.RIGHT || path == Path.UP_RIGHT || path == Path.DOWN_RIGHT) {
+			if (path == DonburiGame.RIGHT || path == DonburiGame.UP_RIGHT || path == DonburiGame.DOWN_RIGHT) {
 				curX++;
 				moveObj.left = horDistance + "px";
 			}
-			if (path == Path.LEFT || path == Path.UP_LEFT || path == Path.DOWN_LEFT) {
+			if (path == DonburiGame.LEFT || path == DonburiGame.UP_LEFT || path == DonburiGame.DOWN_LEFT) {
 				curX--;
 				moveObj.left = "-" + horDistance + "px";
 			}
-			if (path == Path.DOWN || path == Path.DOWN_LEFT || path == Path.DOWN_RIGHT) {
+			if (path == DonburiGame.DOWN || path == DonburiGame.DOWN_LEFT || path == DonburiGame.DOWN_RIGHT) {
 				curY++;
 				moveObj.top = verDistance + "px";
 			}
-			if (path == Path.UP || path == Path.UP_LEFT || path == Path.UP_RIGHT) {
+			if (path == DonburiGame.UP || path == DonburiGame.UP_LEFT || path == DonburiGame.UP_RIGHT) {
 				curY--;
 				moveObj.top = "-" + verDistance + "px";
 			}
@@ -334,11 +415,13 @@ var Game = new Class({
 				// if piece is an array
 				var pieceDivs = new Array();
 				for (var i = 0; i < piece.length; i++) {
-					pieceDivs.push(piece[i].pieceDiv);
+					piece[i].addToBoard();
+					pieceDivs.push(piece[i].getPieceDiv());
 				}
 				this.makeMovePiece(pieceDivs, sourceSlot, moveObj, curX, curY);
 			} else {
-				this.makeMovePiece(piece.pieceDiv, sourceSlot, moveObj, curX, curY);
+				piece.addToBoard();
+				this.makeMovePiece(piece.getPieceDiv(), sourceSlot, moveObj, curX, curY);
 			}
 		}
 	},
@@ -346,7 +429,7 @@ var Game = new Class({
 		var self = this;
 		var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 		sourceSlot.addClass("slot-moving");
-		var moveCount = game.current.moveCount;
+		var moveCount = donburiGame.state.moveCount;
 		if (!$.isArray(pieceDivs)) {
 			pieceDivs = [pieceDivs];
 		}
@@ -357,12 +440,12 @@ var Game = new Class({
 				complete: function() { 
 					$(this).css({top: 0, left: 0}).removeClass("piece-moving").appendTo(destSlot);
 					
-					game.current.moveFlags[moveCount][i] = true;
+					donburiGame.state.moveFlags[moveCount][i] = true;
 					
 					// Check if this pieceDiv is the last to animate for the current move step
 					var allFlagged = true;
-					for (var j = 0; j < game.current.moveFlags[moveCount].length; j++) {
-						if (game.current.moveFlags[moveCount][j] == false) {
+					for (var j = 0; j < donburiGame.state.moveFlags[moveCount].length; j++) {
+						if (donburiGame.state.moveFlags[moveCount][j] == false) {
 							allFlagged = false;
 						}
 					}
@@ -370,12 +453,12 @@ var Game = new Class({
 						sourceSlot.removeClass("slot-moving");
 
 						if (moveCount - 1 > 0) {
-							var currentSlot = self.options.board.getSlotByPosition(curX, curY);
+							var currentSlot = donburiGame.state.board.getSlotByPosition(curX, curY);
 							
 							if (currentSlot.options.disablePassEventNum == 0) {
-								game.options.board.onPass(currentSlot, self.current.pieceToMove, "normal", function() {
-									currentSlot.onPass(self.current.pieceToMove, "normal", function() {
-										game.current.moveCount--;
+								donburiGame.state.board.onPass(currentSlot, donburiGame.state.pieceToMove, "normal", function() {
+									currentSlot.onPass(donburiGame.state.pieceToMove, "normal", function() {
+										donburiGame.state.moveCount--;
 										self.makeMove(curX, curY);
 									});
 								});
@@ -383,11 +466,11 @@ var Game = new Class({
 								if (currentSlot.options.disablePassEventNum != -1) {
 									currentSlot.options.disablePassEventNum--;
 								}
-								game.current.moveCount--;
+								donburiGame.state.moveCount--;
 								self.makeMove(curX, curY);
 							}
 						} else {
-							game.current.moveCount--;
+							donburiGame.state.moveCount--;
 							self.makeMove(curX, curY);
 						}
 					}
@@ -402,11 +485,11 @@ var Game = new Class({
 		for (var i = 0; i < piece.length; i++) {
 			piece[i].setPosition(curX, curY);
 		}
-		var currentSlot = this.options.board.getSlotByPosition(curX, curY);
+		var currentSlot = donburiGame.state.board.getSlotByPosition(curX, curY);
 		
 		if (currentSlot.options.disableLandEventNum == 0) {
-			this.options.board.onLand(currentSlot, game.current.pieceToMove, "normal", function() {		
-				currentSlot.onLand(game.current.pieceToMove, "normal", function() {
+			donburiGame.state.board.onLand(currentSlot, donburiGame.state.pieceToMove, "normal", function() {		
+				currentSlot.onLand(donburiGame.state.pieceToMove, "normal", function() {
 					// Change turn to next player
 					game.changeToNextTurn();
 				});
@@ -418,7 +501,7 @@ var Game = new Class({
 			// Change turn to next player
 			this.changeToNextTurn();
 		}
-		this.onMoveEnd(this.options.players.getPlayerByID(this.current.player));
+		this.onMoveEnd(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()));
 	},
 	turnEnd: function() {
 	
@@ -487,20 +570,20 @@ var Player = new Class({
 		this.pointsAmt = 0;
 	},
 	getPieces: function() {
-		return game.options.pieces.getPiecesByPlayerID(this.options.id);
+		return donburiGame.state.pieces.getPiecesByPlayerID(this.options.id);
 	},
 	getPiecesOnBoard: function() {
 		var pieces = new Array();
-		for (var i = 0; i < game.options.pieces.options.pieces.length; i++) {
-			var p = game.options.pieces.options.pieces[i].options;
+		for (var i = 0; i < donburiGame.state.pieces.options.pieces.length; i++) {
+			var p = donburiGame.state.pieces.options.pieces[i].options;
 			if (p.player == this.options.id && p.state == "isOnBoard") {
-				pieces.push(game.options.pieces.options.pieces[i]);
+				pieces.push(donburiGame.state.pieces.options.pieces[i]);
 			}
 		}
 		return pieces;
 	},
 	showPiecePicker: function(types, callback) {
-		var pickpieces = game.options.pieces.getPieces({player:this.options.id, piecestate: types});
+		var pickpieces = donburiGame.state.pieces.getPieces({player:this.options.id, piecestate: types});
 		showThePiecePicker("Choose which piece to move", pickpieces, callback);
 	},
 	getID: function() {
@@ -527,6 +610,7 @@ var Player = new Class({
 var Piece = new Class({
 	Implements: [Options, Events],
 	options: {
+		id: -1, // ID of piece
 		player: null, // ID of player object
 		state: "isOffBoard", // "isOffBoard" | "isOnBoard" | "isPermOffBoard"
 		positionX: -1,
@@ -545,20 +629,20 @@ var Piece = new Class({
 	/* UI */
 	render: function() {
 		var p = this.options;
-		this.pieceDiv;
+		var pieceDiv;
 		if (typeof(p.color) == "undefined" || p.color == null) {
 			// the piece is an image
-			this.pieceDiv = $("<div class='piece imagePiece' id='piece" + (this.options.player + 1) + "'><img src='" + p.image + "' /></div>");
+			pieceDiv = $("<div class='piece imagePiece' id='piece" + (this.options.player + 1) + "_" + this.options.id + "'><img src='" + p.image + "' /></div>");
 		} else {
 			// the piece is just a color
-			this.pieceDiv = $("<div class='piece colorPiece' id='piece" + (this.options.player + 1) + "' style='background: " + p.color + "'></div>");
+			pieceDiv = $("<div class='piece colorPiece' id='piece" + (this.options.player + 1) + "_" + this.options.id + "' style='background: " + p.color + "'></div>");
 		}
-		return this.pieceDiv;
+		return pieceDiv;
 	},
 	
 	/* Utility */
 	getPlayer: function() {
-		return game.options.players.getPlayerByID(this.options.player);
+		return donburiGame.state.players.getPlayerByID(this.options.player);
 	},
 	setPlayer: function(newID) {
 		this.options.player = newID;
@@ -566,7 +650,8 @@ var Piece = new Class({
 	removeFromBoard: function(permanently) {
 		permanently = typeof permanently !== 'undefined' ? permanently : false;
 		
-		this.pieceDiv.remove();
+		var pieceDiv = this.getPieceDiv();
+		pieceDiv.remove();
 		
 		permanently ? this.options.state = "isPermOffBoard" : this.options.state = "isOffBoard";
 	},
@@ -587,17 +672,17 @@ var Piece = new Class({
 		return this.options.positionY;
 	},
 	setPosition: function(positionX, positionY) {
+		var pieceDiv = this.getPieceDiv();
 		this.options.positionX = parseInt(positionX);
 		this.options.positionY = parseInt(positionY);
 		if (this.isOnBoard()) {
 			// also move its visual representation
-			if (typeof this.pieceDiv != "undefined") {
-				this.pieceDiv.remove();
+			if (pieceDiv.parent().length != 0) {
+				console.log("remove piecediv");
+				pieceDiv.remove();
 			}
-			
-			this.render();
 			var slotDiv = $($($("#board .row")[positionY]).find(".slot")[positionX]);
-			slotDiv.append(this.pieceDiv);
+			slotDiv.append(pieceDiv);
 		}
 	},
 	isOnBoard: function() {
@@ -605,6 +690,15 @@ var Piece = new Class({
 	},
 	getState: function() {
 		return this.options.state;
+	},
+	getPieceDiv: function() {
+		console.log("getpieceDiv");
+		var pieceDiv = $("#piece" + (this.options.player + 1) + "_" + this.options.id);
+		if (pieceDiv.length == 0 ) {
+			console.log("createNew");
+			pieceDiv = this.render();
+		}
+		return pieceDiv;
 	}
 });
 
@@ -664,7 +758,7 @@ var Slot = new Class({
 		this.options.paths = newPaths;
 	},
 	getPieces: function() {
-		return game.options.pieces.getPiecesByPosition(this.options.positionX, this.options.positionY);
+		return donburiGame.state.pieces.getPiecesByPosition(this.options.positionX, this.options.positionY);
 	},
 	showPathPicker: function(callback) {
 		showThePathPicker("Choose where to move next:", this.options.paths, callback);
@@ -690,7 +784,7 @@ var Board = new Class({
 	
 	/* UI */
 	render: function (){
-		$("#board-container").append($(this.generateGrid()));
+		$("#board-container").html($(this.generateGrid()));
 		this.adjustGrid();
 	},
 	
@@ -773,14 +867,14 @@ var PlayerList = new Class({
 	},
 	
 	/* UI */
-	render: function (){
-		$("#players").append($(this.generatePlayers()));
+	render: function() {
+		$("#players").html($(this.generatePlayers()));
 	},
 	generatePlayers: function() {
 		// TODO actually get points
-		var pointsExistIndex = Math.floor((Math.random()*2));
+		/*var pointsExistIndex = Math.floor((Math.random()*2));
 		var pointsExist = [true,false][pointsExistIndex];
-		console.log(pointsExistIndex);
+		console.log(pointsExistIndex);*/
 
 		var html = "<ul>";
 		for (var i = 0; i < this.playerNum; i++) {
@@ -788,7 +882,7 @@ var PlayerList = new Class({
 			html += "<p><span class='player" + (i + 1) + "'></span>Player " + (i+1) + "</p>";
 			
 			// Check if there are points, and set points
-			if (pointsExist) {
+			if (game.options.usePoints) {
 				html += "<p class='points'>0</p>";
 			}
 			html += "<p class='player-status'></p>";
@@ -839,6 +933,7 @@ var PieceList = new Class({
 	/* Utility */
 	/* Based on pieces state, place pieces on board */
 	createPieces: function() {
+		console.info("Creating pieces");
 		for (var i = 0; i < this.piecesNum; i++) {
 			// Only do first piece for each player
 			var piece = this.options.pieces[i];
@@ -924,7 +1019,7 @@ function showThePathPicker(msg, paths, makeMoveHelperArgs) {
 			},
 			icon: ""
 		};
-		buttons[Path.toString(paths[i])] = button;
+		buttons[donburiGame.pathToString(paths[i])] = button;
 	});
 	$('<div>').simpledialog2({
 		mode: 'button',
@@ -975,16 +1070,18 @@ function showThePiecePicker(msg, pieces, callbackClose) {
 	});
 }
 
-function convertToMooToolsPlayers() {
-	// convert data.players into Player Classes
+function convertToMooToolsPlayers(context) {
+	// convert SocialKit players into Player Classes
 	var players = new Array();
-	for (var i = 0; i < data.players.length; i++) {
+	for (var i = 0; i < context.players.length; i++) {
 		players.push(new Player(null, {
-			id: data.players[i].id
+			id: context.players[i].id
 		}));
 	}
 	return players;
 }
+
+
 
 function convertToMooToolsPieces() {
 	// convert data.pieces into Piece Classes
@@ -994,6 +1091,7 @@ function convertToMooToolsPieces() {
 	var pieces = new Array();
 	for (var i = 0; i < data.pieces.pieces.length; i++) {
 		pieces.push(new Piece(null, {
+			id: data.pieces.pieces[i].id,
 			image: data.pieces.pieces[i].image,
 			player: data.pieces.pieces[i].player,
 			type: data.pieces.pieces[i].type,
@@ -1048,13 +1146,13 @@ function initBoardPathWithCircuit(slots) {
 			// if first row or last row
 			if (i == 0 || i == (size - 1) || j == 0 || j == (size - 1)) {
 				if (i == 0 && j != 0) {
-					tile.options.path = Path.LEFT;
+					tile.options.path = DonburiGame.LEFT;
 				} else if (j == 0 && i != (size - 1)) {
-					tile.options.path = Path.DOWN;
+					tile.options.path = DonburiGame.DOWN;
 				} else if (i == (size - 1) && j != (size - 1)) {
-					tile.options.path = Path.RIGHT;
+					tile.options.path = DonburiGame.RIGHT;
 				} else if (j == (size - 1) && i != 0) {
-					tile.options.path = Path.UP;
+					tile.options.path = DonburiGame.UP;
 				}
 			}
 		}

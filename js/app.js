@@ -63,6 +63,9 @@ $(document).ready(function() {
 	$("#app_launch").click(function() {
 		createGameModelsFile(function() {launch("game_template");}); // generate components.js
 	});
+	$("#sk_app_launch").click(function() {
+		createGameModelsFile(function() {launch("donburi.demogame");}); // generate components.js
+	});
 	$("#return_feed").click(function() {
 		var user = {name: "User 1", id: 0};
 		env.startInstance('view0', user, feed, "edu.stanford.mobisocial.dungbeetle");
@@ -117,9 +120,11 @@ function getPiecesJSON() {
 	}
 	var pieces = JSON.parse(localStorage.PieceList);
 	var piecesArray = new Array();
+	var i = 0;
 	for (var key in pieces) {
 		if (pieces.hasOwnProperty(key)) {
 			var obj = {};
+			obj.id = i;
 			obj.player = pieces[key].player;
 			obj.startPositionX = pieces[key].startPositionX;
 			obj.startPositionY = pieces[key].startPositionY;
@@ -133,6 +138,7 @@ function getPiecesJSON() {
 			}
 			piecesArray.push(obj);
 		}
+		i++;
 	}
 	return {"pieces": piecesArray};
 }
