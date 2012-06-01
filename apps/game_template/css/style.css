@@ -294,6 +294,9 @@ header  h1 {
 	height: 45%;
 	float: left;
 }
+.piece img {
+	width: 100%;
+}
 .piece.piece-moving {
 	float: none;
 	position: absolute;

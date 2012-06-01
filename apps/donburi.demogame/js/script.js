@@ -187,7 +187,9 @@ function setCurrentPlayer(number) {
 
 /* Based on pieces state, place pieces on board */
 function createPieces(game) {
-    console.info("Creating pieces");
+	if (game != null) {
+		console.info("Creating pieces: " + game.whoseTurn());
+	}
     console.info(game.state);
 	for (var i = 0; i < game.state.pieces.length; i++) {
 		for (var j = 0; j < game.state.pieces[i].length; j++) {

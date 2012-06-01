@@ -53,7 +53,8 @@ DonburiGame.prototype.init = function(context) {
 	});
 	
     this.onUpdate(function(state) {
-		game.update(this, state);
+		this.state = state;
+		game.update(this);
     });
     SocialKit.Multiplayer.TurnBasedMultiplayerGame.prototype.init.call(this, context);
 };
@@ -122,19 +123,19 @@ var Game = new Class({
 	},
 	
 	/* UI */
-	render: function(context) {
+	render: function(state) {
 		// Set title
 		$("title").html(this.options.title);
 		$("header h1").html(this.options.title);
 		
 		// Create players
-		context.state.players.render();
+		state.players.render();
 		
 		// Create board
-		context.state.board.render();
+		state.board.render();
         
         // Create pieces and place in correct positions
-        context.state.pieces.render();
+        state.pieces.render();
 	},
 	
 	/* Events */
@@ -182,8 +183,10 @@ var Game = new Class({
 	
 	/* PLAYERS */
 	renderCurrentPlayer: function(number) {
-		$(".player-status").removeClass("active");
-		$($(".player")[number]).find(".player-status").addClass("active");
+		if (number != null && typeof number != "undefined") {
+			$(".player-status").removeClass("active");
+			$(".player#player_" + number).find(".player-status").addClass("active");
+		}
 	},
 
 	/* ACTIONS */
@@ -244,12 +247,12 @@ var Game = new Class({
 	},
 	update: function(context) {
         console.info("Updating...");
-        console.info(context.whoAmI());
+        console.info("I am: " + context.whoAmI());
         console.info(context.state.pieces);
 		
 		var currentPlayer = context.whoseTurn();
 		
-		game.render(context);
+		game.render(context.state);
 		
         // Set current player
         game.renderCurrentPlayer(currentPlayer);
@@ -434,6 +437,7 @@ var Game = new Class({
 			pieceDivs = [pieceDivs];
 		}
 		$.each(pieceDivs, function(i, pieceDiv) {
+			pieceDiv = $("#" + pieceDiv);
 			pieceDiv.addClass("piece-moving")
 			.animate(moveObj, {
 				duration: 1000, 
@@ -618,11 +622,13 @@ var Piece = new Class({
 		validMoves: "followPath", //TODO extend this
 		image: null,
 		color: null,
-		type: null
+		type: null,
+		isRendered: false
 	},
 	jQuery: 'piece', //namespace for new jquery method
 	initialize: function(selector, options) {
 		this.setOptions(options);
+		this.pieceDiv = "piece" + (this.options.player + 1) + "_" + this.options.id;
 		this.render(); // initialize this.pieceDiv
 	},
 	
@@ -632,10 +638,10 @@ var Piece = new Class({
 		var pieceDiv;
 		if (typeof(p.color) == "undefined" || p.color == null) {
 			// the piece is an image
-			pieceDiv = $("<div class='piece imagePiece' id='piece" + (this.options.player + 1) + "_" + this.options.id + "'><img src='" + p.image + "' /></div>");
+			pieceDiv = $("<div class='piece imagePiece' id='" + this.pieceDiv + "'><img src='" + p.image + "' /></div>");
 		} else {
 			// the piece is just a color
-			pieceDiv = $("<div class='piece colorPiece' id='piece" + (this.options.player + 1) + "_" + this.options.id + "' style='background: " + p.color + "'></div>");
+			pieceDiv = $("<div class='piece colorPiece' id='" + this.pieceDiv + "' style='background: " + p.color + "'></div>");
 		}
 		return pieceDiv;
 	},
@@ -650,19 +656,20 @@ var Piece = new Class({
 	removeFromBoard: function(permanently) {
 		permanently = typeof permanently !== 'undefined' ? permanently : false;
 		
-		var pieceDiv = this.getPieceDiv();
-		pieceDiv.remove();
+		$("#" + this.pieceDiv).remove();
+		this.isRendered = false;
 		
 		permanently ? this.options.state = "isPermOffBoard" : this.options.state = "isOffBoard";
 	},
 	addToBoard: function(positionX, positionY) {
 		if (!this.isOnBoard()) {
-			this.options.state = "isOnBoard";
 			var p = this.options;
 			positionX = typeof positionX !== 'undefined' ? positionX : p.positionX;
 			positionY = typeof positionY !== 'undefined' ? positionY : p.positionY;
 			
 			this.setPosition(positionX, positionY);
+			
+			this.options.state = "isOnBoard";
 		}
 	},
 	getPositionX: function() {
@@ -672,14 +679,18 @@ var Piece = new Class({
 		return this.options.positionY;
 	},
 	setPosition: function(positionX, positionY) {
-		var pieceDiv = this.getPieceDiv();
 		this.options.positionX = parseInt(positionX);
 		this.options.positionY = parseInt(positionY);
+		var pieceDiv;
 		if (this.isOnBoard()) {
 			// also move its visual representation
-			if (pieceDiv.parent().length != 0) {
+			if (this.isRendered) {
 				console.log("remove piecediv");
-				pieceDiv.remove();
+				$("#" + this.pieceDiv).remove();
+				pieceDiv = $("#" + this.pieceDiv);
+			} else {
+				pieceDiv = this.render();	
+				this.options.isRendered = true;
 			}
 			var slotDiv = $($($("#board .row")[positionY]).find(".slot")[positionX]);
 			slotDiv.append(pieceDiv);
@@ -693,12 +704,7 @@ var Piece = new Class({
 	},
 	getPieceDiv: function() {
 		console.log("getpieceDiv");
-		var pieceDiv = $("#piece" + (this.options.player + 1) + "_" + this.options.id);
-		if (pieceDiv.length == 0 ) {
-			console.log("createNew");
-			pieceDiv = this.render();
-		}
-		return pieceDiv;
+		return this.pieceDiv;
 	}
 });
 
@@ -878,7 +884,7 @@ var PlayerList = new Class({
 
 		var html = "<ul>";
 		for (var i = 0; i < this.playerNum; i++) {
-			html += "<li class='player'>";
+			html += "<li class='player' id='player_" + i + "'>";
 			html += "<p><span class='player" + (i + 1) + "'></span>Player " + (i+1) + "</p>";
 			
 			// Check if there are points, and set points
@@ -933,7 +939,9 @@ var PieceList = new Class({
 	/* Utility */
 	/* Based on pieces state, place pieces on board */
 	createPieces: function() {
-		console.info("Creating pieces");
+		if (donburiGame != null) {
+			console.info("Creating pieces: " + donburiGame.whoseTurn());
+		}
 		for (var i = 0; i < this.piecesNum; i++) {
 			// Only do first piece for each player
 			var piece = this.options.pieces[i];
