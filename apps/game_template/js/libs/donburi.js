@@ -52,8 +52,8 @@ DonburiGame.prototype.init = function(context) {
 		title: "My Donburi Game"
 	});
 	
-    this.onUpdate(function(state) {
-		this.state = state;
+    this.onUpdate(function(gameState) {
+		this.state = gameState;
 		game.update(this);
     });
     SocialKit.Multiplayer.TurnBasedMultiplayerGame.prototype.init.call(this, context);
@@ -123,19 +123,23 @@ var Game = new Class({
 	},
 	
 	/* UI */
-	render: function(state) {
+	render: function(context) {
 		// Set title
 		$("title").html(this.options.title);
 		$("header h1").html(this.options.title);
 		
 		// Create players
-		state.players.render();
+		context.state.players.render();
 		
 		// Create board
-		state.board.render();
+		context.state.board.render();
         
         // Create pieces and place in correct positions
-        state.pieces.render();
+		for (var i = 0; i < context.state.pieces.options.pieces.length; i++) {
+			var piece = context.state.pieces.options.pieces[i];
+			piece.options.isRendered = false;
+		}
+        context.state.pieces.render();
 	},
 	
 	/* Events */
@@ -252,10 +256,10 @@ var Game = new Class({
 		
 		var currentPlayer = context.whoseTurn();
 		
-		game.render(context.state);
+		this.render(context);
 		
         // Set current player
-        game.renderCurrentPlayer(currentPlayer);
+        this.renderCurrentPlayer(currentPlayer);
 		
         // Set event handlers
         this.bindActionHandlers(context);
@@ -657,7 +661,7 @@ var Piece = new Class({
 		permanently = typeof permanently !== 'undefined' ? permanently : false;
 		
 		$("#" + this.pieceDiv).remove();
-		this.isRendered = false;
+		this.option.isRendered = false;
 		
 		permanently ? this.options.state = "isPermOffBoard" : this.options.state = "isOffBoard";
 	},
@@ -684,7 +688,7 @@ var Piece = new Class({
 		var pieceDiv;
 		if (this.isOnBoard()) {
 			// also move its visual representation
-			if (this.isRendered) {
+			if (this.options.isRendered) {
 				console.log("remove piecediv");
 				$("#" + this.pieceDiv).remove();
 				pieceDiv = $("#" + this.pieceDiv);
@@ -943,8 +947,12 @@ var PieceList = new Class({
 			console.info("Creating pieces: " + donburiGame.whoseTurn());
 		}
 		for (var i = 0; i < this.piecesNum; i++) {
+
 			// Only do first piece for each player
 			var piece = this.options.pieces[i];
+			
+						console.info("Setting position of piece " + i + " to " + piece.options.positionX + " , " + piece.options.positionY);
+			
 			// implicitly only draws pieces that are already on the board
 			piece.setPosition(piece.options.positionX, piece.options.positionY);
 		}

@@ -37,7 +37,7 @@ Musubi = {
     	// Pass on to Feed instance
     	for (var key in Musubi._contexts) {
     		var context = Musubi._contexts[key];
-    		if (typeof context.feed != "undefined" && context.feed.session == msg.feedName) {
+    		if (Musubi._contexts.hasOwnProperty(key) && context.feed.session == msg.feedName) {
     			context.feed._newMessage(msg);
     		}
     	}

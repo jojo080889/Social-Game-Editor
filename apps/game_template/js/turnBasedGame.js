@@ -65,7 +65,9 @@ SocialKit.Multiplayer.MultiplayerGame.prototype.init = function(context) {
 SocialKit.Multiplayer.MultiplayerGame.prototype._playerIds = function() {
     var ids = []
     for (var key in this.players) {
-        ids.push(this.players[key].personId);
+		if (this.players.hasOwnProperty(key)) {
+			ids.push(this.players[key].personId);
+		}
     }
     return ids;
 }
