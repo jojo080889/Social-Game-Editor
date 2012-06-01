@@ -192,6 +192,17 @@ header #mode_switch .selected:hover {
 	right: 0;
 	bottom: 0;
 }
+
+.rules_panel span {
+	font-size: 15px;
+}
+
+.rule {
+	border: 1px solid white;
+	padding: 10px;
+	margin: 10px 0;
+}
+
 /* Player Design Tab */
 .scroll_container {
 	position: relative;
