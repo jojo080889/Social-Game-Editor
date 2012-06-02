@@ -130,6 +130,21 @@ header #mode_switch .selected:hover {
 	height: 100%;
 	border: 0;
 	position: relative;
+	text-align: center;
+	cursor: pointer;
+}
+#board_design .slot .tile span.delete {
+	display: none;
+	font-size: 12px;
+	top: auto;
+	right: auto;
+}
+#board_design .slot .tile:hover .delete {
+	display: block;
+	margin: auto;
+}
+#board_design .slot .tile:hover .delete:hover {
+	color: orange;
 }
 
 #tileChoices {
@@ -192,6 +207,17 @@ header #mode_switch .selected:hover {
 	right: 0;
 	bottom: 0;
 }
+
+.rules_panel span {
+	font-size: 15px;
+}
+
+.rule {
+	border: 1px solid white;
+	padding: 10px;
+	margin: 10px 0;
+}
+
 /* Player Design Tab */
 .scroll_container {
 	position: relative;

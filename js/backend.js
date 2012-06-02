@@ -9,8 +9,99 @@ var board;
 
 var boardEditView;
 var piecesAndPlayersView;
+var rulesSelectView;
 
 $(document).ready(function() {
+
+	/* RULE */	
+	var Rule = Backbone.Model.extend({
+		defaults: {
+			id: -1
+		}
+	});
+	
+	var RuleView = Backbone.View.extend({
+		tagName: 'div',
+		className: "rule",
+		template: $("#ruleTemplate").html(),
+		events: {
+			"click span.delete": "remove"
+		},    
+		initialize: function() {
+			_.bindAll(this, "render", "unrender", "remove");
+			this.model.bind("change", this.render);
+			this.model.bind("remove", this.unrender);
+		},
+		render: function() {
+			var self = this;
+			var tmpl = _.template(this.template);
+			this.$el.html(tmpl(this.model.toJSON()));
+			return this;
+		},
+		unrender: function() {
+			$(this.el).remove();
+			this.remove();
+		},
+		remove: function() {
+			this.model.destroy();
+			var removedType = this.model.get("id");
+			alert("TODO: remove from DOM and collection");
+			
+			// TODO: show a warning first
+			var self = this;
+			var toRemove = ruleList.where({type: self.model.get("name")});
+			ruleList.remove(toRemove);
+			self.model.destroy();
+		}
+	});
+	
+	var RuleList = Backbone.Collection.extend({
+		model: Rule,
+		localStorage: new Store("RuleList")
+	});
+	var RuleListView = Backbone.View.extend({
+		el: $("#ruleList"),
+		events: {
+		},
+		initialize: function() {
+			_.bindAll(this, 'render', 'renderRule', 'addRule', 'removeRule'); 
+			this.collection = new RuleList();
+			this.collection.bind('add', this.renderRule);
+			$("#addRule").click(this.addRule);
+			$("#removeRule").click(this.removeRule);
+			this.render();
+		},
+		render: function() {
+			var self = this;
+			_.each(this.collection.models, function(item) {
+				self.renderRule(item);
+			}, this);
+		},
+		renderRule: function(rule) {
+			var rView = new RuleView({
+				model: rule,
+				id: "rule_" + rule.get("id")
+			});
+			this.$el.append(rView.render().el);
+			initRuleSelectElems();
+		},
+		addRule: function() {
+			// if we're not going to limit the number of rules
+			// then delete the if statement
+			if (this.collection.length < 10) {
+				var rule = this.collection.create({
+					id: this.collection.length
+				});
+			} else {
+			}
+			initRuleSelectElems();
+		},
+		removeRule: function() {
+			if (this.collection.length > 1) {
+				this.collection.pop();
+			}
+		}
+	});
 	
 	/* PLAYER */
 	var Player = Backbone.Model.extend({
@@ -875,8 +966,19 @@ $(document).ready(function() {
 			pieceList.each(this.addOne);
 		}
 	});	
+	var RulesSelectView = Backbone.View.extend({
+		el: $("#rules_select"),
+		initialize: function() {
+			// TODO: bind pieces and players to the select menus within the rules
+			ruleList.collection.bind('reset', ruleList.render); 
+			this.render();
+		}
+	});	
 	
 	// Instantiate stuff
+	
+	ruleList = new RuleListView();
+	
 	playerList = new PlayerListView();
 	pieceTypeList = new PieceTypeListView();
 	pieceList = new PieceList();
@@ -886,6 +988,7 @@ $(document).ready(function() {
 	
 	boardEditView = new BoardEditView();
 	piecesAndPlayersView = new PiecesAndPlayersView();
+	rulesSelectView = new RulesSelectView();
 	
 	// Load data
 	if (localStorage.getItem("TileTypeList") == null) {
@@ -912,4 +1015,13 @@ $(document).ready(function() {
 		pieceTypeList.collection.fetch();
 	}
 	pieceList.fetch();
+	
+	
+	if (localStorage.getItem("RuleList") == null) {
+		for (var i = 0; i < rules.length; i++) {
+			ruleList.collection.create(rules[i]);
+		}
+	} else {
+		ruleList.collection.fetch(); // players MUST be loaded before pieces
+	}
 });

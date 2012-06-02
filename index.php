@@ -31,11 +31,16 @@ include "header.php"
 		</div>
 				
 		<div id="slotRulesPanel" class="rules_panel">
+	
 		</div>
 		<div id="boardRulesPanel" class="rules_panel">
-			<h4>Rules for Game</span></h4>
-			1. On land ... <br/>
-			2. On land ... <br />
+			<h4>Rules for Game</h4>
+			<div id="rules_select" class="tab_content">
+				<button id="addRule" class="button"><i class="icon-plus"></i>Add Rule</button>
+				<button id="removeRule" class="button"><i class="icon-minus"></i>Remove Rule</button>
+				
+				<div id="ruleList"></div>
+			</div>
 		</div>
 	</div>
 	
@@ -131,6 +136,42 @@ include "header.php"
 </div>
 
 <!-- templates -->
+<script id="ruleTemplate" type="text/template">
+	<p>
+		<h2>Rule <%= id + 1 %><span class="delete" style="position:relative; float: right;"><i class="icon-remove-sign"></i></span>
+		</h2>
+		
+		<div class="when">
+			<h2>When:</h2>
+			<select class="sensing_object">
+				<option></option>
+				<option>player</option>
+				<option>slot</option>
+				<option>piece</option>
+			</select>
+		</div>
+		<div class="do">
+			<h2>Do:</h2>
+			<select class="action">
+				<option></option>
+				<option value="change">change</option>
+				<option value="add">add to board ... </option>
+				<option value="remove">remove piece from board</option>
+				<option value="disable_leave">disable leave rules</option>
+				<option value="disable_land">disable land rules</option>
+				<option value="enable_leave">enable leave rules</option>
+				<option value="enable_land">enable land rules</option>
+				<option value="give">give player more turns </option>
+				<option value="skip">player skips turn</option>
+				<option value="win">player wins</option>
+				<option value="lose">player loses</option>
+				<option value="end">end game</option>
+			</select>
+		</div>
+	</p>
+</script>
+
+
 <script id="playerTemplate" type="text/template">
 	<p>Player <%= id + 1 %></p>
 </script>
