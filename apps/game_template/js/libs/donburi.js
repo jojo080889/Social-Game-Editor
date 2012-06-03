@@ -77,6 +77,8 @@ DonburiGame.prototype.createInitialState = function() {
 		moveFlags: null
 	};
 	
+	game.render(state);
+	
 	return state;
 }
 
@@ -123,23 +125,19 @@ var Game = new Class({
 	},
 	
 	/* UI */
-	render: function(context) {
+	render: function(state) {
 		// Set title
 		$("title").html(this.options.title);
 		$("header h1").html(this.options.title);
 		
 		// Create players
-		context.state.players.render();
+		state.players.render();
 		
 		// Create board
-		context.state.board.render();
-        
-        // Create pieces and place in correct positions
-		for (var i = 0; i < context.state.pieces.options.pieces.length; i++) {
-			var piece = context.state.pieces.options.pieces[i];
-			piece.options.isRendered = false;
-		}
-        context.state.pieces.render();
+		state.board.render();
+		
+		// Create pieces
+        state.pieces.render();
 	},
 	
 	/* Events */
@@ -255,8 +253,20 @@ var Game = new Class({
         console.info(context.state.pieces);
 		
 		var currentPlayer = context.whoseTurn();
-		
-		this.render(context);
+        
+        // Create pieces and place in correct positions
+		for (var i = 0; i < context.state.pieces.options.pieces.length; i++) {
+			var piece = context.state.pieces.options.pieces[i];
+			$("#" + piece.pieceDiv).remove();
+			piece.options.isRendered = false;
+		}
+        //context.state.pieces.render();
+		for (var i = 0; i < context.state.pieces.options.pieces.length; i++) {
+			var piece = context.state.pieces.options.pieces[i];
+			
+			// implicitly only draws pieces that are already on the board
+			piece.setPosition(piece.options.positionX, piece.options.positionY, $("#board"));
+		}
 		
         // Set current player
         this.renderCurrentPlayer(currentPlayer);
@@ -294,7 +304,9 @@ var Game = new Class({
 				$("#game-message").show("fast").delay(1000).hide("fast");
 			} else { 
 				// if they're out of turns, move to the next player
-				donburiGame.takeTurn(donburiGame.makeState());
+				if (donburiGame.isMyTurn()) {
+					donburiGame.takeTurn(donburiGame.makeState());
+				}
 			} 
 		});
 	},
@@ -682,7 +694,8 @@ var Piece = new Class({
 	getPositionY: function() {
 		return this.options.positionY;
 	},
-	setPosition: function(positionX, positionY) {
+	setPosition: function(positionX, positionY, board) {
+		board = typeof board !== 'undefined' ? board : $("#board");
 		this.options.positionX = parseInt(positionX);
 		this.options.positionY = parseInt(positionY);
 		var pieceDiv;
@@ -696,7 +709,7 @@ var Piece = new Class({
 				pieceDiv = this.render();	
 				this.options.isRendered = true;
 			}
-			var slotDiv = $($($("#board .row")[positionY]).find(".slot")[positionX]);
+			var slotDiv = $($($(".row", board)[positionY]).find(".slot")[positionX]);
 			slotDiv.append(pieceDiv);
 		}
 	},

@@ -45,7 +45,7 @@ SocialKit.Multiplayer.MultiplayerGame.prototype.init = function(context) {
         }
     } else {
         console.log("*** SocialKit.js falling back to dummy users");
-        this.players = [new SocialKit.User({name: "User 1", id: 0}), new SocialKit.User({name: "User 2", id: 1})]
+        this.players = [new SocialKit.User({name: "User 1", id: 0, personId: 0}), new SocialKit.User({name: "User 2", id: 1, personId: 1})]
     }
 
     if (DBG) console.log("initializing game: " + this._currentPlayerIdx);
@@ -164,7 +164,7 @@ SocialKit.Multiplayer.TurnBasedMultiplayerGame.prototype.takeTurn = function(sta
 
     if (DBG) console.log("posting " + JSON.stringify(objData));
     this.appContext.feed.post(new SocialKit.Obj({type: "appstate", data: objData}));
-    this._updateListener(this.state);
+    //this._updateListener(this.state);
 };
 
 SocialKit.Multiplayer.TurnBasedMultiplayerGame.prototype._processMove = function(objData) {
@@ -182,7 +182,7 @@ SocialKit.Multiplayer.TurnBasedMultiplayerGame.prototype._processMove = function
     */
     
     this._currentPlayerIdx = objData[this.OBJ_PLAYERINCONTROL];
-    if (objData.state) {
+    if (objData.state && objData[this.OBJ_TURN] != 0) {
         this.state = objData.state;
         this._updateListener(this.state);
     }
