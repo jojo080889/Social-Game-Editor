@@ -152,7 +152,7 @@ include "header.php"
 		</div>
 		<div class="do">
 			<h2>Do:</h2>
-			<select class="action">
+			<select class="do_action">
 				<option></option>
 				<option value="change">change</option>
 				<option value="add">add to board ... </option>
@@ -161,8 +161,8 @@ include "header.php"
 				<option value="disable_land">disable land rules</option>
 				<option value="enable_leave">enable leave rules</option>
 				<option value="enable_land">enable land rules</option>
-				<option value="give">give player more turns </option>
-				<option value="skip">player skips turn</option>
+				<option value="give_turns">give player more turns </option>
+				<option value="skip_turns">player skips turn</option>
 				<option value="win">player wins</option>
 				<option value="lose">player loses</option>
 				<option value="end">end game</option>
