@@ -37,7 +37,6 @@ include "header.php"
 			<h4>Rules for Game</h4>
 			<div id="rules_select" class="tab_content">
 				<button id="addRule" class="button"><i class="icon-plus"></i>Add Rule</button>
-				<button id="removeRule" class="button"><i class="icon-minus"></i>Remove Rule</button>
 				
 				<div id="ruleList"></div>
 			</div>
