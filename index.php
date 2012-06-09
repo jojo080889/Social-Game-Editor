@@ -36,6 +36,14 @@ include "header.php"
 		<div id="boardRulesPanel" class="rules_panel">
 			<h4>Rules for Game</h4>
 			<div id="rules_select" class="tab_content">
+				<div class="move_decider">
+					<h2>Move Decider:</h2>
+					<select class="move_decider_option">
+						<option>Roll Dice</option>
+						<option>Pick Slot</option>
+					</select>
+				</div>
+				<select>
 				<button id="addRule" class="button"><i class="icon-plus"></i>Add Rule</button>
 				
 				<div id="ruleList"></div>

@@ -48,6 +48,7 @@ DonburiGame.prototype.pathToString = function(path) {
 
 // App initializations
 DonburiGame.prototype.init = function(context) {
+	console.log("DonburiGame.prototype.init moveDecider val: " + $("#move_decider_option").val());
 	game = new Game(null, {
 		title: "My Donburi Game"
 	});
@@ -115,6 +116,7 @@ var Game = new Class({
 	Implements: [Options, Events],
 	options: {
 		title: "title here",
+		moveDecider: "Roll Dice",
 		usePoints: false, // if true, use points
 		rollMin: 1,
 		rollMax: 6
@@ -194,28 +196,28 @@ var Game = new Class({
 	/* ACTIONS */
 	bindActionHandlers: function(donburiGame) {
         if(donburiGame.isMyTurn()) {
-            $("#roll_move").html("Roll Dice");
+            $("#decide_move").html(this.options.moveDecider);
             
             /*During initialization, the function below is bound to this button, 
              *and then on update it is bound again. This unbind (and the one below) 
              *prevent that from being a problem. There has to be a more elegant solution.
              */
-            $("#roll_move").unbind(); 
-                
-            $("#roll_move").click(function() {
-                $("#roll_move").unbind();
+            $("#decide_move").unbind(); 
+            $("#decide_move").click(function() {
+                $("#decide_move").unbind();
                 $("#skip_turn").unbind();
                 game.moveStart();
             });
+
             $("#skip_turn").unbind();
             $("#skip_turn").click(function(){
-                $("#roll_move").unbind();
+                $("#decide_move").unbind();
                 $("#skip_turn").unbind();
                 game.changeToNextTurn();
             });
         } else {
-            $("#roll_move").html("Waiting...");
-            $("#roll_move").click(function() {
+            $("#decide_move").html("Waiting...");
+            $("#decide_move").click(function() {
                 return;
             });
             $("#skip_turn").click(function(){
@@ -243,7 +245,7 @@ var Game = new Class({
 			$("#game-message").show("fast");
 			
 			// disable actions
-			$("#roll_move").unbind();
+			$("#decide_move").unbind();
 			$("#skip_turn").unbind();
 		});
 	},
