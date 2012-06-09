@@ -9,7 +9,8 @@ function DonburiGame(context) {
 		pieceToMove: null, 
 		moveCount: null, 
 		moveType: null,
-		moveFlags: null
+		moveFlags: null,
+		moveDecider: null
 	};
     this.init(context);
 }
@@ -48,7 +49,10 @@ DonburiGame.prototype.pathToString = function(path) {
 
 // App initializations
 DonburiGame.prototype.init = function(context) {
-	console.log("DonburiGame.prototype.init moveDecider val: " + $("#move_decider_option").val());
+	//console.log("DonburiGame.prototype.init moveDecider val: " + $("#move_decider_option").val());
+	console.info("DonburiGame context in init : ");
+	console.info(context);
+
 	game = new Game(null, {
 		title: "My Donburi Game"
 	});
@@ -63,6 +67,7 @@ DonburiGame.prototype.init = function(context) {
 DonburiGame.prototype.createInitialState = function() {
 	console.log("creating Initial State");
 	console.log(this.players);
+	console.log("Donburi state moveDecider val: " + data.moveDecider);
 
 	var players = convertToMooToolsPlayers(this);
 	var pieces = convertToMooToolsPieces();
@@ -75,10 +80,14 @@ DonburiGame.prototype.createInitialState = function() {
 		pieceToMove: null, 
 		moveCount: null, 
 		moveType: null,
-		moveFlags: null
+		moveFlags: null,
+		moveDecider: data.moveDecider
 	};
 	
 	game.render(state);
+
+	console.info("this.state in createInitialState is: ");
+	console.info(this.state);
 	
 	return state;
 }
@@ -116,7 +125,7 @@ var Game = new Class({
 	Implements: [Options, Events],
 	options: {
 		title: "title here",
-		moveDecider: "Roll Dice",
+		moveDecider: "",
 		usePoints: false, // if true, use points
 		rollMin: 1,
 		rollMax: 6
@@ -132,6 +141,10 @@ var Game = new Class({
 		$("title").html(this.options.title);
 		$("header h1").html(this.options.title);
 		
+		console.info("in game render: moveDecider: "+state.moveDecider);
+		$("#roll_move").html(state.moveDecider);
+		this.options.moveDecider = state.moveDecider;
+
 		// Create players
 		state.players.render();
 		
@@ -196,28 +209,29 @@ var Game = new Class({
 	/* ACTIONS */
 	bindActionHandlers: function(donburiGame) {
         if(donburiGame.isMyTurn()) {
-            $("#decide_move").html(this.options.moveDecider);
-            
+            console.info("************* bindActionHandlers : moveDecider: " + this.options.moveDecider);
+            $("#roll_move").html(this.options.moveDecider);
+
             /*During initialization, the function below is bound to this button, 
              *and then on update it is bound again. This unbind (and the one below) 
              *prevent that from being a problem. There has to be a more elegant solution.
              */
-            $("#decide_move").unbind(); 
-            $("#decide_move").click(function() {
-                $("#decide_move").unbind();
+            $("#roll_move").unbind(); 
+            $("#roll_move").click(function() {
+                $("#roll_move").unbind();
                 $("#skip_turn").unbind();
                 game.moveStart();
             });
 
             $("#skip_turn").unbind();
             $("#skip_turn").click(function(){
-                $("#decide_move").unbind();
+                $("#roll_move").unbind();
                 $("#skip_turn").unbind();
                 game.changeToNextTurn();
             });
         } else {
-            $("#decide_move").html("Waiting...");
-            $("#decide_move").click(function() {
+            $("#roll_move").html("Waiting...");
+            $("#roll_move").click(function() {
                 return;
             });
             $("#skip_turn").click(function(){
@@ -245,7 +259,7 @@ var Game = new Class({
 			$("#game-message").show("fast");
 			
 			// disable actions
-			$("#decide_move").unbind();
+			$("#roll_move").unbind();
 			$("#skip_turn").unbind();
 		});
 	},

@@ -1,4 +1,4 @@
-DBG = true;
+DBG = false;
 console.origLog = console.log;
 console.log = function(msg) {
     console.origLog(msg);

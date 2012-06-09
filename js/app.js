@@ -105,6 +105,10 @@ function convertValuesToSingleJSON() {
 	data.players = getPlayerJSON();
 	data.pieces = getPiecesJSON();
 	data.board = getBoardJSON();
+		
+	console.log("Donburi state moveDecider val: " + $("#move_decider_option").val());
+
+	data.moveDecider = $("#move_decider_option").val();
 	return data;
 }
 
