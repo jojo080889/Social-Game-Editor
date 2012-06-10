@@ -11,7 +11,7 @@ var boardEditView;
 var piecesAndPlayersView;
 var rulesSelectView;
 
-var RulesIDCount = 5;
+var RulesIDCount = 0;
 
 $.fn.populateSelectElement = function(type) {
 	if (type == "piece") {
@@ -21,7 +21,7 @@ $.fn.populateSelectElement = function(type) {
 			.append('<option value="all_pieces">all pieces</option>')
 			.append('<option value="no_pieces">no pieces</option>')
 			.append('<option value="specific_piece">&lt;specific piece&gt;</option>')
-			.append('<option value="specific_piece">&lt;user pick piece&gt;</option>')
+			.append('<option value="user_pick_piece">&lt;user pick piece&gt;</option>')
 			.append('<option value="my_pieces">my pieces</option>')
 			.append('<option value="opponent_pieces">opponent pieces</option>')
 			.append('<option value="type">type</option>')
@@ -74,6 +74,13 @@ $(document).ready(function() {
 	var Rule = Backbone.Model.extend({
 		defaults: {
 			id: -1,
+			sensing_object: "",
+			sensing_subobject: "",
+			sensing_action: "",
+			sensing_action_modifier: "",
+			do_action: "",
+			do_action_object: "",
+			do_action_subobject: ""
 		}
 	});
 	
@@ -106,11 +113,14 @@ $(document).ready(function() {
 			_.bindAll(this, "render", "unrender", "remove", "set_sensing_object", "set_sensing_subobject","set_sensing_action","set_sensing_action_modifier", "set_do_action", "set_do_action_object", "set_do_action_subobject");
 			//this.model.bind("change", this.render);
 			this.model.bind("remove", this.unrender);
+
+			this.render();
 		},
 		render: function() {
 			var self = this;
 			var tmpl = _.template(this.template);
 			this.$el.html(tmpl(this.model.toJSON()));
+
 			return this;
 		},
 		unrender: function() {
@@ -123,6 +133,96 @@ $(document).ready(function() {
 			// var toRemove = ruleList.where({type: this.model.get("name")});
 			// ruleList.remove(toRemove);
 			this.model.destroy();
+		},
+		initOptions: function() {
+			var ruleView = "#ruleView_" + this.model.get("id");
+
+			var sensing_object = $( ruleView ).find(".sensing_object");
+			$( sensing_object ).val(this.model.get("sensing_object"));
+
+			var parentDiv = ruleView + "> .when";
+			if (this.model.get("sensing_object") != "") {
+				$('<select />', { class: "sensing_subobject", })
+					.appendTo( parentDiv )
+					.populateSelectElement(this.model.get("sensing_object"))
+			}
+			var sensing_subobject = $( ruleView ).find(".sensing_subobject");
+			$( sensing_subobject ).val(this.model.get("sensing_subobject"));
+			
+			var select_type = "";
+			if (sensing_object.val() == "player") select_type = "possession";
+			if (sensing_object.val() == "slot") select_type = "possession";
+			if (sensing_object.val() == "piece") select_type = "locationAndType";
+			if (select_type != "") {
+				$('<select />', { class: "sensing_action", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+			var sensing_action = $( ruleView ).find(".sensing_action");
+			$( sensing_action ).val(this.model.get("sensing_action"));
+
+			var select_type = "";
+			if ((sensing_action.val() == "has") ||
+				(sensing_action.val() == "not_have") ||
+				(sensing_action.val() == "of_type") || 
+				(sensing_action.val() == "not_of_type")) {
+				select_type = "piece";
+			}
+			if (select_type != "") {
+				$('<select />', { class: "sensing_action_modifier", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+			var sensing_action_modifier = $( ruleView ).find(".sensing_action_modifier");
+			$( sensing_action_modifier ).val(this.model.get("sensing_action_modifier"));
+
+			var do_action = $( ruleView ).find(".do_action");
+			$( do_action ).val(this.model.get("do_action"));
+
+			var parentDiv = ruleView + "> .do";
+			if ((do_action.val() == "disable_land") ||
+				(do_action.val() == "disable_leave") ||
+				(do_action.val() == "enable_land") ||
+				(do_action.val() == "enable_leave") ||
+				(do_action.val() == "give_turns") ||
+				(do_action.val() == "skip_turns")) {
+					$('<input />', { type: 'text', placeholder: '# turns', size: 5, class: "do_num_turns", })
+						.appendTo( parentDiv )
+			}
+			var select_type = "";
+			if (do_action.val() == "change") select_type = "change";
+			if (do_action.val() == "add") select_type = "PieceAndSlot";
+			if (do_action.val() == "remove") select_type = "PieceAndSlot";
+			if (do_action.val() == "disable_land") select_type = "slot";
+			if (do_action.val() == "disable_leave") select_type = "slot";
+			if (do_action.val() == "enable_land") select_type = "slot";
+			if (do_action.val() == "enable_leave") select_type = "slot";
+			if (do_action.val() == "give_turns") select_type = "player";
+			if (do_action.val() == "skip_turns") select_type = "player";
+			if (do_action.val() == "win") select_type = "player";
+			if (do_action.val() == "lose") select_type = "player";
+			if (select_type != "") {
+				$('<select />', { class: "do_action_object", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+			var do_action_object = $( ruleView ).find(".do_action_object");
+			$( do_action_object ).val(this.model.get("do_action_object"));
+
+			var select_type = "";
+			if (do_action_object.val() == "piece_to_move") select_type = "piece";
+			if (do_action_object.val() == "change_current_player") select_type = "player";
+			if (do_action_object.val() == "num_spaces_to_move") select_type = "PieceAndSlot";
+			if (do_action_object.val() == "path_to_go") select_type = "PieceAndSlot";
+			if (do_action_object.val() == "piece") select_type = "piece";
+			if (do_action_object.val() == "slot") select_type = "slot";
+			if (select_type != "") {
+				$('<select />', { class: "do_action_subobject", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+			var do_action_subobject = $( ruleView ).find(".do_action_subobject");
+			$( do_action_subobject ).val(this.model.get("do_action_subobject"));
 		},
 		set_sensing_object: function() {
 			/** get the value and store in model **/
@@ -284,7 +384,6 @@ $(document).ready(function() {
 			/** get the value and store in model **/
 			this.model.set("do_action_subobject", do_action_subobject.val());	
 			this.model.save();
-
 		}
 	});
 	
@@ -315,9 +414,10 @@ $(document).ready(function() {
 				id: "ruleView_" + rule.get("id")
 			});
 			this.$el.append(rView.render().el);
+			rView.initOptions();
 		},
 		addRule: function() {
-			var rule = this.collection.create({
+			var rule = this.collection.push({
 				id: RulesIDCount,
 			});
 			RulesIDCount++;
