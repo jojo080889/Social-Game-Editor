@@ -344,7 +344,7 @@ var Game = new Class({
 			donburiGame.state.moveCount = diceResult;
 			$("#move-result-num").html(diceResult);
 			$("#move-result").show("fast").delay(1500).hide("fast", function() { 
-				this.onTurnStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), this.turnStartHelper);
+				game.onTurnStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), game.turnStartHelper);
 			});
 		} else { // Pick Slot
 			showTheSlotPicker("Pick slot to move to", donburiGame.state.board.options.slots, $("#board"));
@@ -371,16 +371,24 @@ var Game = new Class({
 	},
 	moveStart: function() {
 		// define pieceToMove - either current piece or pick piece
-		var types = ["isOffBoard"];
-		var pickpieces = donburiGame.state.pieces.getPieces({player:donburiGame.whoseTurn(), piecestate: types});
 
-		if (donburiGame.state.moveDecider == "Roll Dice") {
+		var types = ["isOnBoard"];
+		var onPieces = donburiGame.state.pieces.getPieces({player:donburiGame.whoseTurn(), piecestate: types});
+
+		var types = ["isOffBoard"];
+		var offPieces = donburiGame.state.pieces.getPieces({player:donburiGame.whoseTurn(), piecestate: types});
+
+		var showPickerIf = (donburiGame.state.moveDecider == "Pick Slot" ||
+							onPieces.length == 0);
+
+		if (!showPickerIf) { // Roll Dice
 			// by default, set piece to move to be the first piece owned
 			// by the current player
-			donburiGame.state.pieceToMove = pickpieces[0];
+			if (onPieces.length >= 1) // TODO: change to select b/w multiple on board pieces
+				donburiGame.state.pieceToMove = onPieces[0];
 			this.knowPiece();
 		} else { // Pick Slot
-			showThePiecePicker("Choose which piece to move", pickpieces, $("#board"));
+			showThePiecePicker("Choose which piece to move", offPieces, $("#board"));
 		}
 	},
 	// set donburiGame.state.pieceToMove before this point
