@@ -37,13 +37,11 @@ $.fn.populateSelectElement = function(type) {
 			.append('<option value="inactive_players">inactive players</option>')
 	} else if (type == "slot") {
 		$(this)						
-			.append('<option value="">[select slot]</option>')
-			.append('<option value="on_land">landed on</option>')
-			.append('<option value="on_leave">being left</option>')
-			.append('<option value="on_pass">being passed</option>')
-			.append('<option value="no_slots">no slots</option>')
-			.append('<option value="specific_slot">&lt;specific slot&gt;</option>')
-			.append('<option value="user_pick_slot">&lt;user pick slot&gt;</option>')
+			.append('<option value="">[select event]</option>')
+			.append('<option value="on_land">on land</option>')
+			.append('<option value="on_leave">on leave</option>')
+			.append('<option value="on_pass">on pass</option>')
+			.append('<option value="on_update">on update</option>')
 	} else if (type == "locationAndType") {
 		$(this)
 			.append('<option value="on_board">is on board</option>')
@@ -140,109 +138,116 @@ $(document).ready(function() {
 			var ruleView = "#ruleView_" + this.model.get("id");
 
 			var sensing_object = $( ruleView ).find(".sensing_object");
+			for (var i = 0; i < this.model.get("num_extra_options_sensing_object"); i++) {
+				var id = i+1;
+				var val = this.model.get("extra_option_sensing_object_"+id);
+				$( sensing_object )
+		          .append($('<option>', { value : val })
+		          .text(val)); 
+			}
 			$( sensing_object ).val(this.model.get("sensing_object"));
 
-			var parentDiv = ruleView + "> .when";
-			if (this.model.get("sensing_object") != "") {
-				$('<select />', { class: "sensing_subobject", })
-					.appendTo( parentDiv )
-					.populateSelectElement(this.model.get("sensing_object"))
-			}
+			this.construct_sensing_subobject_input(ruleView, sensing_object);
 			var sensing_subobject = $( ruleView ).find(".sensing_subobject");
 			$( sensing_subobject ).val(this.model.get("sensing_subobject"));
 			
-			var select_type = "";
-			if (sensing_object.val() == "player") select_type = "possession";
-			if (sensing_object.val() == "slot") select_type = "possession";
-			if (sensing_object.val() == "piece") select_type = "locationAndType";
-			if (select_type != "") {
-				$('<select />', { class: "sensing_action", })
-					.appendTo( parentDiv )
-					.populateSelectElement(select_type)
-			}
+			this.construct_sensing_action_input(ruleView, sensing_object);
 			var sensing_action = $( ruleView ).find(".sensing_action");
 			$( sensing_action ).val(this.model.get("sensing_action"));
 
-			var select_type = "";
-			if ((sensing_action.val() == "has") ||
-				(sensing_action.val() == "not_have") ||
-				(sensing_action.val() == "of_type") || 
-				(sensing_action.val() == "not_of_type")) {
-				select_type = "piece";
-			}
-			if (select_type != "") {
-				$('<select />', { class: "sensing_action_modifier", })
-					.appendTo( parentDiv )
-					.populateSelectElement(select_type)
-			}
+			this.construct_sensing_action_modifier_input(ruleView, sensing_action);
 			var sensing_action_modifier = $( ruleView ).find(".sensing_action_modifier");
 			$( sensing_action_modifier ).val(this.model.get("sensing_action_modifier"));
 
 			var do_action = $( ruleView ).find(".do_action");
 			$( do_action ).val(this.model.get("do_action"));
 
-			var parentDiv = ruleView + "> .do";
-			if ((do_action.val() == "disable_land") ||
-				(do_action.val() == "disable_leave") ||
-				(do_action.val() == "enable_land") ||
-				(do_action.val() == "enable_leave") ||
-				(do_action.val() == "give_turns") ||
-				(do_action.val() == "skip_turns")) {
-					$('<input />', { type: 'text', placeholder: '# turns', size: 5, class: "do_num_turns", })
-						.appendTo( parentDiv )
-			}
-			var select_type = "";
-			if (do_action.val() == "change") select_type = "change";
-			if (do_action.val() == "add") select_type = "PieceAndSlot";
-			if (do_action.val() == "remove") select_type = "PieceAndSlot";
-			if (do_action.val() == "disable_land") select_type = "slot";
-			if (do_action.val() == "disable_leave") select_type = "slot";
-			if (do_action.val() == "enable_land") select_type = "slot";
-			if (do_action.val() == "enable_leave") select_type = "slot";
-			if (do_action.val() == "give_turns") select_type = "player";
-			if (do_action.val() == "skip_turns") select_type = "player";
-			if (do_action.val() == "win") select_type = "player";
-			if (do_action.val() == "lose") select_type = "player";
-			if (select_type != "") {
-				$('<select />', { class: "do_action_object", })
-					.appendTo( parentDiv )
-					.populateSelectElement(select_type)
-			}
+			this.construct_do_action_input(ruleView, do_action);
 			var do_action_object = $( ruleView ).find(".do_action_object");
 			$( do_action_object ).val(this.model.get("do_action_object"));
 
-			var select_type = "";
-			if (do_action_object.val() == "piece_to_move") select_type = "piece";
-			if (do_action_object.val() == "change_current_player") select_type = "player";
-			if (do_action_object.val() == "num_spaces_to_move") select_type = "PieceAndSlot";
-			if (do_action_object.val() == "path_to_go") select_type = "PieceAndSlot";
-			if (do_action_object.val() == "piece") select_type = "piece";
-			if (do_action_object.val() == "slot") select_type = "slot";
-			if (select_type != "") {
-				$('<select />', { class: "do_action_subobject", })
-					.appendTo( parentDiv )
-					.populateSelectElement(select_type)
-			}
+			this.construct_do_action_subobject_input(ruleView, do_action_object);
 			var do_action_subobject = $( ruleView ).find(".do_action_subobject");
 			$( do_action_subobject ).val(this.model.get("do_action_subobject"));
 		},
 		set_sensing_object: function() {
+
 			/** get the value and store in model **/
 			var ruleView = "#ruleView_" + this.model.get("id");
 			var sensing_object = $( ruleView ).find(".sensing_object");
-			this.model.set("sensing_object", sensing_object.val());	
-			this.model.set("sensing_subobject", "");
-			this.model.set("sensing_action", "");
-			this.model.set("sensing_action_modifier", "");
+			
+			var self = this;
+
+			if (sensing_object.val() == "specific_slot") {
+				$( "#dialog-selectSpecificSlot" ).show().dialog({
+					resizable: false,
+					height:140,
+					modal: true,
+					buttons: {
+						"Ok": function() {
+							// todo check that both text boxes have been filled out
+							var val = "slot_" + $("#specific_slot_x").val() + "_" + $("#specific_slot_y").val();
+							$( sensing_object )
+					          .append($('<option>', { value : val })
+					          .text(val)); 
+							$( this ).dialog( "close" );
+							$( sensing_object ).val(val);
+
+							if (self.model.get("num_extra_options_sensing_object") == undefined) {
+								self.model.set("num_extra_options_sensing_object", 0);
+							}
+							var num_extra_options = self.model.get("num_extra_options_sensing_object") + 1;
+							var str_extra_option = "extra_option_sensing_object_" + num_extra_options;
+							self.model.set("num_extra_options_sensing_object", num_extra_options);
+							self.model.set(str_extra_option, val);
+							self.model.save();
+
+							self.update_sensing_model(sensing_object.val(),
+	   						    "",
+							    "",
+							    "",
+							    sensing_object);
+							self.construct_sensing_subobject_input(ruleView, sensing_object);
+						},
+						Cancel: function() {
+							$( this ).dialog( "close" );
+						}
+					}
+				});
+			} else {
+				this.update_sensing_model(sensing_object.val(),
+										  "",
+										  "",
+										  "",
+										  sensing_object);
+				
+				this.construct_sensing_subobject_input(ruleView, sensing_object);
+			}
+		},
+		// pass null in first four arguments if you don't want to update them
+		update_sensing_model: function(sensing_object_val, sensing_subobject_val, sensing_action_val, sensing_action_modifier_val, remove_next_obj) {
+			if (sensing_object_val != null)
+				this.model.set("sensing_object", sensing_object_val);	
+			if (sensing_subobject_val != null)
+				this.model.set("sensing_subobject", sensing_subobject_val);
+			if (sensing_action_val != null)
+				this.model.set("sensing_action", sensing_action_val);
+			if (sensing_action_modifier_val != null)
+				this.model.set("sensing_action_modifier", sensing_action_modifier_val);
 			this.model.save();
 			
-			$( sensing_object ).nextAll().remove();							// remove the next select statements
-			
+			// remove the next select statements
+			$( remove_next_obj ).nextAll().remove();		
+		},
+		construct_sensing_subobject_input: function(ruleView, sensing_object) {
 			/** construct the next select statement **/
 			var parentDiv = ruleView + "> .when";
 			var select_type = "";
 			if (sensing_object.val() == "player") select_type = "player";
-			if (sensing_object.val() == "slot") select_type = "slot";
+			if (sensing_object.val().search("slot") == 0 
+				|| sensing_object.val() == "board"
+				|| sensing_object.val() == "user_pick_slot")
+				select_type = "slot";
 			if (sensing_object.val() == "piece") select_type = "piece";
 			if (select_type != "") {
 				$('<select />', { class: "sensing_subobject", })
@@ -252,22 +257,24 @@ $(document).ready(function() {
 		},
 		set_sensing_subobject: function() {
 			var ruleView = "#ruleView_" + this.model.get("id");
-			var parentDiv = ruleView + "> .when";
 			var sensing_object = $( ruleView ).find(".sensing_object");
 			var sensing_subobject = $( ruleView ).find(".sensing_subobject");
 			
 			/** get the value and store in model **/
-			this.model.set("sensing_subobject", sensing_subobject.val());	
-			this.model.set("sensing_action", "");
-			this.model.set("sensing_action_modifier", "");
-			this.model.save();
-			
-			$( sensing_subobject ).nextAll().remove();							// remove the next select statements
+			this.update_sensing_model(null, sensing_subobject.val(), "", "", sensing_subobject);
 			
 			/** construct the next select statement **/
+			this.construct_sensing_action_input(ruleView, sensing_object);
+		},
+		construct_sensing_action_input: function(ruleView, sensing_object) {
+			/** construct the next select statement **/
+			var parentDiv = ruleView + "> .when";
 			var select_type = "";
 			if (sensing_object.val() == "player") select_type = "possession";
-			if (sensing_object.val() == "slot") select_type = "possession";
+			if (sensing_object.val().search("slot") == 0 
+				|| sensing_object.val() == "board"
+				|| sensing_object.val() == "user_pick_slot")
+				select_type = "possession";
 			if (sensing_object.val() == "piece") select_type = "locationAndType";
 			if (select_type != "") {
 				$('<select />', { class: "sensing_action", })
@@ -277,7 +284,6 @@ $(document).ready(function() {
 		},
 		set_sensing_action: function() {
 			var ruleView = "#ruleView_" + this.model.get("id");
-			var parentDiv = ruleView + "> .when";
 			var sensing_action = $( ruleView ).find(".sensing_action");
 			
 			/** get the value and store in model **/
@@ -287,7 +293,11 @@ $(document).ready(function() {
 			
 			$( sensing_action ).nextAll().remove();							// remove the next select statements
 			
+			this.construct_sensing_action_modifier_input(ruleView, sensing_action);
+		},
+		construct_sensing_action_modifier_input: function(ruleView, sensing_action) {
 			/** construct the next select statement **/
+			var parentDiv = ruleView + "> .when";
 			var select_type = "";
 			if ((sensing_action.val() == "has") ||
 				(sensing_action.val() == "not_have") ||
@@ -311,7 +321,6 @@ $(document).ready(function() {
 		},
 		set_do_action: function() {
 			var ruleView = "#ruleView_" + this.model.get("id");
-			var parentDiv = ruleView + "> .do";
 			var do_action = $( ruleView ).find(".do_action");
 			
 			/** get the value and store in model **/
@@ -321,7 +330,12 @@ $(document).ready(function() {
 			this.model.save();
 			
 			$( do_action ).nextAll().remove();							// remove the next select statements
-			
+
+			this.construct_do_action_input(ruleView, do_action);
+		},
+		construct_do_action_input: function(ruleView, do_action) {
+			var parentDiv = ruleView + "> .do";
+
 			/* append an input field for number of turns */
 			if ((do_action.val() == "disable_land") ||
 				(do_action.val() == "disable_leave") ||
@@ -332,7 +346,6 @@ $(document).ready(function() {
 					$('<input />', { type: 'text', placeholder: '# turns', size: 5, class: "do_num_turns", })
 						.appendTo( parentDiv )
 			}
-			
 			/** construct the next select statement **/
 			var select_type = "";
 			if (do_action.val() == "change") select_type = "change";
@@ -354,7 +367,6 @@ $(document).ready(function() {
 		},
 		set_do_action_object: function() {
 			var ruleView = "#ruleView_" + this.model.get("id");
-			var parentDiv = ruleView + "> .do";
 			var do_action_object = $( ruleView ).find(".do_action_object");
 			
 			/** get the value and store in model **/
@@ -364,6 +376,11 @@ $(document).ready(function() {
 			
 			$( do_action_object ).nextAll().remove();							// remove the next select statements
 			
+			this.construct_do_action_subobject_input(ruleView, do_action_object);
+		},
+		construct_do_action_subobject_input: function(ruleView, do_action_object) {
+			var parentDiv = ruleView + "> .do";
+
 			/** construct the next select statement **/
 			var select_type = "";
 			if (do_action_object.val() == "piece_to_move") select_type = "piece";

@@ -140,6 +140,12 @@ include "header.php"
 <div id="dialog-clearBoard" class="dialog" title="Clear Board?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Do you really want to clear the board of all tiles?</p>
 </div>
+<!-- dialogs for rules -->
+<div id="dialog-selectSpecificSlot" class="dialog" title="Select a Specific Slot">
+	<p>Note: Both X,Y start with 1 (not 0)</p>
+	<p>Slot X: <input type="text" id="specific_slot_x" /></p>
+	<p>Slot Y: <input type="text" id="specific_slot_y" /></p>
+</div>
 
 <!-- templates -->
 <script id="ruleTemplate" type="text/template">
@@ -150,10 +156,12 @@ include "header.php"
 		<div class="when">
 			<h2>When:</h2>
 			<select class="sensing_object">
-				<option></option>
-				<option>player</option>
-				<option>slot</option>
-				<option>piece</option>
+				<option value=""></option>
+				<option value="board">board (all slots)</option>
+				<option value="specific_slot">&lt;specific slot&gt;</option>
+				<option value="user_pick_slot">&lt;user pick slot&gt;</option>
+				<option value="piece">piece</option>
+				<option value="player">player</option>
 			</select>
 		</div>
 		<div class="do">
