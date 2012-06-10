@@ -45,7 +45,7 @@ DonburiGame.prototype.pathToString = function(path) {
 		case DonburiGame.UP_RIGHT:
 			return "Up right";
 	}
-}
+};
 
 // App initializations
 DonburiGame.prototype.init = function(context) {
@@ -78,6 +78,7 @@ DonburiGame.prototype.createInitialState = function() {
 		players: new PlayerList(null, {players: players}), 
 		pieces: new PieceList(null, {pieces: pieces}), 
 		pieceToMove: null, 
+		slotPicked: null,
 		moveCount: null, 
 		moveType: null,
 		moveFlags: null,
@@ -90,7 +91,7 @@ DonburiGame.prototype.createInitialState = function() {
 	console.info(this.state);
 	
 	return state;
-}
+};
 
 // Returns the state
 DonburiGame.prototype.makeState = function() {
@@ -116,7 +117,7 @@ DonburiGame.prototype.feedView = function() {
         
     }
     return '<html><head><style>' + css + '</style></head><body><div id="divbox">' + container.html() + '</div></body></html>';
-}
+};
 
 /* Game Class
  * Master class that controls game state.
@@ -167,9 +168,6 @@ var Game = new Class({
 		}
 	},
 	onMoveStart: function(player, callback) {
-		// by default, set piece to move to be the first piece owned
-		// by the current player
-		donburiGame.state.pieceToMove = player.getPieces()[0];
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
@@ -220,7 +218,7 @@ var Game = new Class({
             $("#roll_move").click(function() {
                 $("#roll_move").unbind();
                 $("#skip_turn").unbind();
-                game.moveStart();
+                game.turnStart();
             });
 
             $("#skip_turn").unbind();
@@ -309,8 +307,7 @@ var Game = new Class({
 	},
 	changeToNextTurn: function() {
 		var self = this;
-		this.onTurnEnd(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), function() {
-			
+		this.turnEnd(function() {
 			// first check to see if current player gets another turn
 			var curPlayerObj = donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn());
 			if (curPlayerObj.options.moreTurnNum > 0) {
@@ -339,24 +336,77 @@ var Game = new Class({
 		}
 		return {x:curX, y:curY}
 	},
+	turnStart: function() {
+		console.log("turn start beginning");
+
+		if (donburiGame.state.moveDecider == "Roll Dice") {
+			var diceResult = game.decideMove();
+			donburiGame.state.moveCount = diceResult;
+			$("#move-result-num").html(diceResult);
+			$("#move-result").show("fast").delay(1500).hide("fast", function() { 
+				this.onTurnStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), this.turnStartHelper);
+			});
+		} else { // Pick Slot
+			showTheSlotPicker("Pick slot to move to", donburiGame.state.board.options.slots, $("#board"));
+		}
+
+	},
+	turnStartHelper: function() {
+		console.log("in turnStartHelper begin, calling moveStart");
+
+		game.moveStart();
+	},
+	slotPickerHelper: function() {
+		console.log("in slotPickerHelper");
+		
+		var str = "" + donburiGame.state.slotPicked.options.positionX+","+donburiGame.state.slotPicked.options.positionY;
+		console.log("Slot picked is "+str);
+				
+		$("#move-result-num").html(str);
+		$("#move-result").show("fast").delay(1500).hide("fast", function() { 
+			console.log("in slotPickerHelper end, calling onTurnStart");
+			// TODO: call onTurnStart() here
+			game.turnStartHelper();
+		});
+	},
 	moveStart: function() {
+		// define pieceToMove - either current piece or pick piece
+		var types = ["isOffBoard"];
+		var pickpieces = donburiGame.state.pieces.getPieces({player:donburiGame.whoseTurn(), piecestate: types});
+
+		if (donburiGame.state.moveDecider == "Roll Dice") {
+			// by default, set piece to move to be the first piece owned
+			// by the current player
+			donburiGame.state.pieceToMove = pickpieces[0];
+			this.knowPiece();
+		} else { // Pick Slot
+			showThePiecePicker("Choose which piece to move", pickpieces, $("#board"));
+		}
+	},
+	// set donburiGame.state.pieceToMove before this point
+	knowPiece: function() {
+		console.log("in knowPiece, calling onMoveStart with callback moveStartHelper");
 		this.onMoveStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), this.moveStartHelper);
+	},
+	piecePickerHelper: function() {
+		console.log("in game.piecePickerHelper");
+		
+		console.log("Piece picked is "+donburiGame.state.pieceToMove.getPositionX()+","+donburiGame.state.pieceToMove.getPositionY());
+
+		donburiGame.state.pieceToMove.addToBoard(0, 0, $("#board"));
+		game.disableLeaveEvent(donburiGame.state.board.options.slots[0][0], 1);
+
+		this.knowPiece();
 	},
 	moveStartHelper: function() {
 		/* Must write this callback function using game instead of this, because this is the dialog widget */
 		// TODO: handle multiple pieces
-		var pieceToMove = donburiGame.state.pieceToMove;
-		var curX = game.getCurrentSlotPosition().x;
-		var curY = game.getCurrentSlotPosition().y;
+		console.log("in moveStartHelper begin");
 
-		var diceResult = game.decideMove();
-		donburiGame.state.moveCount = diceResult;
-		$("#move-result-num").html(diceResult);
-		$("#move-result").show("fast").delay(1000).hide("fast", 
-		function() {
-			// check if currentSlot has changed in moveStart
-			curX = game.getCurrentSlotPosition().x;
-			curY = game.getCurrentSlotPosition().y;
+		if (donburiGame.state.slotPicked == null) {
+			var pieceToMove = donburiGame.state.pieceToMove;
+			var curX = game.getCurrentSlotPosition().x;
+			var curY = game.getCurrentSlotPosition().y;
 			
 			var currentSlot = donburiGame.state.board.getSlotByPosition(curX, curY);
 			
@@ -374,7 +424,13 @@ var Game = new Class({
 				donburiGame.state.moveFlags = game.createMoveFlags(donburiGame.state.pieceToMove);
 				game.makeMove(curX, curY);
 			}
-		});
+		} else {
+			var curX = donburiGame.state.slotPicked.options.positionX;
+			var curY = donburiGame.state.slotPicked.options.positionY;
+			donburiGame.state.moveCount = 0;
+			game.makeMove(curX, curY);
+		}
+		console.log("in moveStartHelper end");
 	},
 	createMoveFlags: function(pieceToMove) {
 		var moveFlags = new Array();
@@ -397,7 +453,10 @@ var Game = new Class({
 		var diceResult = Math.floor((Math.random()*this.options.rollMax) + this.options.rollMin); // 1 through 6
 		return diceResult;
 	},
+	// specifying either donburiGame.state.moveCount or donburiGame.state.moveFlags before 
+	// this point is crucial
 	makeMove: function(curX, curY) {
+		console.log("in makeMove begin");
 		var piece = donburiGame.state.pieceToMove;
 		var moveCount = donburiGame.state.moveCount;
 		if (moveCount == 0) {
@@ -419,6 +478,8 @@ var Game = new Class({
 	makeMoveHelper: function(curX, curY, path) {
 		var piece = donburiGame.state.pieceToMove;
 		var moveCount = donburiGame.state.moveCount;
+
+		console.log("source slot X,Y: "+curX+","+curY);
 		var sourceSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 		var verDistance = sourceSlot.outerHeight();
 		var horDistance = sourceSlot.outerWidth();
@@ -461,15 +522,24 @@ var Game = new Class({
 		}
 	},
 	makeMovePiece: function(pieceDivs, sourceSlot, moveObj, curX, curY) {
+		console.log("makeMovePiece:");
+		console.log(pieceDivs);
+		console.log(moveObj);
+		console.log(curX);
+		console.log(curY);
 		var self = this;
 		var destSlot = $($($("#board .row")[curY]).find(".slot")[curX]);
 		sourceSlot.addClass("slot-moving");
+
 		var moveCount = donburiGame.state.moveCount;
 		if (!$.isArray(pieceDivs)) {
 			pieceDivs = [pieceDivs];
 		}
+		console.log(pieceDivs);
 		$.each(pieceDivs, function(i, pieceDiv) {
+			console.log(pieceDiv);
 			pieceDiv = $("#" + pieceDiv);
+			//console.log(pieceDiv);
 			pieceDiv.addClass("piece-moving")
 			.animate(moveObj, {
 				duration: 1000, 
@@ -486,9 +556,11 @@ var Game = new Class({
 						}
 					}
 					if (allFlagged) {
+						console.log("allFlagged");
 						sourceSlot.removeClass("slot-moving");
 
 						if (moveCount - 1 > 0) {
+							console.log(moveCount);
 							var currentSlot = donburiGame.state.board.getSlotByPosition(curX, curY);
 							
 							if (currentSlot.options.disablePassEventNum == 0) {
@@ -515,6 +587,7 @@ var Game = new Class({
 		});
 	},
 	moveEnd: function(piece, curX, curY) {
+		console.log("move end begin");
 		if (!$.isArray(piece)) {
 			piece = [piece];
 		}
@@ -524,6 +597,7 @@ var Game = new Class({
 		var currentSlot = donburiGame.state.board.getSlotByPosition(curX, curY);
 		
 		if (currentSlot.options.disableLandEventNum == 0) {
+			console.log("in if: "+currentSlot.options.disableLandEventNum);
 			donburiGame.state.board.onLand(currentSlot, donburiGame.state.pieceToMove, "normal", function() {		
 				currentSlot.onLand(donburiGame.state.pieceToMove, "normal", function() {
 					// Change turn to next player
@@ -531,6 +605,8 @@ var Game = new Class({
 				});
 			});
 		} else {
+			console.log("in else: "+currentSlot.options.disableLandEventNum);
+
 			if (currentSlot.options.disableLandEventNum != -1) {
 				currentSlot.options.disableLandEventNum--;
 			}
@@ -538,9 +614,12 @@ var Game = new Class({
 			this.changeToNextTurn();
 		}
 		this.onMoveEnd(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()));
+		console.log("moveEnd end");
+		game.turnEnd();
 	},
-	turnEnd: function() {
-	
+	turnEnd: function(callback) {
+		this.onTurnEnd(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), callback);
+		console.log("turnEnd end");
 	},
 	turnSetSkip: function(player, n) {
 		player.options.skipTurnNum += n;
@@ -618,10 +697,13 @@ var Player = new Class({
 		}
 		return pieces;
 	},
-	showPiecePicker: function(types, callback) {
+	/*
+	showPiecePicker: function(types, board, callback) {
+		console.log("piece picker");
 		var pickpieces = donburiGame.state.pieces.getPieces({player:this.options.id, piecestate: types});
-		showThePiecePicker("Choose which piece to move", pickpieces, callback);
-	},
+		console.log("about to go inside the piece picker");
+		showThePiecePicker("Choose which piece to move", pickpieces, board, callback);
+	},*/
 	getID: function() {
 		return this.options.id;
 	},
@@ -675,6 +757,7 @@ var Piece = new Class({
 			// the piece is just a color
 			pieceDiv = $("<div class='piece colorPiece' id='" + this.pieceDiv + "' style='background: " + p.color + "'></div>");
 		}
+		console.log("from render: returning piecediv: "+pieceDiv);
 		return pieceDiv;
 	},
 	
@@ -693,15 +776,18 @@ var Piece = new Class({
 		
 		permanently ? this.options.state = "isPermOffBoard" : this.options.state = "isOffBoard";
 	},
-	addToBoard: function(positionX, positionY) {
+	addToBoard: function(positionX, positionY, board) {
 		if (!this.isOnBoard()) {
 			var p = this.options;
 			positionX = typeof positionX !== 'undefined' ? positionX : p.positionX;
 			positionY = typeof positionY !== 'undefined' ? positionY : p.positionY;
 			
-			this.setPosition(positionX, positionY);
-			
 			this.options.state = "isOnBoard";
+			console.log(this.options.isRendered);
+			this.setPosition(positionX, positionY, board);
+			
+			console.log("added "+this.pieceDiv+", to loc: "+positionX+","+positionY);
+			console.log(this.options.isRendered);
 		}
 	},
 	getPositionX: function() {
@@ -798,13 +884,15 @@ var Slot = new Class({
 	},
 	getPieces: function() {
 		return donburiGame.state.pieces.getPiecesByPosition(this.options.positionX, this.options.positionY);
-	},
+	}/*,
 	showPathPicker: function(callback) {
 		showThePathPicker("Choose where to move next:", this.options.paths, callback);
-	},
-	showPiecePicker: function(types) {
-		showThePiecePicker("Choose which piece to move", types);
-	}
+	},*/
+	/*
+	showPiecePicker: function(types, board, callback) {
+		var pickpieces = donburiGame.state.pieces.getPieces({player:this.options.id, piecestate: types});
+		showThePiecePicker("Choose which piece to move", pickpieces, board, callback);
+	}*/
 });
 
 /* Board Class
@@ -1078,13 +1166,15 @@ function showThePathPicker(msg, paths, makeMoveHelperArgs) {
  * Given an array of Pieces (pieces), have the user choose between them
  */
  // TODO
-function showThePiecePicker(msg, pieces, callbackClose) { 
+function showThePiecePicker(msg, pieces, board) { 
+	board = typeof board !== 'undefined' ? board : $("#board");
 	var buttons = {};
 	$.each(pieces, function(i, piece) {
 		var p = pieces[i].options;
 		var button = {
 			click: function () { 
-			  game.current.pieceToMove = pieces[i];
+			  donburiGame.state.pieceToMove = pieces[i];
+			  game.piecePickerHelper();
 			},
 			icon: ""
 		};
@@ -1106,12 +1196,55 @@ function showThePiecePicker(msg, pieces, callbackClose) {
 			buttons[buttonText + " " + i] = button;
 		}
 	});
+
 	$('<div>').simpledialog2({
 		mode: 'button',
 		dialogForce:true,
 		buttonPrompt: msg,
-		buttons : buttons,
-		callbackClose: callbackClose
+		buttons : buttons
+	});
+}
+
+function showTheSlotPicker(msg, slots, board) { 
+	board = typeof board !== 'undefined' ? board : $("#board");
+	var buttons = {};
+	console.log(slots);
+	$.each(slots, function(i, row) {
+		var r = slots[i];
+		$.each(r, function(j, slot) {
+			var s = r[j].options;
+			var button = {
+				click: function () { 
+				  donburiGame.state.slotPicked = r[j];
+				  game.slotPickerHelper();
+				},
+				icon: ""
+			};
+			var buttonText = "";
+			if (s.image != null) {
+				buttonText += ("<img src='" + s.image + "' class='button-piece' />");
+			} else if (s.color != null) {
+				buttonText += ("<div class='button-piece' style='background:" + s.color + "'></div>");
+			}
+			if (s.type != null) {
+				buttonText += s.type;
+			}
+			if (s.positionX != -1 && s.positionY != -1) {
+				buttonText += (" at (" + s.positionX + ", " + s.positionY + ")");
+			}
+			if (typeof(buttons[buttonText]) == "undefined") {
+				buttons[buttonText] = button;
+			} else {
+				buttons[buttonText + " " + i] = button;
+			}
+		});
+	});
+
+	$('<div>').simpledialog2({
+		mode: 'button',
+		dialogForce:true,
+		buttonPrompt: msg,
+		buttons : buttons
 	});
 }
 
