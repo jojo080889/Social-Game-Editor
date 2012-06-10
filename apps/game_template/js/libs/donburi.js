@@ -364,6 +364,7 @@ var Game = new Class({
 			var diceResult = game.decideMove();
 			donburiGame.state.moveCount = diceResult;
 			$("#move-result-num").html(diceResult);
+			$("#move-result p:first").html("You rolled a");
 			$("#move-result").show("fast").delay(1500).hide("fast", function() { 
 				game.onTurnStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), game.turnStartHelper);
 			});
@@ -386,6 +387,7 @@ var Game = new Class({
 		console.log("Slot picked is "+str);
 				
 		$("#move-result-num").html(str);
+		$("#move-result p:first").html("You chose");
 		$("#move-result").show("fast").delay(1500).hide("fast", function() { 
 			console.log("in slotPickerHelper end, calling onTurnStart");
 			// TODO: call onTurnStart() here

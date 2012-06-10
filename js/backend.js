@@ -38,7 +38,9 @@ $.fn.populateSelectElement = function(type) {
 	} else if (type == "slot") {
 		$(this)						
 			.append('<option value="">[select slot]</option>')
-			.append('<option value="this_slot">this slot</option>')
+			.append('<option value="on_land">landed on</option>')
+			.append('<option value="on_leave">being left</option>')
+			.append('<option value="on_pass">being passed</option>')
 			.append('<option value="no_slots">no slots</option>')
 			.append('<option value="specific_slot">&lt;specific slot&gt;</option>')
 			.append('<option value="user_pick_slot">&lt;user pick slot&gt;</option>')
