@@ -16,6 +16,8 @@ var pieceTypes = [
 	{name: "blue", image: "images/pieces/blue.png"},
 	{name: "green", image: "images/pieces/green.png"},
 	{name: "red", image: "images/pieces/red.png"},
+	{name: "cross", image: "images/pieces/cross.png"},
+	{name: "oval", image: "images/pieces/oval.png"},
 	{name: "colorPiece", color: "yellow"}
 ];
 
@@ -67,6 +69,12 @@ $(document).ready(function() {
 	
 	/* Testing */
 	$("#app_launch").click(function() {
+		$("#devices").empty();
+		test_user_count = 0;
+		var playerNum = getPlayerJSON().length;
+		for (var i = 0; i < playerNum; i++) {
+			addUser();
+		}
 		createGameModelsFile(function() {launch("game_template");}); // generate components.js
 	});
 	$("#sk_app_launch").click(function() {

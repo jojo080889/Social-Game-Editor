@@ -385,7 +385,7 @@ footer #players .player .player-status.active {
 	font-family:arial;
 	font-size:15px;
 	font-weight:bold;
-	padding:6px 12px;
+	padding:3px 6px;
 	text-decoration:none;
 	text-shadow:1px 1px 0px #287ace;
 	cursor: pointer;

@@ -57,6 +57,7 @@
 		<div id="board-container">
 		</div>
 		<ul id="actions">
+      <li class="button" id="won">I Won</li>
 			<li class="button" id="roll_move">Roll Dice</li>
 			<li class="button" id="skip_turn">Skip Turn</li>
 		</ul>

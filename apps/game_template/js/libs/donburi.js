@@ -207,6 +207,13 @@ var Game = new Class({
 	/* ACTIONS */
 	bindActionHandlers: function(donburiGame) {
         if(donburiGame.isMyTurn()) {
+        	$("#won").html("I Won");
+			// Bind the 'I Won' button
+		    $("#won").click(function() {
+		    	donburiGame.state.players.winningPlayerID = donburiGame.whoseTurn() + 1;
+		    	game.changeToNextTurn();
+		    });
+
             console.info("************* bindActionHandlers : moveDecider: " + this.options.moveDecider);
             $("#roll_move").html(this.options.moveDecider);
 
@@ -228,6 +235,12 @@ var Game = new Class({
                 game.changeToNextTurn();
             });
         } else {
+       		$("#won").html("...");
+			// Bind the 'I Won' button
+		    $("#won").click(function() {
+		    	return;
+		    });
+
             $("#roll_move").html("Waiting...");
             $("#roll_move").click(function() {
                 return;
@@ -253,10 +266,11 @@ var Game = new Class({
 		var self = this;
 		this.onEnd(function() {
 			// show notice
-			$("#game-message").html("<b>Player " + (donburiGame.whoseTurn() + 1) + "</b> has won the game!");
+			$("#game-message").html("<b>Player " + (donburiGame.state.players.winningPlayerID) + "</b> has won the game!");
 			$("#game-message").show("fast");
 			
 			// disable actions
+			$("#won").unbind();
 			$("#roll_move").unbind();
 			$("#skip_turn").unbind();
 		});
@@ -288,24 +302,31 @@ var Game = new Class({
         // Set event handlers
         this.bindActionHandlers(context);
 
-		this.onTurnStart(context.state.players.getPlayerByID(currentPlayer));
+		this.onTurnStart(context.state.players.getPlayerByID(currentPlayer)); // TODO: remove
 	
 		var curPlayerObj = context.state.players.getPlayerByID(currentPlayer);
-		
-		// check if new player needs to skip their turn
-		if (curPlayerObj.options.skipTurnNum > 0) {
-			// show notice
-			$("#game-message").html("<b>Player " + (currentPlayer + 1) + "'s</b> turn is skipped. Sorry!");
-			$("#game-message").show("fast").delay(1000).hide("fast");
-		
+
+		// check if any player has won
+		if (context.state.players.checkIfAnyPlayerWon()) {
+			console.log("******Player # " + context.state.players.winningPlayerID + " WON!");
+			game.end();
+		} else {
+			// check if new player needs to skip their turn
 			if (curPlayerObj.options.skipTurnNum > 0) {
-				curPlayerObj.options.skipTurnNum--;
-			}
+				// show notice
+				$("#game-message").html("<b>Player " + (currentPlayer + 1) + "'s</b> turn is skipped. Sorry!");
+				$("#game-message").show("fast").delay(1000).hide("fast");
 			
-			this.changeToNextTurn();
+				if (curPlayerObj.options.skipTurnNum > 0) {
+					curPlayerObj.options.skipTurnNum--;
+				}
+				
+				this.changeToNextTurn();
+			}
 		}
 	},
 	changeToNextTurn: function() {
+		console.log("changeToNextTurn");
 		var self = this;
 		this.turnEnd(function() {
 			// first check to see if current player gets another turn
@@ -359,7 +380,9 @@ var Game = new Class({
 	slotPickerHelper: function() {
 		console.log("in slotPickerHelper");
 		
-		var str = "" + donburiGame.state.slotPicked.options.positionX+","+donburiGame.state.slotPicked.options.positionY;
+		var slotX = donburiGame.state.slotPicked.options.positionX + 1;
+		var slotY = donburiGame.state.slotPicked.options.positionY + 1;
+		var str = "" + slotX + "," + slotY;
 		console.log("Slot picked is "+str);
 				
 		$("#move-result-num").html(str);
@@ -623,7 +646,6 @@ var Game = new Class({
 		}
 		this.onMoveEnd(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()));
 		console.log("moveEnd end");
-		game.turnEnd();
 	},
 	turnEnd: function(callback) {
 		this.onTurnEnd(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), callback);
@@ -999,6 +1021,7 @@ var PlayerList = new Class({
 	initialize: function(selector, options) {
 		this.setOptions(options);
 		this.playerNum = this.options.players.length;
+		this.winningPlayerID = -1;
 	},
 	
 	/* UI */
@@ -1033,6 +1056,12 @@ var PlayerList = new Class({
 				return this.options.players[i];
 			}
 		}
+	},
+	checkIfAnyPlayerWon: function() {
+		return this.winningPlayerID != -1;
+	},
+	getWinningPlayerID: function() {
+		return this.winningPlayerID; // returns id (starting with 1 not 0)
 	},
 	getActivePlayers: function() {
 		var playerArr = new Array();
@@ -1238,7 +1267,9 @@ function showTheSlotPicker(msg, slots, board) {
 				buttonText += s.type;
 			}
 			if (s.positionX != -1 && s.positionY != -1) {
-				buttonText += (" at (" + s.positionX + ", " + s.positionY + ")");
+				var slotX = s.positionX + 1;
+				var slotY = s.positionY + 1;
+				buttonText += (" at (" + slotX + ", " + slotY + ")");
 			}
 			if (typeof(buttons[buttonText]) == "undefined") {
 				buttons[buttonText] = button;
