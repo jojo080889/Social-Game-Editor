@@ -22,9 +22,9 @@ $.fn.populateSelectElement = function(type) {
 			.append('<option value="no_pieces">no pieces</option>')
 			.append('<option value="specific_piece">&lt;specific piece&gt;</option>')
 			.append('<option value="specific_piece">&lt;user pick piece&gt;</option>')
-			.append('<option value="no_pieces">my pieces</option>')
-			.append('<option value="no_pieces">opponent pieces</option>')
-			.append('<option value="no_pieces">type</option>')
+			.append('<option value="my_pieces">my pieces</option>')
+			.append('<option value="opponent_pieces">opponent pieces</option>')
+			.append('<option value="type">type</option>')
 	} else if (type == "player") {
 		$(this)
 			.append('<option value="">[select player]</option>')

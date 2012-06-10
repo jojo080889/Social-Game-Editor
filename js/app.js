@@ -195,6 +195,31 @@ function getBoardJSON() {
 	return {"board": board};
 }
 
+function getRulesJSON() {
+	if (typeof localStorage.RuleList == "undefined") {
+		return {};
+	}
+	var rules = JSON.parse(localStorage.RuleList);
+	var rulesArray = new Array();
+	var i = 0;
+	for (var key in rules) {
+		if (rules.hasOwnProperty(key)) {
+			var obj = {};
+			obj.id = i;
+			obj.sensing_object = rules[key].sensing_object;
+			obj.sensing_subobject = rules[key].sensing_subobject;
+			obj.sensing_action = rules[key].sensing_action;
+			obj.sensing_action_modifier = rules[key].sensing_action_modifier;
+			obj.do_action = rules[key].do_action;
+			obj.do_action_object = rules[key].do_action_object;
+			obj.do_action_subobject = rules[key].do_action_subobject;
+			rulesArray.push(obj);
+		}
+		i++;
+	}
+	return {"rules": rulesArray};
+}
+
 function getPieceTypeInfo(pieceType) {
 	var pieceTypeModel = pieceTypeList.collection.where({name: pieceType})[0];
 	return pieceTypeModel.attributes;
