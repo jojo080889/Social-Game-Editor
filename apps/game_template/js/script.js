@@ -65,8 +65,20 @@ Musubi.ready(function(context) {
 	// 	});
 	// }
 
+
 	donburiGame.state.board.onLand = function(slot, piece, eventType, callback) {
 		console.log("onLandb");
+		var sPieces = slot.getPieces();
+		if(sPieces.length > 1) {
+			for (var i = 0; i < sPieces.length; i++) {
+				var p = sPieces[i];
+				if (p.options.player.id != donburiGame.whoseTurn()) {
+					//p.removeFromBoard();
+					game.turnSetAnother(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), 1);
+					break;
+				} 
+			}
+		}
 		callback();
 	};
 

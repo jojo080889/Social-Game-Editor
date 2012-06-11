@@ -10,7 +10,9 @@ function DonburiGame(context) {
 		moveCount: null, 
 		moveType: null,
 		moveFlags: null,
-		moveDecider: null
+		moveDecider: null,
+		updateTurnPlayer: null, // id
+		updatedPlayers: null // associative array
 	};
     this.init(context);
 }
@@ -82,7 +84,9 @@ DonburiGame.prototype.createInitialState = function() {
 		moveCount: null, 
 		moveType: null,
 		moveFlags: null,
-		moveDecider: data.moveDecider
+		moveDecider: data.moveDecider,
+		updateTurnPlayer: -1,
+		updatedPlayers: {}
 	};
 	
 	game.render(state);
@@ -211,7 +215,7 @@ var Game = new Class({
 			// Bind the 'I Won' button
 		    $("#won").click(function() {
 		    	donburiGame.state.players.winningPlayerID = donburiGame.whoseTurn() + 1;
-		    	game.changeToNextTurn();
+		    	game.ifMyTurnChangeToNextTurn();
 		    });
 
             console.info("************* bindActionHandlers : moveDecider: " + this.options.moveDecider);
@@ -223,6 +227,7 @@ var Game = new Class({
              */
             $("#roll_move").unbind(); 
             $("#roll_move").click(function() {
+            	console.log("roll move clicked");
                 $("#roll_move").unbind();
                 $("#skip_turn").unbind();
                 game.turnStart();
@@ -232,7 +237,7 @@ var Game = new Class({
             $("#skip_turn").click(function(){
                 $("#roll_move").unbind();
                 $("#skip_turn").unbind();
-                game.changeToNextTurn();
+                game.ifMyTurnChangeToNextTurn();
             });
         } else {
        		$("#won").html("...");
@@ -277,8 +282,15 @@ var Game = new Class({
 	},
 	update: function(context) {
         console.info("Updating...");
-        console.info("I am: " + context.whoAmI());
-        console.info(context.state.pieces);
+        var player_num = context.whoseTurn() + 1;
+        var other_player_num = (player_num % 2) + 1;
+        console.info("Curr Turn player ID: "+context.whoseTurn() + ", i.e. player # "+ player_num + ", other: "+other_player_num);
+        var who_am_i_player = context.whoAmI() + 1;
+        console.info("I am: " + context.whoAmI() +", or I am player number "+ who_am_i_player);
+        if (context.isMyTurn())
+        	console.log("my turn");
+
+//        console.info(context.state.pieces);
 		
 		var currentPlayer = context.whoseTurn();
         
@@ -300,48 +312,49 @@ var Game = new Class({
         this.renderCurrentPlayer(currentPlayer);
 		
         // Set event handlers
-        this.bindActionHandlers(context);
+	    this.bindActionHandlers(context);
 
 		this.onTurnStart(context.state.players.getPlayerByID(currentPlayer)); // TODO: remove
 	
 		var curPlayerObj = context.state.players.getPlayerByID(currentPlayer);
 
-		// check if any player has won
-		if (context.state.players.checkIfAnyPlayerWon()) {
+		if (context.state.players.checkIfAnyPlayerWon()) { // check if any player has won
 			console.log("******Player # " + context.state.players.winningPlayerID + " WON!");
 			game.end();
-		} else {
-			// check if new player needs to skip their turn
-			if (curPlayerObj.options.skipTurnNum > 0) {
+		} //else {
+
+		//}
+		console.log("update ends...for...");
+		console.info("Curr Turn player ID: "+context.whoseTurn() + ", i.e. player # "+ player_num + ", other: "+other_player_num);
+        console.info("I am: " + context.whoAmI() +", or I am player number "+ who_am_i_player);
+	},
+	changeToNextTurn: function() {
+		console.log("changeToNextTurn, current player id: " + donburiGame.whoseTurn());
+		var self = this;
+		this.turnEnd(function() {
+			console.log("taking turn...");
+			donburiGame.takeTurn(donburiGame.makeState());
+		});
+	},
+	ifMyTurnChangeToNextTurn: function() {
+		var self = this;
+		this.turnEnd(function() {
+			// check if player will get extra turn
+			if (donburiGame.isMyTurn() && curPlayerObj.options.skipTurnNum > 0) {
+				console.log("My turn and I need to skip it");
 				// show notice
-				$("#game-message").html("<b>Player " + (currentPlayer + 1) + "'s</b> turn is skipped. Sorry!");
+				$("#game-message").html("<b>Player " + (donburiGame.whoseTurn() + 1) + "'s</b> turn is skipped. Sorry!");
 				$("#game-message").show("fast").delay(1000).hide("fast");
 			
 				if (curPlayerObj.options.skipTurnNum > 0) {
 					curPlayerObj.options.skipTurnNum--;
 				}
-				
-				this.changeToNextTurn();
+
+			if (donburiGame.isMyTurn()) {
+				console.log("my turn so changeToNextTurn, current player id: " + donburiGame.whoseTurn());
+				console.log("taking turn...");
+				donburiGame.takeTurn(donburiGame.makeState());
 			}
-		}
-	},
-	changeToNextTurn: function() {
-		console.log("changeToNextTurn");
-		var self = this;
-		this.turnEnd(function() {
-			// first check to see if current player gets another turn
-			var curPlayerObj = donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn());
-			if (curPlayerObj.options.moreTurnNum > 0) {
-				curPlayerObj.options.moreTurnNum--;
-				// show notice
-				$("#game-message").html("<b>Player " + (donburiGame.whoseTurn() + 1) + "</b> gets another turn!");
-				$("#game-message").show("fast").delay(1000).hide("fast");
-			} else { 
-				// if they're out of turns, move to the next player
-				if (donburiGame.isMyTurn()) {
-					donburiGame.takeTurn(donburiGame.makeState());
-				}
-			} 
 		});
 	},
 	getCurrentSlotPosition: function() {
@@ -360,18 +373,33 @@ var Game = new Class({
 	turnStart: function() {
 		console.log("turn start beginning");
 
-		if (donburiGame.state.moveDecider == "Roll Dice") {
-			var diceResult = game.decideMove();
-			donburiGame.state.moveCount = diceResult;
-			$("#move-result-num").html(diceResult);
-			$("#move-result p:first").html("You rolled a");
-			$("#move-result").show("fast").delay(1500).hide("fast", function() { 
-				game.onTurnStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), game.turnStartHelper);
-			});
-		} else { // Pick Slot
-			showTheSlotPicker("Pick slot to move to", donburiGame.state.board.options.slots, $("#board"));
-		}
+		var curPlayerObj = donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn());
+		// check if player needs to skip their turn
+		if (donburiGame.isMyTurn() && curPlayerObj.options.skipTurnNum > 0) {
+			console.log("My turn and I need to skip it");
+			// show notice
+			$("#game-message").html("<b>Player " + (donburiGame.whoseTurn() + 1) + "'s</b> turn is skipped. Sorry!");
+			$("#game-message").show("fast").delay(1000).hide("fast");
+		
+			if (curPlayerObj.options.skipTurnNum > 0) {
+				curPlayerObj.options.skipTurnNum--;
+			}
+			
+			this.ifMyTurnChangeToNextTurn();
+		} else { // continue with turn
 
+			if (donburiGame.state.moveDecider == "Roll Dice") {
+				var diceResult = game.decideMove();
+				donburiGame.state.moveCount = diceResult;
+				$("#move-result-num").html(diceResult);
+				$("#move-result p:first").html("You rolled a");
+				$("#move-result").show("fast").delay(1500).hide("fast", function() { 
+					game.onTurnStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), game.turnStartHelper);
+				});
+			} else { // Pick Slot
+				showTheSlotPicker("Pick slot to move to", donburiGame.state.board.options.slots, $("#board"));
+			}
+		}
 	},
 	turnStartHelper: function() {
 		console.log("in turnStartHelper begin, calling moveStart");
@@ -460,6 +488,8 @@ var Game = new Class({
 		} else {
 			var curX = donburiGame.state.slotPicked.options.positionX;
 			var curY = donburiGame.state.slotPicked.options.positionY;
+			console.log("in moveStartHelper slotPicked curX: " + curX);
+			console.log("in moveStartHelper slotPicked curY: " + curY);
 			donburiGame.state.moveCount = 0;
 			game.makeMove(curX, curY);
 		}
@@ -621,6 +651,8 @@ var Game = new Class({
 	},
 	moveEnd: function(piece, curX, curY) {
 		console.log("move end begin");
+		console.log(piece);
+		console.log(curX + ", " + curY);
 		if (!$.isArray(piece)) {
 			piece = [piece];
 		}
@@ -629,12 +661,15 @@ var Game = new Class({
 		}
 		var currentSlot = donburiGame.state.board.getSlotByPosition(curX, curY);
 		
+		console.log("pieceToMove is: ");
+		console.log(donburiGame.state.pieceToMove);
+
 		if (currentSlot.options.disableLandEventNum == 0) {
 			console.log("in if: "+currentSlot.options.disableLandEventNum);
 			donburiGame.state.board.onLand(currentSlot, donburiGame.state.pieceToMove, "normal", function() {		
 				currentSlot.onLand(donburiGame.state.pieceToMove, "normal", function() {
 					// Change turn to next player
-					game.changeToNextTurn();
+					game.ifMyTurnChangeToNextTurn();
 				});
 			});
 		} else {
@@ -644,7 +679,7 @@ var Game = new Class({
 				currentSlot.options.disableLandEventNum--;
 			}
 			// Change turn to next player
-			this.changeToNextTurn();
+			this.ifMyTurnChangeToNextTurn();
 		}
 		this.onMoveEnd(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()));
 		console.log("moveEnd end");
@@ -657,7 +692,12 @@ var Game = new Class({
 		player.options.skipTurnNum += n;
 	},
 	turnSetAnother: function(player, n) {
-		player.options.moreTurnNum += n;
+		//player.options.moreTurnNum += n;
+
+		var player_num = player.options.id + 1;
+        var other_player_id = (player_num % 2);
+
+        this.turnSetSkip(donburiGame.state.players.getPlayerByID(other_player_id), n);
 	},
 	disableLeaveEvent: function(slot, howLong) {
 		howLong = typeof howLong !== 'undefined' ? howLong : -1;
@@ -708,8 +748,8 @@ var Player = new Class({
 	options: {
 		id: -1,
 		state: "playing", //"playing" | "won" | "lost"
-		skipTurnNum: 0,
-		moreTurnNum: 0
+		skipTurnNum: 0//,
+		//moreTurnNum: 0
 	},
 	jQuery: 'player', //namespace for new jquery method
 	initialize: function(selector, options) {
@@ -803,8 +843,7 @@ var Piece = new Class({
 	removeFromBoard: function(permanently) {
 		permanently = typeof permanently !== 'undefined' ? permanently : false;
 		
-		$("#" + this.pieceDiv).remove();
-		this.option.isRendered = false;
+		//this.options.isRendered = false;
 		
 		permanently ? this.options.state = "isPermOffBoard" : this.options.state = "isOffBoard";
 	},
@@ -951,19 +990,19 @@ var Board = new Class({
 	// master event functions that execute on EVERY
 	// slot land/leave/pass.
 	onLand: function(slot, piece, eventType, callback) {
-		console.log("onLand");
+		console.log("board onLand");
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
 	},
 	onLeave: function(slot, piece, eventType, callback) {
-		console.log("onLeave");
+		console.log("board onLeave");
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
 	},
 	onPass: function(slot, piece, eventType, callback) {
-		console.log("onPass");
+		console.log("board onPass");
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
