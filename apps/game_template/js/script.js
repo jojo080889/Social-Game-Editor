@@ -77,7 +77,7 @@ Musubi.ready(function(context) {
 					console.log("piece player id: "+p.options.player);
 					console.log("removing from board: "+p.getPieceDiv());
 					p.removeFromBoard();
-					game.turnSetAnother(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), 1);
+					game.turnSetAnother(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), 2);
 					break;
 				} 
 			}
@@ -85,12 +85,23 @@ Musubi.ready(function(context) {
 		callback();
 	};
 
+	// when land on slot(3,3): curr player wins
+	// donburiGame.state.board.options.slots[2][2].onLand = function(piece, eventType, callback) {
+	// 	console.log("*onLand 5,5");
+	// 	if (!$.isArray(piece)) {
+	// 		piece = [piece];
+	// 	}
+	// 	game.playerWins();
+	// };
+
+	// when land on slot(3,3): opponent player wins
 	donburiGame.state.board.options.slots[2][2].onLand = function(piece, eventType, callback) {
 		console.log("*onLand 5,5");
 		if (!$.isArray(piece)) {
 			piece = [piece];
 		}
-	}
+		game.playerWins(game.getOtherPlayerID(donburiGame.whoseTurn()));
+	};
 
 	game.start(); 
 });

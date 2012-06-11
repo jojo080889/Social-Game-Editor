@@ -210,8 +210,7 @@ var Game = new Class({
         	$("#won").html("I Won");
 			// Bind the 'I Won' button
 		    $("#won").click(function() {
-		    	donburiGame.state.players.winningPlayerID = donburiGame.whoseTurn() + 1;
-		    	game.ifMyTurnChangeToNextTurn();
+		    	game.playerWins();
 		    });
 
             console.info("************* bindActionHandlers : moveDecider: " + this.options.moveDecider);
@@ -263,11 +262,18 @@ var Game = new Class({
 			//self.onTurnStart(self.options.players.getPlayerByID(self.current.player)); // first player's turn start
 		});
 	},
+	playerWins: function(playerID) { // default playerID is current player
+		playerID = typeof playerID !== 'undefined' ? playerID : donburiGame.whoseTurn();
+    	donburiGame.state.players.getPlayerByID(playerID).win();
+    	donburiGame.state.players.winningPlayerID = playerID;
+    	game.ifMyTurnChangeToNextTurn();
+	},
 	end: function() {
 		var self = this;
 		this.onEnd(function() {
 			// show notice
-			$("#game-message").html("<b>Player " + (donburiGame.state.players.winningPlayerID) + "</b> has won the game!");
+			var winningPlayerNum = donburiGame.state.players.winningPlayerID + 1;
+			$("#game-message").html("<b>Player " + winningPlayerNum + "</b> has won the game!");
 			$("#game-message").show("fast");
 			
 			// disable actions
@@ -276,13 +282,18 @@ var Game = new Class({
 			$("#skip_turn").unbind();
 		});
 	},
+	getPlayerNum: function(playerID) {
+		return playerID + 1;
+	},
+	getOtherPlayerID: function(playerID) {
+		var player_num = playerID + 1;
+        var other_player_id = (player_num % 2);
+        return other_player_id;
+	},
 	update: function(context) {
         console.info("Updating...");
-        var player_num = context.whoseTurn() + 1;
-        var other_player_num = (player_num % 2) + 1;
-        console.info("Curr Turn player ID: "+context.whoseTurn() + ", i.e. player # "+ player_num + ", other: "+other_player_num);
-        var who_am_i_player = context.whoAmI() + 1;
-        console.info("I am: " + context.whoAmI() +", or I am player number "+ who_am_i_player);
+        console.info("Curr Turn player ID: "+context.whoseTurn() + ", i.e. player num: "+ this.getPlayerNum(context.whoseTurn()));
+        console.info("I am: " + context.whoAmI() +", or I am player number "+ this.getPlayerNum(context.whoAmI()));
         // if (context.isMyTurn())
         // 	console.log("my turn");
 
@@ -385,7 +396,7 @@ var Game = new Class({
 				donburiGame.state.moveCount = diceResult;
 				$("#move-result-num").html(diceResult);
 				$("#move-result p:first").html("You rolled a");
-				$("#move-result").show("fast").delay(1500).hide("fast", function() { 
+				$("#move-result").show("fast").delay(1000).hide("fast", function() { 
 					game.onTurnStart(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), game.turnStartHelper);
 				});
 			} else { // Pick Slot
@@ -408,7 +419,7 @@ var Game = new Class({
 				
 		$("#move-result-num").html(str);
 		$("#move-result p:first").html("You chose");
-		$("#move-result").show("fast").delay(1500).hide("fast", function() { 
+		$("#move-result").show("fast").delay(1000).hide("fast", function() { 
 			console.log("in slotPickerHelper end, calling onTurnStart");
 			// TODO: call onTurnStart() here
 			game.turnStartHelper();
@@ -686,8 +697,7 @@ var Game = new Class({
 	turnSetAnother: function(player, n) {
 		player.options.moreTurnNum += n;
 
-		var player_num = player.options.id + 1;
-        var other_player_id = (player_num % 2);
+        var other_player_id = this.getOtherPlayerID(player.options.id);
 
         this.turnSetSkip(donburiGame.state.players.getPlayerByID(other_player_id), n);
 	},
@@ -1093,7 +1103,7 @@ var PlayerList = new Class({
 		return this.winningPlayerID != -1;
 	},
 	getWinningPlayerID: function() {
-		return this.winningPlayerID; // returns id (starting with 1 not 0)
+		return this.winningPlayerID; // returns id (starting with 0)
 	},
 	getActivePlayers: function() {
 		var playerArr = new Array();
