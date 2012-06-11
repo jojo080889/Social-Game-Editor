@@ -49,7 +49,10 @@ DonburiGame.prototype.pathToString = function(path) {
 // App initializations
 DonburiGame.prototype.init = function(context) {
 	game = new Game(null, {
-		title: "My Donburi Game"
+		title: "My Donburi Game",
+		moveDecider: data.settings.moveDecider,
+		rollMin: parseInt(data.settings[0].moveDeciderOptions.minRoll),
+		rollMax: parseInt(data.settings[0].moveDeciderOptions.maxRoll)
 	});
 	
     this.onUpdate(function(gameState) {
@@ -116,6 +119,7 @@ var Game = new Class({
 	options: {
 		title: "title here",
 		usePoints: false, // if true, use points
+		moveDecider: "dice",
 		rollMin: 1,
 		rollMax: 6
 	},
@@ -153,8 +157,11 @@ var Game = new Class({
 	},
 	onMoveStart: function(player, callback) {
 		// by default, set piece to move to be the first piece owned
-		// by the current player
-		donburiGame.state.pieceToMove = player.getPieces()[0];
+		// by the current player (onBoard, if possible)
+		donburiGame.state.pieceToMove = donburiGame.state.pieces.getPieces({player:player.options.id, piecestate: "isOnBoard"})[0];
+		if (typeof donburiGame.state.pieceToMove == "undefined") {
+			donburiGame.state.pieceToMove = player.getPieces()[0];
+		}
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
@@ -228,11 +235,6 @@ var Game = new Class({
 	start: function() {
 		var self = this;
 		this.onStart(function() {
-			// get piece of current player
-			//var piece = self.options.pieces.getPiecesByPlayerID(self.current.player)[0];
-			//self.current.pieceToMove = piece;
-			
-			//self.onTurnStart(self.options.players.getPlayerByID(self.current.player)); // first player's turn start
 		});
 	},
 	end: function() {
@@ -378,7 +380,7 @@ var Game = new Class({
 	decideMove: function() {
 		// pick random number
 		// TODO: make flexible with different kinds of dice
-		var diceResult = Math.floor((Math.random()*this.options.rollMax) + this.options.rollMin); // 1 through 6
+		var diceResult = Math.floor((Math.random() * ((this.options.rollMax + 1) - this.options.rollMin)) + this.options.rollMin);
 		return diceResult;
 	},
 	makeMove: function(curX, curY) {
@@ -387,6 +389,12 @@ var Game = new Class({
 		if (moveCount == 0) {
 			this.moveEnd(piece, curX, curY);
 			return;
+		}
+		
+		// CHECKPOINT
+		// Piece should be isOnBoard by now, if piece picker has been used properly
+		if (piece.options.state != "isOnBoard") {
+			testLog("error", "Piece to move is not available for moving. Its state needs to be 'isOnBoard', or prompt user with a piece picker when their move starts.");
 		}
 
 		// get path of current square
@@ -1161,6 +1169,13 @@ function convertToMooToolsBoard() {
 		slots.push(row);
 	}
 	return slots;
+}
+
+/* Prints to test tab console. */
+function testLog(type, msg) {
+	var newLog = $("<p class='" + type + "'>");
+	newLog.html(msg);
+	parent.$("#test_debug").append(newLog);
 }
 
 /* Format: Array of arrays (rows and columns). Each array slot has a JS object that contains 

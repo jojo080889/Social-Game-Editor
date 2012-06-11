@@ -71,18 +71,20 @@ include "header.php"
 	
 	<!-- settings tab -->
 	<div id="settings" class="tab_content">
-		<h4>Online Support</h4>
-		Maecenas in varius nulla. Morbi leo elit, volutpat ac faucibus in; aliquam eget
-		massa. Nullam a neque ac turpis luctus venenatis et placerat risus. Quisque pretium
-		scelerisque sapien, et accumsan nunc venenatis non. Donec ullamcorper, leo gravida
-		hendrerit interdum, tellus nisi vestibulum justo; quis dignissim enim risus quis
-		ipsum.<br />
-		<br />
-		Mauris fringilla, urna vitae posuere commodo, neque tellus tincidunt nisi, aliquam
-		scelerisque purus nulla ac enim. Cras urna urna, vestibulum ut aliquam sed, laoreet
-		et justo! Vestibulum eleifend porta mollis. Donec molestie, turpis sed commodo consequat,
-		erat purus sollicitudin arcu, non vestibulum risus lacus ac ipsum. Curabitur vitae
-		pellentesque purus.
+		<h4>Settings</h4>
+		<div>
+			<p>
+				Move Decider:
+				<select id="move_decider">
+					<option value="choose">Choose...</option>
+					<option value="dice">Dice (default)</option>
+				</select>
+			</p>
+			<p id="move_decider_options">
+				Minimum roll: <input type="text" id="min_roll" size="2" />
+				Maximum roll: <input type="text" id="max_roll" size="2" />
+			</p>
+		</div>
 	</div>
 </div> <!-- end vtab -->
 	
@@ -108,6 +110,9 @@ include "header.php"
 			<button id="sk_app_launch" class="button">Launch SK</button>
 			<button id="app_restart" class="button"><i class="icon-refresh"></i> Restart Game</button>
 			<button id="return_feed" class="button"><i class="icon-stop"></i> Return to Feed</button>
+		</div>
+		<div id="test_debug">
+			--- Donburi test console: Errors and warnings will be displayed here. ---
 		</div>
 		<div id="devices"></div>
 	</div>

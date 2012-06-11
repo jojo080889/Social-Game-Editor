@@ -975,6 +975,66 @@ $(document).ready(function() {
 		}
 	});	
 	
+	var Settings = Backbone.Model.extend({
+		initialize: function() {
+		},
+		defaults: {
+			moveDecider: "dice",
+			moveDeciderOptions: {
+				minRoll: 1,
+				maxRoll: 6
+			}
+		},
+		localStorage: new Store("Settings")
+	});
+	var SettingsView = Backbone.View.extend({
+		el: $("#settings"),
+		events: {
+			'change #move_decider': 'showMoveDeciderOptions',
+			'change #move_decider_options input': 'saveMoveDeciderOptions'
+		},
+		initialize: function() {
+			_.bindAll(this, 'render', 'showMoveDeciderOptions', 'saveMoveDeciderOptions');
+			this.render();
+		},
+		render: function() {
+			// load settings from storage
+			var moveDecider = settings.get("moveDecider");
+			if (typeof moveDecider == "undefined") {
+				moveDecider = "dice";
+			}
+			$("#move_decider option[value='" + moveDecider + "']").attr('selected', 'selected');
+			this.showMoveDeciderOptions();
+		},
+		showMoveDeciderOptions: function() {
+			var moveDecider = $("#move_decider").val();
+			if (moveDecider == "choose") {
+				$("#move_decider_options").hide();
+			} else {
+				// TODO change move decider options based on chosen value
+				$("#move_decider_options").show();
+				var moveDeciderOptions = settings.get("moveDeciderOptions");
+				if (moveDeciderOptions != null) {
+					$("#min_roll").val(moveDeciderOptions.minRoll);
+					$("#max_roll").val(moveDeciderOptions.maxRoll);
+				}
+				settings.set("moveDecider", moveDecider);
+				settings.save();
+			}
+		},
+		saveMoveDeciderOptions: function() {
+			// TODO change move decider options based on chosen value
+			var minRoll = $("#min_roll").val();
+			var maxRoll = $("#max_roll").val();
+			var moveDeciderOptions = {
+				minRoll: minRoll,
+				maxRoll: maxRoll
+			};
+			settings.set("moveDeciderOptions", moveDeciderOptions);
+			settings.save();
+		}
+	});	
+	
 	// Instantiate stuff
 	
 	ruleList = new RuleListView();
@@ -989,6 +1049,10 @@ $(document).ready(function() {
 	boardEditView = new BoardEditView();
 	piecesAndPlayersView = new PiecesAndPlayersView();
 	rulesSelectView = new RulesSelectView();
+	
+	settings = new Settings({id: 123}); //TODO remove dummy id value -- needed for proper fetching though
+	settings.fetch();
+	settingsView = new SettingsView();
 	
 	// Load data
 	if (localStorage.getItem("TileTypeList") == null) {
