@@ -1134,13 +1134,32 @@ var Board = new Class({
 		this.adjustGrid();
 	},
 	
+	// getOnLandRules: function() {
+	// 	var onLandRules = new Array();
+	// 	console.log(this.options.rules);
+	// 	for(var i = 0; i < this.options.rules.length; i++) {
+	// 		if (this.options.rules[i].sensing_subobject == "on_land")
+	// 			onLandRules.push(this.options.rules[i]);
+	// 	}
+	// 	return onLandRules;
+	// },
+
 	getOnLandRules: function() {
-		var onLandRules = new Array();
-		console.log(this.options.rules);
+		var onLandRules = {};
+
 		for(var i = 0; i < this.options.rules.length; i++) {
-			if (this.options.rules[i].sensing_subobject == "on_land")
-				onLandRules.push(this.options.rules[i]);
+			if (this.options.rules[i].sensing_subobject == "on_land") {
+				var landRule = this.options.rules[i];
+				if (landRule.sensing_action == "has" && landRule.sensing_action_modifier == "opponent_pieces") {
+					var sensing_action_str = landRule.sensing_action+":"+landRule.sensing_action_modifier;
+					if (onLandRules[sensing_action_str] == undefined)
+						onLandRules[sensing_action_str] = [];
+					onLandRules[sensing_action_str].push(landRule);
+				}
+			}
 		}
+
+		console.log(onLandRules);
 		return onLandRules;
 	},
 
@@ -1148,16 +1167,32 @@ var Board = new Class({
 		piece.removeFromBoard();
 	},
 
-	slotHasOpponentPieces: function(slot, landRule) {
+	checkDoActions: function(rules, do_action, do_action_object, do_action_subobject) {
+		for (var i = 0; i < rules.length; i++) {
+			var rule = rules[i];
+			if (rule.do_action == do_action &&
+				rule.do_action_object == do_action_object &&
+				rule.do_action_subobject == do_action_subobject) {
+				return rule;
+			}
+		}
+		return null;
+	},
+
+	slotHasOpponentPieces: function(slot, rules) {
 		var foundOpponentPieces = false;
 		var sPieces = slot.getPieces();
 		if(sPieces.length > 1) {
 			for (var i = 0; i < sPieces.length; i++) {
 				var p = sPieces[i];
 				if (p.options.player != donburiGame.whoseTurn()) {
-					if (landRule.do_action == "remove" && landRule.do_action_object == "piece" && landRule.do_action_subobject == "opponent_pieces") {
+					var rule = this.checkDoActions(rules, "remove", "piece", "opponent_pieces");
+					if (rule != null) {
 						this.removePieceFromBoard(p);
 					}
+					// if (landRule.do_action == "remove" && landRule.do_action_object == "piece" && landRule.do_action_subobject == "opponent_pieces") {
+					// 	this.removePieceFromBoard(p);
+					// }
 					foundOpponentPieces = true;
 					break;
 				}
@@ -1165,24 +1200,39 @@ var Board = new Class({
 			if (foundOpponentPieces) {
 				console.log("found opponent_pieces");
 				// take another turn
+				var rule = this.checkDoActions(rules, "give_turns", "current_player", "");
+				if (rule != null) {
+					game.turnSetAnother(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), rule.do_num_turns);
+				} else {
+					var rule = this.checkDoActions(rules, "give_turns", "opposing_player", "");
+					if (rule != null) {
+						game.turnSetAnother(donburiGame.state.players.getPlayerByID(game.getOtherPlayerID(donburiGame.whoseTurn())), rule.do_num_turns);
+					}
+				}
 			}
 		}
 	},
 
-	/* Event Handlers */
+	/* Board Event Handlers */
 	// master event functions that execute on EVERY
 	// slot land/leave/pass.
 	onLand: function(slot, piece, eventType, callback) {
 		console.log("board onLand");
 
 		var onLandRules = this.getOnLandRules();
-		if (onLandRules.length == 1) {
-			var landRule = onLandRules[0];
+		for (var sensing_action_str in onLandRules) {
+			var rules = onLandRules[sensing_action_str];
 
-			if (landRule.sensing_action == "has" && landRule.sensing_action_modifier == "opponent_pieces") {
-				this.slotHasOpponentPieces(slot, landRule);
+			if (sensing_action_str == "has:opponent_pieces") {
+				this.slotHasOpponentPieces(slot, rules);
 			}
 		}
+		// 	var landRule = onLandRules[0];
+
+		// 	if (landRule.sensing_action == "has" && landRule.sensing_action_modifier == "opponent_pieces") {
+		// 		this.slotHasOpponentPieces(slot, landRule);
+		// 	}
+		// }
 
 
 		if (typeof callback != "undefined" && callback != null) {
