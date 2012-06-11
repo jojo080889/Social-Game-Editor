@@ -29,6 +29,7 @@ $.fn.populateSelectElement = function(type) {
 		$(this)
 			.append('<option value="">[select player]</option>')
 			.append('<option value="current_player">current player</option>')
+			.append('<option value="opposing_player">opposing player</option>')
 			.append('<option value="all_players">all players</option>')
 			.append('<option value="no_players">no players</option>')
 			.append('<option value="specific_player">&lt;specific player&gt;</option>')

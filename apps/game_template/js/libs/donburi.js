@@ -4,6 +4,7 @@
 function DonburiGame(context) {
 	this.state = {
 		board: null, 
+		slotRules: null,
 		players: null, 
 		pieces: null, 
 		pieceToMove: null, 
@@ -98,9 +99,11 @@ DonburiGame.prototype.createInitialState = function() {
 	//createScriptFile();
 
 	var boardRules = getBoardRules();
+	var slotRules = getSlotRules();
 
 	state = {
 		board: new Board(null, {slots: slots, rules: boardRules}), 
+		slotRules: slotRules,
 		players: new PlayerList(null, {players: players}), 
 		pieces: new PieceList(null, {pieces: pieces}), 
 		pieceToMove: null, 
@@ -1003,9 +1006,43 @@ var Slot = new Class({
 	
 	},
 	
-	/* Events */
+	getOnLandRules: function() {
+		var onLandRules = new Array();
+		console.log(donburiGame.state.slotRules);
+		for(var i = 0; i < donburiGame.state.slotRules.length; i++) {
+			if (donburiGame.state.slotRules[i].sensing_subobject == "on_land")
+				onLandRules.push(donburiGame.state.slotRules[i]);
+		}
+		return onLandRules;
+	},
+
+	getRuleXY: function(landRule) {
+		var arr = landRule.sensing_object.split("_");
+		return [parseInt(arr[1]), parseInt(arr[2])];
+	},
+
+	/* Slot Events */
 	onLand: function(piece, eventType, callback) {
 		console.log("onLand (" + this.options.positionX + ", " + this.options.positionY + ")");
+
+		var onLandRules = this.getOnLandRules();
+		if (onLandRules.length == 1) {
+			var landRule = onLandRules[0];
+			
+			var xy = this.getRuleXY(landRule);
+			if (xy[0] == this.options.positionX && xy[1] == this.options.positionY) {
+				if (landRule.sensing_action == "has" && landRule.sensing_action_modifier == "piece_to_move") {
+					if (landRule.do_action == "win") {
+						if (landRule.do_action_object == "current_player")
+							game.playerWins();
+						else if (landRule.do_action_object == "opposing_player")
+							game.playerWins(game.getOtherPlayerID(donburiGame.whoseTurn()));
+					}
+				}
+			}
+		}
+
+
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
@@ -1491,6 +1528,16 @@ function getBoardRules() {
 	for (var i = 0; i < data.rules.rules.length; i++) {
 		var rule = data.rules.rules[i];
 		if (rule.sensing_object == "board")
+			rules.push(rule);
+	}
+	return rules;
+}
+
+function getSlotRules() {
+	var rules = new Array();
+	for (var i = 0; i < data.rules.rules.length; i++) {
+		var rule = data.rules.rules[i];
+		if (rule.sensing_object.search("slot") == 0)
 			rules.push(rule);
 	}
 	return rules;
