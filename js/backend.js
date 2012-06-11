@@ -11,25 +11,100 @@ var boardEditView;
 var piecesAndPlayersView;
 var rulesSelectView;
 
+var RulesIDCount = 5;
+
+$.fn.populateSelectElement = function(type) {
+	if (type == "piece") {
+		$(this)
+			.append('<option value="">[select piece]</option>')
+			.append('<option value="piece_to_move">piece to move</option>')
+			.append('<option value="all_pieces">all pieces</option>')
+			.append('<option value="no_pieces">no pieces</option>')
+			.append('<option value="specific_piece">&lt;specific piece&gt;</option>')
+			.append('<option value="specific_piece">&lt;user pick piece&gt;</option>')
+			.append('<option value="no_pieces">my pieces</option>')
+			.append('<option value="no_pieces">opponent pieces</option>')
+			.append('<option value="no_pieces">type</option>')
+	} else if (type == "player") {
+		$(this)
+			.append('<option value="">[select player]</option>')
+			.append('<option value="current_player">current player</option>')
+			.append('<option value="all_players">all players</option>')
+			.append('<option value="no_players">no players</option>')
+			.append('<option value="specific_player">&lt;specific player&gt;</option>')
+			.append('<option value="user_pick_player">&lt;user pick player&gt;</option>')
+			.append('<option value="active_players">active players</option>')
+			.append('<option value="inactive_players">inactive players</option>')
+	} else if (type == "slot") {
+		$(this)						
+			.append('<option value="">[select slot]</option>')
+			.append('<option value="this_slot">this slot</option>')
+			.append('<option value="no_slots">no slots</option>')
+			.append('<option value="specific_slot">&lt;specific slot&gt;</option>')
+			.append('<option value="user_pick_slot">&lt;user pick slot&gt;</option>')
+	} else if (type == "locationAndType") {
+		$(this)
+			.append('<option value="on_board">is on board</option>')
+			.append('<option value="not_on_board">is not on board</option>')
+			.append('<option value="of_type">is of type...</option>')
+			.append('<option value="not_of_type">is not of type...</option>')
+	} else if (type == "possession") {
+		$(this)
+			.append('<option value=""></option>')
+			.append('<option value="has">has</option>')
+			.append('<option value="not_have">does not have</option>')
+	} else if (type == "change") {
+		$(this)
+			.append('<option value=""></option>')
+			.append('<option value="piece_to_move">piece to move</option>')
+			.append('<option value="change_current_player">current player</option>')
+			//.append('<option value="num_spaces_to_move"># of spaces to move</option>')
+			//.append('<option value="path_to_go">path to go</option>')
+	} else if (type == "PieceAndSlot") {
+		$(this)
+			.append('<option value=""></option>')
+			.append('<option value="piece">piece</option>')
+			.append('<option value="slot">slot</option>')
+	}
+}
+
 $(document).ready(function() {
 
 	/* RULE */	
 	var Rule = Backbone.Model.extend({
 		defaults: {
-			id: -1
+			id: -1,
 		}
 	});
 	
+	/* 
+	The attributes that will store the rules are:
+		- sensing_object
+		- sensing_subobject
+		- sensing_action
+		- sensing_action_modifier
+
+		- do_action
+		- do_action_object
+		- do_action_subobject
+	*/
 	var RuleView = Backbone.View.extend({
 		tagName: 'div',
 		className: "rule",
 		template: $("#ruleTemplate").html(),
 		events: {
-			"click span.delete": "remove"
+			"click span.delete": "remove",
+			"change .sensing_object": "set_sensing_object",
+			"change .sensing_subobject": "set_sensing_subobject",
+			"change .sensing_action": "set_sensing_action",
+			"change .sensing_action_modifier": "set_sensing_action_modifier",
+			"change .do_action": "set_do_action",
+			"change .do_action_object": "set_do_action_object",
+			"change .do_action_subobject": "set_do_action_subobject"
 		},    
 		initialize: function() {
-			_.bindAll(this, "render", "unrender", "remove");
-			this.model.bind("change", this.render);
+			_.bindAll(this, "render", "unrender", "remove", "set_sensing_object", "set_sensing_subobject","set_sensing_action","set_sensing_action_modifier", "set_do_action", "set_do_action_object", "set_do_action_subobject");
+			//this.model.bind("change", this.render);
 			this.model.bind("remove", this.unrender);
 		},
 		render: function() {
@@ -43,15 +118,173 @@ $(document).ready(function() {
 			this.remove();
 		},
 		remove: function() {
+			// need to remove from ruleList???
+			// var removedType = this.model.get("id");
+			// var toRemove = ruleList.where({type: this.model.get("name")});
+			// ruleList.remove(toRemove);
 			this.model.destroy();
-			var removedType = this.model.get("id");
-			alert("TODO: remove from DOM and collection");
+		},
+		set_sensing_object: function() {
+			/** get the value and store in model **/
+			var ruleView = "#ruleView_" + this.model.get("id");
+			var sensing_object = $( ruleView ).find(".sensing_object");
+			this.model.set("sensing_object", sensing_object.val());	
+			this.model.set("sensing_subobject", "");
+			this.model.set("sensing_action", "");
+			this.model.set("sensing_action_modifier", "");
+			this.model.save();
 			
-			// TODO: show a warning first
-			var self = this;
-			var toRemove = ruleList.where({type: self.model.get("name")});
-			ruleList.remove(toRemove);
-			self.model.destroy();
+			$( sensing_object ).nextAll().remove();							// remove the next select statements
+			
+			/** construct the next select statement **/
+			var parentDiv = ruleView + "> .when";
+			var select_type = "";
+			if (sensing_object.val() == "player") select_type = "player";
+			if (sensing_object.val() == "slot") select_type = "slot";
+			if (sensing_object.val() == "piece") select_type = "piece";
+			if (select_type != "") {
+				$('<select />', { class: "sensing_subobject", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+		},
+		set_sensing_subobject: function() {
+			var ruleView = "#ruleView_" + this.model.get("id");
+			var parentDiv = ruleView + "> .when";
+			var sensing_object = $( ruleView ).find(".sensing_object");
+			var sensing_subobject = $( ruleView ).find(".sensing_subobject");
+			
+			/** get the value and store in model **/
+			this.model.set("sensing_subobject", sensing_subobject.val());	
+			this.model.set("sensing_action", "");
+			this.model.set("sensing_action_modifier", "");
+			this.model.save();
+			
+			$( sensing_subobject ).nextAll().remove();							// remove the next select statements
+			
+			/** construct the next select statement **/
+			var select_type = "";
+			if (sensing_object.val() == "player") select_type = "possession";
+			if (sensing_object.val() == "slot") select_type = "possession";
+			if (sensing_object.val() == "piece") select_type = "locationAndType";
+			if (select_type != "") {
+				$('<select />', { class: "sensing_action", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+		},
+		set_sensing_action: function() {
+			var ruleView = "#ruleView_" + this.model.get("id");
+			var parentDiv = ruleView + "> .when";
+			var sensing_action = $( ruleView ).find(".sensing_action");
+			
+			/** get the value and store in model **/
+			this.model.set("sensing_action", sensing_action.val());	
+			this.model.set("sensing_action_modifier", "");
+			this.model.save();
+			
+			$( sensing_action ).nextAll().remove();							// remove the next select statements
+			
+			/** construct the next select statement **/
+			var select_type = "";
+			if ((sensing_action.val() == "has") ||
+				(sensing_action.val() == "not_have") ||
+				(sensing_action.val() == "of_type") || 
+				(sensing_action.val() == "not_of_type")) {
+				select_type = "piece";
+			}
+			if (select_type != "") {
+				$('<select />', { class: "sensing_action_modifier", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+		},
+		set_sensing_action_modifier: function() {
+			var ruleView = "#ruleView_" + this.model.get("id");
+			var sensing_action_modifier = $( ruleView ).find(".sensing_action_modifier");
+			
+			/** get the value and store in model **/
+			this.model.set("sensing_action_modifier", sensing_action_modifier.val());	
+			this.model.save();
+		},
+		set_do_action: function() {
+			var ruleView = "#ruleView_" + this.model.get("id");
+			var parentDiv = ruleView + "> .do";
+			var do_action = $( ruleView ).find(".do_action");
+			
+			/** get the value and store in model **/
+			this.model.set("do_action", do_action.val());	
+			this.model.set("do_action_object", "");
+			this.model.set("do_action_subobject", "");
+			this.model.save();
+			
+			$( do_action ).nextAll().remove();							// remove the next select statements
+			
+			/* append an input field for number of turns */
+			if ((do_action.val() == "disable_land") ||
+				(do_action.val() == "disable_leave") ||
+				(do_action.val() == "enable_land") ||
+				(do_action.val() == "enable_leave") ||
+				(do_action.val() == "give_turns") ||
+				(do_action.val() == "skip_turns")) {
+					$('<input />', { type: 'text', placeholder: '# turns', size: 5, class: "do_num_turns", })
+						.appendTo( parentDiv )
+			}
+			
+			/** construct the next select statement **/
+			var select_type = "";
+			if (do_action.val() == "change") select_type = "change";
+			if (do_action.val() == "add") select_type = "PieceAndSlot";
+			if (do_action.val() == "remove") select_type = "PieceAndSlot";
+			if (do_action.val() == "disable_land") select_type = "slot";
+			if (do_action.val() == "disable_leave") select_type = "slot";
+			if (do_action.val() == "enable_land") select_type = "slot";
+			if (do_action.val() == "enable_leave") select_type = "slot";
+			if (do_action.val() == "give_turns") select_type = "player";
+			if (do_action.val() == "skip_turns") select_type = "player";
+			if (do_action.val() == "win") select_type = "player";
+			if (do_action.val() == "lose") select_type = "player";
+			if (select_type != "") {
+				$('<select />', { class: "do_action_object", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+		},
+		set_do_action_object: function() {
+			var ruleView = "#ruleView_" + this.model.get("id");
+			var parentDiv = ruleView + "> .do";
+			var do_action_object = $( ruleView ).find(".do_action_object");
+			
+			/** get the value and store in model **/
+			this.model.set("do_action_object", do_action_object.val());	
+			this.model.set("do_action_subobject", "");
+			this.model.save();
+			
+			$( do_action_object ).nextAll().remove();							// remove the next select statements
+			
+			/** construct the next select statement **/
+			var select_type = "";
+			if (do_action_object.val() == "piece_to_move") select_type = "piece";
+			if (do_action_object.val() == "change_current_player") select_type = "player";
+			if (do_action_object.val() == "num_spaces_to_move") select_type = "PieceAndSlot";
+			if (do_action_object.val() == "path_to_go") select_type = "PieceAndSlot";
+			if (do_action_object.val() == "piece") select_type = "piece";
+			if (do_action_object.val() == "slot") select_type = "slot";
+			if (select_type != "") {
+				$('<select />', { class: "do_action_subobject", })
+					.appendTo( parentDiv )
+					.populateSelectElement(select_type)
+			}
+		},
+		set_do_action_subobject: function() {
+			var ruleView = "#ruleView_" + this.model.get("id");
+			var parentDiv = ruleView + "> .do";
+			var do_action_subobject = $( ruleView ).find(".do_action_subobject");
+			
+			/** get the value and store in model **/
+			this.model.set("do_action_subobject", do_action_subobject.val());	
+			this.model.save();
+
 		}
 	});
 	
@@ -64,11 +297,10 @@ $(document).ready(function() {
 		events: {
 		},
 		initialize: function() {
-			_.bindAll(this, 'render', 'renderRule', 'addRule', 'removeRule'); 
+			_.bindAll(this, 'render', 'renderRule', 'addRule'); 
 			this.collection = new RuleList();
 			this.collection.bind('add', this.renderRule);
 			$("#addRule").click(this.addRule);
-			$("#removeRule").click(this.removeRule);
 			this.render();
 		},
 		render: function() {
@@ -80,26 +312,15 @@ $(document).ready(function() {
 		renderRule: function(rule) {
 			var rView = new RuleView({
 				model: rule,
-				id: "rule_" + rule.get("id")
+				id: "ruleView_" + rule.get("id")
 			});
 			this.$el.append(rView.render().el);
-			initRuleSelectElems();
 		},
 		addRule: function() {
-			// if we're not going to limit the number of rules
-			// then delete the if statement
-			if (this.collection.length < 10) {
-				var rule = this.collection.create({
-					id: this.collection.length
-				});
-			} else {
-			}
-			initRuleSelectElems();
-		},
-		removeRule: function() {
-			if (this.collection.length > 1) {
-				this.collection.pop();
-			}
+			var rule = this.collection.create({
+				id: RulesIDCount,
+			});
+			RulesIDCount++;
 		}
 	});
 	
