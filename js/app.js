@@ -211,6 +211,10 @@ function getRulesJSON() {
 			obj.sensing_action = rules[key].sensing_action;
 			obj.sensing_action_modifier = rules[key].sensing_action_modifier;
 			obj.do_action = rules[key].do_action;
+			if (rules[key].do_num_turns == "")
+				obj.do_num_turns = 0;
+			else
+				obj.do_num_turns = parseInt(rules[key].do_num_turns);
 			obj.do_action_object = rules[key].do_action_object;
 			obj.do_action_subobject = rules[key].do_action_subobject;
 			rulesArray.push(obj);

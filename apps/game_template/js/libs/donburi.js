@@ -1061,6 +1061,16 @@ var Slot = new Class({
 						game.playerWins();
 					else if (landRule.do_action_object == "opposing_player")
 						game.playerWins(game.getOtherPlayerID(donburiGame.whoseTurn()));
+				} else if (landRule.do_action == "give_turns" ) {
+					console.log(landRule);
+					console.log(landRule.do_num_turns);
+					var num_turns = parseInt(landRule.do_num_turns);
+					console.log("**num turns is "+num_turns);
+					if (landRule.do_action_object == "current_player") {
+						game.turnSetAnother(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), num_turns);
+					} else if (landRule.do_action_object == "opposing_player") {
+						game.turnSetAnother(donburiGame.state.players.getPlayerByID(game.getOtherPlayerID(donburiGame.whoseTurn())), num_turns);
+					}
 				}
 			}
 		}
