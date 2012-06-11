@@ -10,9 +10,7 @@ function DonburiGame(context) {
 		moveCount: null, 
 		moveType: null,
 		moveFlags: null,
-		moveDecider: null,
-		updateTurnPlayer: null, // id
-		updatedPlayers: null // associative array
+		moveDecider: null
 	};
     this.init(context);
 }
@@ -84,9 +82,7 @@ DonburiGame.prototype.createInitialState = function() {
 		moveCount: null, 
 		moveType: null,
 		moveFlags: null,
-		moveDecider: data.moveDecider,
-		updateTurnPlayer: -1,
-		updatedPlayers: {}
+		moveDecider: data.moveDecider
 	};
 	
 	game.render(state);
@@ -287,8 +283,8 @@ var Game = new Class({
         console.info("Curr Turn player ID: "+context.whoseTurn() + ", i.e. player # "+ player_num + ", other: "+other_player_num);
         var who_am_i_player = context.whoAmI() + 1;
         console.info("I am: " + context.whoAmI() +", or I am player number "+ who_am_i_player);
-        if (context.isMyTurn())
-        	console.log("my turn");
+        // if (context.isMyTurn())
+        // 	console.log("my turn");
 
 //        console.info(context.state.pieces);
 		
@@ -321,12 +317,10 @@ var Game = new Class({
 		if (context.state.players.checkIfAnyPlayerWon()) { // check if any player has won
 			console.log("******Player # " + context.state.players.winningPlayerID + " WON!");
 			game.end();
-		} //else {
-
-		//}
-		console.log("update ends...for...");
-		console.info("Curr Turn player ID: "+context.whoseTurn() + ", i.e. player # "+ player_num + ", other: "+other_player_num);
-        console.info("I am: " + context.whoAmI() +", or I am player number "+ who_am_i_player);
+		}
+		// console.log("update ends...for...");
+		// console.info("Curr Turn player ID: "+context.whoseTurn() + ", i.e. player # "+ player_num + ", other: "+other_player_num);
+  //       console.info("I am: " + context.whoAmI() +", or I am player number "+ who_am_i_player);
 	},
 	changeToNextTurn: function() {
 		console.log("changeToNextTurn, current player id: " + donburiGame.whoseTurn());
@@ -339,16 +333,14 @@ var Game = new Class({
 	ifMyTurnChangeToNextTurn: function() {
 		var self = this;
 		this.turnEnd(function() {
-			// check if player will get extra turn
-			if (donburiGame.isMyTurn() && curPlayerObj.options.skipTurnNum > 0) {
-				console.log("My turn and I need to skip it");
-				// show notice
-				$("#game-message").html("<b>Player " + (donburiGame.whoseTurn() + 1) + "'s</b> turn is skipped. Sorry!");
-				$("#game-message").show("fast").delay(1000).hide("fast");
-			
-				if (curPlayerObj.options.skipTurnNum > 0) {
-					curPlayerObj.options.skipTurnNum--;
-				}
+            // first check to see if current player will get another turn
+            var curPlayerObj = donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn());
+            if (curPlayerObj.options.moreTurnNum > 0) {
+                    curPlayerObj.options.moreTurnNum--;
+                    // show notice
+                    $("#game-message").html("<b>Player " + (donburiGame.whoseTurn() + 1) + "</b> will get another turn!");
+                    $("#game-message").show("fast").delay(1000).hide("fast");
+            }
 
 			if (donburiGame.isMyTurn()) {
 				console.log("my turn so changeToNextTurn, current player id: " + donburiGame.whoseTurn());
@@ -488,8 +480,8 @@ var Game = new Class({
 		} else {
 			var curX = donburiGame.state.slotPicked.options.positionX;
 			var curY = donburiGame.state.slotPicked.options.positionY;
-			console.log("in moveStartHelper slotPicked curX: " + curX);
-			console.log("in moveStartHelper slotPicked curY: " + curY);
+			// console.log("in moveStartHelper slotPicked curX: " + curX);
+			// console.log("in moveStartHelper slotPicked curY: " + curY);
 			donburiGame.state.moveCount = 0;
 			game.makeMove(curX, curY);
 		}
@@ -692,7 +684,7 @@ var Game = new Class({
 		player.options.skipTurnNum += n;
 	},
 	turnSetAnother: function(player, n) {
-		//player.options.moreTurnNum += n;
+		player.options.moreTurnNum += n;
 
 		var player_num = player.options.id + 1;
         var other_player_id = (player_num % 2);
@@ -748,8 +740,8 @@ var Player = new Class({
 	options: {
 		id: -1,
 		state: "playing", //"playing" | "won" | "lost"
-		skipTurnNum: 0//,
-		//moreTurnNum: 0
+		skipTurnNum: 0,
+		moreTurnNum: 0
 	},
 	jQuery: 'player', //namespace for new jquery method
 	initialize: function(selector, options) {
@@ -893,7 +885,6 @@ var Piece = new Class({
 		return this.options.state;
 	},
 	getPieceDiv: function() {
-		console.log("getpieceDiv");
 		return this.pieceDiv;
 	}
 });

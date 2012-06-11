@@ -72,8 +72,11 @@ Musubi.ready(function(context) {
 		if(sPieces.length > 1) {
 			for (var i = 0; i < sPieces.length; i++) {
 				var p = sPieces[i];
-				if (p.options.player.id != donburiGame.whoseTurn()) {
-					//p.removeFromBoard();
+				if (p.options.player != donburiGame.whoseTurn()) {
+					console.log("**player with turn ID: "+donburiGame.whoseTurn());
+					console.log("piece player id: "+p.options.player);
+					console.log("removing from board: "+p.getPieceDiv());
+					p.removeFromBoard();
 					game.turnSetAnother(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), 1);
 					break;
 				} 
@@ -81,6 +84,13 @@ Musubi.ready(function(context) {
 		}
 		callback();
 	};
+
+	donburiGame.state.board.options.slots[2][2].onLand = function(piece, eventType, callback) {
+		console.log("*onLand 5,5");
+		if (!$.isArray(piece)) {
+			piece = [piece];
+		}
+	}
 
 	game.start(); 
 });
