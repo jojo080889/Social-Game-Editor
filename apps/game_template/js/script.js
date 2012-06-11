@@ -66,24 +66,24 @@ Musubi.ready(function(context) {
 	// }
 
 
-	donburiGame.state.board.onLand = function(slot, piece, eventType, callback) {
-		console.log("onLandb");
-		var sPieces = slot.getPieces();
-		if(sPieces.length > 1) {
-			for (var i = 0; i < sPieces.length; i++) {
-				var p = sPieces[i];
-				if (p.options.player != donburiGame.whoseTurn()) {
-					console.log("**player with turn ID: "+donburiGame.whoseTurn());
-					console.log("piece player id: "+p.options.player);
-					console.log("removing from board: "+p.getPieceDiv());
-					p.removeFromBoard();
-					game.turnSetAnother(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), 2);
-					break;
-				} 
-			}
-		}
-		callback();
-	};
+	// donburiGame.state.board.onLand = function(slot, piece, eventType, callback) {
+	// 	console.log("onLandb");
+	// 	var sPieces = slot.getPieces();
+	// 	if(sPieces.length > 1) {
+	// 		for (var i = 0; i < sPieces.length; i++) {
+	// 			var p = sPieces[i];
+	// 			if (p.options.player != donburiGame.whoseTurn()) {
+	// 				console.log("**player with turn ID: "+donburiGame.whoseTurn());
+	// 				console.log("piece player id: "+p.options.player);
+	// 				console.log("removing from board: "+p.getPieceDiv());
+	// 				p.removeFromBoard();
+	// 				game.turnSetAnother(donburiGame.state.players.getPlayerByID(donburiGame.whoseTurn()), 2);
+	// 				break;
+	// 			} 
+	// 		}
+	// 	}
+	// 	callback();
+	// };
 
 	// when land on slot(3,3): curr player wins
 	// donburiGame.state.board.options.slots[2][2].onLand = function(piece, eventType, callback) {
@@ -95,13 +95,13 @@ Musubi.ready(function(context) {
 	// };
 
 	// when land on slot(3,3): opponent player wins
-	donburiGame.state.board.options.slots[2][2].onLand = function(piece, eventType, callback) {
-		console.log("*onLand 5,5");
-		if (!$.isArray(piece)) {
-			piece = [piece];
-		}
-		game.playerWins(game.getOtherPlayerID(donburiGame.whoseTurn()));
-	};
+	// donburiGame.state.board.options.slots[2][2].onLand = function(piece, eventType, callback) {
+	// 	console.log("*onLand 5,5");
+	// 	if (!$.isArray(piece)) {
+	// 		piece = [piece];
+	// 	}
+	// 	game.playerWins(game.getOtherPlayerID(donburiGame.whoseTurn()));
+	// };
 
 	game.start(); 
 });

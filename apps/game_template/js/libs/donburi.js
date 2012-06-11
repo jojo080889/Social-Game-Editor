@@ -64,6 +64,27 @@ DonburiGame.prototype.init = function(context) {
     SocialKit.Multiplayer.TurnBasedMultiplayerGame.prototype.init.call(this, context);
 };
 
+// var methods = {
+// 	'onLand' : function(piece, eventType, callback) {
+// 					console.log("*onLand 5,5");
+// 					game.playerWins(game.getOtherPlayerID(donburiGame.whoseTurn()));
+// 				}
+// };
+
+// function DonburiRule(context) {
+// 	this.state = {
+// 		board: null, 
+// 		players: null, 
+// 		pieces: null, 
+// 		pieceToMove: null, 
+// 		moveCount: null, 
+// 		moveType: null,
+// 		moveFlags: null,
+// 		moveDecider: null
+// 	};
+//     this.init(context);
+// }
+
 DonburiGame.prototype.createInitialState = function() {
 	console.log("creating Initial State");
 	console.log(this.players);
@@ -71,10 +92,15 @@ DonburiGame.prototype.createInitialState = function() {
 
 	var players = convertToMooToolsPlayers(this);
 	var pieces = convertToMooToolsPieces();
-	var slots = convertToMooToolsBoard();
+	var slots = convertToMooToolsBoard(this);
+	//convertRules();
 	
+	//createScriptFile();
+
+	var boardRules = getBoardRules();
+
 	state = {
-		board: new Board(null, {slots: slots}), 
+		board: new Board(null, {slots: slots, rules: boardRules}), 
 		players: new PlayerList(null, {players: players}), 
 		pieces: new PieceList(null, {pieces: pieces}), 
 		pieceToMove: null, 
@@ -84,6 +110,10 @@ DonburiGame.prototype.createInitialState = function() {
 		moveFlags: null,
 		moveDecider: data.moveDecider
 	};
+
+	// for (var name in methods) {
+ //    	state.board.options.slots[2][2][name] = methods[name];
+ //  	}
 	
 	game.render(state);
 
@@ -92,6 +122,53 @@ DonburiGame.prototype.createInitialState = function() {
 	
 	return state;
 };
+
+
+
+// function convertRules() {
+// 	// convert data.rules ...
+// 	if (data.rules.length == 0) {
+// 		return [];
+// 	}
+// 	//var pieces = new Array();
+// 	for (var i = 0; i < data.rules.rules.length; i++) {
+// 		pieces.push(new Piece(null, {
+// 			id: data.pieces.pieces[i].id,
+// 			image: data.pieces.pieces[i].image,
+// 			player: data.pieces.pieces[i].player,
+// 			type: data.pieces.pieces[i].type,
+// 			positionX: data.pieces.pieces[i].startPositionX,
+// 			positionY: data.pieces.pieces[i].startPositionY,
+// 			state: data.pieces.pieces[i].startState
+// 		}));
+// 	}
+// 	return pieces;
+// }
+
+function createScriptFile() {
+	var scriptString = "/*\n";
+	scriptString +=	"* App launch when Musubi is ready\n";
+	scriptString +=	"*/\n";
+	scriptString +=	"var game = null;\n";
+	scriptString +=	"var donburiGame = null;\n";
+	scriptString +=	"Musubi.ready(function(context) {\n";
+	scriptString +=	"    console.info('launching DonburiGame');\n";
+	scriptString +=	"    donburiGame = new DonburiGame(context);\n";
+	scriptString +=	"\n";
+	scriptString +=	"    console.info(donburiGame.state);\n";
+    scriptString +=	"	 game.start();\n";
+	scriptString +=	"});\n";
+	$.post(
+		'scripts/export_script.php',
+		{
+			script: scriptString
+		},
+		function(script) {
+			console.log(script);
+		},
+		"text"
+	);
+}
 
 // Returns the state
 DonburiGame.prototype.makeState = function() {
@@ -973,7 +1050,8 @@ var Slot = new Class({
 var Board = new Class({
 	Implements: [Options, Events],
 	options: {
-		slots: null // Array of Array of objects representing tile appearance
+		slots: null, // Array of Array of objects representing tile appearance
+		rules: null
 	},
 	jQuery: 'board', //namespace for new jquery method
 	initialize: function(selector, options) {
@@ -987,11 +1065,57 @@ var Board = new Class({
 		this.adjustGrid();
 	},
 	
+	getOnLandRules: function() {
+		var onLandRules = new Array();
+		console.log(this.options.rules);
+		for(var i = 0; i < this.options.rules.length; i++) {
+			if (this.options.rules[i].sensing_subobject == "on_land")
+				onLandRules.push(this.options.rules[i]);
+		}
+		return onLandRules;
+	},
+
+	removePieceFromBoard: function(piece) {
+		piece.removeFromBoard();
+	},
+
+	slotHasOpponentPieces: function(slot, landRule) {
+		var foundOpponentPieces = false;
+		var sPieces = slot.getPieces();
+		if(sPieces.length > 1) {
+			for (var i = 0; i < sPieces.length; i++) {
+				var p = sPieces[i];
+				if (p.options.player != donburiGame.whoseTurn()) {
+					if (landRule.do_action == "remove" && landRule.do_action_object == "piece" && landRule.do_action_subobject == "opponent_pieces") {
+						this.removePieceFromBoard(p);
+					}
+					foundOpponentPieces = true;
+					break;
+				}
+			}
+			if (foundOpponentPieces) {
+				console.log("found opponent_pieces");
+				// take another turn
+			}
+		}
+	},
+
 	/* Event Handlers */
 	// master event functions that execute on EVERY
 	// slot land/leave/pass.
 	onLand: function(slot, piece, eventType, callback) {
 		console.log("board onLand");
+
+		var onLandRules = this.getOnLandRules();
+		if (onLandRules.length == 1) {
+			var landRule = onLandRules[0];
+
+			if (landRule.sensing_action == "has" && landRule.sensing_action_modifier == "opponent_pieces") {
+				this.slotHasOpponentPieces(slot, landRule);
+			}
+		}
+
+
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
@@ -1360,6 +1484,16 @@ function convertToMooToolsPieces() {
 		}));
 	}
 	return pieces;
+}
+
+function getBoardRules() {
+	var rules = new Array();
+	for (var i = 0; i < data.rules.rules.length; i++) {
+		var rule = data.rules.rules[i];
+		if (rule.sensing_object == "board")
+			rules.push(rule);
+	}
+	return rules;
 }
 
 function convertToMooToolsBoard() {
