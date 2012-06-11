@@ -1006,14 +1006,40 @@ var Slot = new Class({
 	
 	},
 	
-	getOnLandRules: function() {
-		var onLandRules = new Array();
-		console.log(donburiGame.state.slotRules);
+	// getXYOnLandRules: function() {
+	// 	var xylandRules = {};
+	// 	// create keys for all slots and their values are empty arrays
+	// 	for(var i = 0; i < donburiGame.state.slotRules.length; i++) {
+	// 		if (donburiGame.state.slotRules[i].sensing_subobject == "on_land") {
+	// 			if (xylandRules[donburiGame.state.slotRules[i].sensing_object] == undefined)
+	// 				xylandRules[donburiGame.state.slotRules[i].sensing_object] = [];
+	// 		}
+	// 	}
+	// 	// fill those empty arrays with rules for the same slots
+	// 	for(var i = 0; i < donburiGame.state.slotRules.length; i++) {
+	// 		if (donburiGame.state.slotRules[i].sensing_subobject == "on_land") {
+	// 			var slot_str = donburiGame.state.slotRules[i].sensing_object;
+	// 			xylandRules[slot_str].push(donburiGame.state.slotRules[i]);
+	// 		}
+	// 	}
+
+	// 	return xylandRules;
+	// },
+
+	getXYOnLandRules: function() {
+		var xylandRules = new Array();
+
 		for(var i = 0; i < donburiGame.state.slotRules.length; i++) {
-			if (donburiGame.state.slotRules[i].sensing_subobject == "on_land")
-				onLandRules.push(donburiGame.state.slotRules[i]);
+			if (donburiGame.state.slotRules[i].sensing_subobject == "on_land") {
+				var landRule = donburiGame.state.slotRules[i];
+				var xy = this.getRuleXY(landRule);
+				if ((xy[0]-1) == this.options.positionX && (xy[1]-1) == this.options.positionY) {
+					xylandRules.push(landRule);
+				}
+			}
 		}
-		return onLandRules;
+
+		return xylandRules;
 	},
 
 	getRuleXY: function(landRule) {
@@ -1025,19 +1051,16 @@ var Slot = new Class({
 	onLand: function(piece, eventType, callback) {
 		console.log("onLand (" + this.options.positionX + ", " + this.options.positionY + ")");
 
-		var onLandRules = this.getOnLandRules();
-		if (onLandRules.length == 1) {
-			var landRule = onLandRules[0];
+		var xylandRules = this.getXYOnLandRules();
+		for (var i = 0; i < xylandRules.length; i++) {
+			var landRule = xylandRules[i];
 			
-			var xy = this.getRuleXY(landRule);
-			if (xy[0] == this.options.positionX && xy[1] == this.options.positionY) {
-				if (landRule.sensing_action == "has" && landRule.sensing_action_modifier == "piece_to_move") {
-					if (landRule.do_action == "win") {
-						if (landRule.do_action_object == "current_player")
-							game.playerWins();
-						else if (landRule.do_action_object == "opposing_player")
-							game.playerWins(game.getOtherPlayerID(donburiGame.whoseTurn()));
-					}
+			if (landRule.sensing_action == "has" && landRule.sensing_action_modifier == "piece_to_move") {
+				if (landRule.do_action == "win") {
+					if (landRule.do_action_object == "current_player")
+						game.playerWins();
+					else if (landRule.do_action_object == "opposing_player")
+						game.playerWins(game.getOtherPlayerID(donburiGame.whoseTurn()));
 				}
 			}
 		}
