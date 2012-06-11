@@ -80,6 +80,7 @@ $(document).ready(function() {
 			sensing_action: "",
 			sensing_action_modifier: "",
 			do_action: "",
+			do_num_turns: "",
 			do_action_object: "",
 			do_action_subobject: ""
 		}
@@ -107,6 +108,7 @@ $(document).ready(function() {
 			"change .sensing_action": "set_sensing_action",
 			"change .sensing_action_modifier": "set_sensing_action_modifier",
 			"change .do_action": "set_do_action",
+			"change .do_num_turns": "set_do_num_turns",
 			"change .do_action_object": "set_do_action_object",
 			"change .do_action_subobject": "set_do_action_subobject"
 		},    
@@ -166,6 +168,9 @@ $(document).ready(function() {
 			this.construct_do_action_input(ruleView, do_action);
 			var do_action_object = $( ruleView ).find(".do_action_object");
 			$( do_action_object ).val(this.model.get("do_action_object"));
+			var do_num_turns = $( ruleView ).find(".do_num_turns");
+			if (do_num_turns != undefined)
+				$( do_num_turns ).val(this.model.get("do_num_turns"));
 
 			this.construct_do_action_subobject_input(ruleView, do_action_object);
 			var do_action_subobject = $( ruleView ).find(".do_action_subobject");
@@ -327,6 +332,7 @@ $(document).ready(function() {
 			/** get the value and store in model **/
 			this.model.set("do_action", do_action.val());	
 			this.model.set("do_action_object", "");
+			this.model.set("do_num_turns", "");
 			this.model.set("do_action_subobject", "");
 			this.model.save();
 			
@@ -366,10 +372,23 @@ $(document).ready(function() {
 					.populateSelectElement(select_type)
 			}
 		},
+		set_do_num_turns: function() {
+			console.log("in set_do_num_turns");
+			var ruleView = "#ruleView_" + this.model.get("id");
+			var do_num_turns = $( ruleView ).find(".do_num_turns");
+			console.log(do_num_turns.val())
+			
+			if (do_num_turns != undefined)
+				this.model.set("do_num_turns", do_num_turns.val())
+			else
+				this.model.set("do_num_turns", "");
+			this.model.save();
+		},
 		set_do_action_object: function() {
+			console.log("in set_do_action_object");
 			var ruleView = "#ruleView_" + this.model.get("id");
 			var do_action_object = $( ruleView ).find(".do_action_object");
-			
+
 			/** get the value and store in model **/
 			this.model.set("do_action_object", do_action_object.val());	
 			this.model.set("do_action_subobject", "");

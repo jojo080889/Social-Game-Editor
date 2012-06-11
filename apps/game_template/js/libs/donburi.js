@@ -1065,7 +1065,6 @@ var Slot = new Class({
 			}
 		}
 
-
 		if (typeof callback != "undefined" && callback != null) {
 			callback();
 		}
