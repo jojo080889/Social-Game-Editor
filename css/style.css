@@ -334,6 +334,11 @@ header #mode_switch .selected:hover {
 	text-align: center;
 }
 
+/* Settings Tab */
+#move_decider_options {
+	display: none;
+}
+
 .sansa p { font-size: 70%; line-height: 200%; }
 
 /*** Tab Styles ***/
@@ -413,9 +418,37 @@ header #mode_switch .selected:hover {
 	margin-left: 115px;
 }
 		
-/* Mode Switching */
+/* Testing */
 #test_tab {
 	display: none;
+}
+#test_debug {
+	border: 1px solid #aaa;
+	margin: 10px auto;
+	height: 90px;
+	overflow-y: scroll;
+	max-width: 650px;
+}
+#test_debug p {
+	padding: 3px;
+}
+#test_debug p:nth-child(odd) {
+	background-color: #f5f5f5;
+}
+#test_debug p:nth-child(even) {
+	background-color: #fff;
+}
+#test_debug p.warning {
+	color:#FFCC00;
+}
+#test_debug p.warning:before {
+	content: "Warning: ";
+}
+#test_debug p.error {
+	color:#CC0000;
+}
+#test_debug p.error:before {
+	content: "Error: ";
 }
 
 /* Dialogs */

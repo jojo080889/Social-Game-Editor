@@ -1,5 +1,4 @@
 /* Initial Values */
-// TODO: read from database/localstorage instead
 var players = [
 	{id: 0},
 	{id: 1}
@@ -114,7 +113,7 @@ function convertValuesToSingleJSON() {
 	data.pieces = getPiecesJSON();
 	data.board = getBoardJSON();
 	data.rules = getRulesJSON();	
-
+	data.settings = getSettingsJSON();
 	data.moveDecider = $("#move_decider_option").val();
 	return data;
 }
@@ -194,6 +193,19 @@ function getBoardJSON() {
 	
 	return {"board": board};
 }
+function getSettingsJSON() {
+	var settings = JSON.parse(localStorage.Settings);
+	var settingsArray = new Array();
+	for (var key in settings) {
+		if (settings.hasOwnProperty(key)) {
+			var obj = {};
+			obj.moveDecider = settings[key].moveDecider;
+			obj.moveDeciderOptions = settings[key].moveDeciderOptions;
+			settingsArray.push(obj);
+		}
+	}
+	return settingsArray;
+}
 
 function getRulesJSON() {
 	if (typeof localStorage.RuleList == "undefined") {
@@ -261,6 +273,9 @@ function switchTest() {
 	$("#test_tab").show();
 	$("#mode_switch .mode_button").removeClass("selected");
 	$(this).addClass("selected");
+	
+	// clear test console
+	$("#test_debug p").remove();
 		
  	env = new Musubi.Browser.Environment(new Musubi.Browser.InterFrameTransport('test'));
 	feed = {name: "Test", uri: "", session: "test", key: ""};
