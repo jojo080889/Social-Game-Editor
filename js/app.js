@@ -33,6 +33,20 @@ var tileTypes = [
 /* App JS */
 /* Will soon be replaced with Backbone */
 $(document).ready(function() {
+
+	$("#board_background").load(function() {
+		console.log("in board image loaded");
+		console.log(this.width); 
+		console.log(this.height);
+
+		var w = $("#board_slots").width();
+		var h = $("#board_slots").height();
+		$("#board_background").width(w);
+		$("#board_background").height(h);
+
+		$("#board_slots").animate({ opacity: 0.5 }, 500);
+	});
+
 	/* Pieces */
 	$("#pieceTypeListContainer .scrollLeft").click(function() {
 		// TODO check for constraints
@@ -88,24 +102,60 @@ $(document).ready(function() {
 	});
 });
 
-function changeGridSize() {
-	var numX = $('#numX').val(); 
-	var numY = $('#numY').val(); 
-	if (numX == "") numX = 1;
-	if (numY == "") numY = 1;
-	var tilesArea = $('#slotsArea');
-	tilesArea.empty();
-	for (var i = 0; i < numY; i++) {
-		tilesArea.append("<div style='display: block; width: 800px'>")
-		for (var j = 0; j < numX; j++) {
-			jQuery('<div/>', {
-				class: 'slot droppable ui-widget-header',
-				html: ''
-			}).appendTo(tilesArea);
-		}
-		tilesArea.append("</div>");
-	}
-	initDroppable();
+function fileSelected() {
+	console.log("entering fileSelected");
+  var file = document.getElementById('fileToUpload').files[0];
+  if (file) {
+    var fileSize = 0;
+    if (file.size > 1024 * 1024)
+      fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+    else
+      fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
+          
+    document.getElementById('fileName').innerHTML = 'Name: ' + file.name;
+    document.getElementById('fileSize').innerHTML = 'Size: ' + fileSize;
+    document.getElementById('fileType').innerHTML = 'Type: ' + file.type;
+  }
+}
+
+function uploadFile() {
+	console.log("entering uploadFile");
+
+  	var fd = new FormData();
+    fd.append("fileToUpload", document.getElementById('fileToUpload').files[0]);
+
+  	var xhr = new XMLHttpRequest();
+  /* event listners */
+  xhr.upload.addEventListener("progress", uploadProgress, false);
+  xhr.addEventListener("load", uploadComplete, false);
+  xhr.addEventListener("error", uploadFailed, false);
+  xhr.addEventListener("abort", uploadCanceled, false);
+  /* Be sure to change the url below to the url of your upload server side script */
+  xhr.open("POST", "Upload_image.php");
+  xhr.send(fd);
+}
+
+function uploadProgress(evt) {
+  if (evt.lengthComputable) {
+    var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+    document.getElementById('progressNumber').innerHTML = percentComplete.toString() + '%';
+  }
+  else {
+    document.getElementById('progressNumber').innerHTML = 'unable to compute';
+  }
+}
+
+function uploadComplete(evt) {
+  /* This event is raised when the server send back a response */
+  $("#board_background").attr("src", evt.target.responseText);
+}
+
+function uploadFailed(evt) {
+  alert("There was an error attempting to upload the file.");
+}
+
+function uploadCanceled(evt) {
+  alert("The upload has been canceled by the user or the browser dropped the connection.");
 }
 
 function convertValuesToSingleJSON() {

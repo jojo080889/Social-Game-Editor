@@ -236,9 +236,7 @@ header  h1 {
 	position: relative;
 	margin: auto;
 }
-.row {
-	clear: both;
-}
+
 .slot {
 	border: 1px solid black;
 	float: left;
