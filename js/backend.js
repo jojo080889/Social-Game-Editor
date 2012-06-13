@@ -1220,11 +1220,14 @@ $(document).ready(function() {
 					// append
 					row.append(sView.render().el);
 				}
-				this.$el.append(row);
+				$("#board_slots", this.el).append(row);
 			}
+			console.log($("#board_slots", this.el).width());
+			console.log($("#board_slots", this.el).height());
 		},
 		unrender: function() {
-			$(".row", this.el).remove();
+			//$(".row", this.el).remove();
+			$("#board_slots").children().remove();
 			$(".info_text", this.el).show();
 		},
 		showBoardRules: function() {
@@ -1267,6 +1270,12 @@ $(document).ready(function() {
 			this.board.save();
 			this.boardView = new BoardView({model: this.board});
 			this.boardView.render();
+
+			console.log("in set board size: board_slots width and height: ");
+			var w = $("#board_slots").width();
+			var h = $("#board_slots").height();
+			$("#board_background").width(w);
+			$("#board_background").height(h);
 		},
 		clearBoard: function() {
 			while (!tileList.isEmpty()) {

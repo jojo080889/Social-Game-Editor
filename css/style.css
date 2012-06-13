@@ -106,6 +106,7 @@ header #mode_switch .selected:hover {
 	background: #fff;
 	border: 1px solid #ccc;
 	margin-top: 10px;
+	position: relative;
 }
 
 #slotsArea .info_text {
@@ -113,6 +114,17 @@ header #mode_switch .selected:hover {
 	width: 160px; 
 	margin-top: 170px; 
 	color: #bbb;
+}
+
+#board_background,
+#board_slots {
+	position: absolute;
+	top: 5;
+	left: 5;
+}
+
+#board_slots {
+	z-index: 10;
 }
 
 .row {

@@ -25,8 +25,25 @@ include "header.php"
 			<span id="size_text">Set grid size:</span> <input type="text" placeholder="Type a number..." id="size" />
 			<button id="setBoardSize" class="button">Set Board Size</button>
 			<button id="clearBoard" class="button">Clear Board</button>
+			<div>
+				<form id="upload_form" enctype="multipart/form-data" method="post" action="Upload_image.php">
+			    	<div class="upload_row">
+			      		<label for="fileToUpload">Select a File to Upload</label><br />
+			      		<input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();"/>
+			    	</div>
+			    	<div id="fileName"></div>
+			    	<div id="fileSize"></div>
+			    	<div id="fileType"></div>
+			    	<div class="upload_row">
+			      		<input type="button" onclick="uploadFile()" value="Upload" />
+			    	</div>
+			    	<div id="progressNumber"></div>
+				</form>
+			</div>
 			<div id="slotsArea">
 				<div class="info_text">Specify grid size</div>
+				<img id="board_background" src="" alt="background_image" />
+				<div id="board_slots"></div>
 			</div>
 		</div>
 				
