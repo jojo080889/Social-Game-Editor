@@ -10,8 +10,7 @@ function DonburiGame(context) {
 		pieceToMove: null, 
 		moveCount: null, 
 		moveType: null,
-		moveFlags: null,
-		moveDecider: null
+		moveFlags: null
 	};
     this.init(context);
 }
@@ -56,7 +55,7 @@ DonburiGame.prototype.init = function(context) {
 
 	game = new Game(null, {
 		title: "My Donburi Game",
-		moveDecider: data.settings.moveDecider,
+		moveDecider: data.settings[0].moveDecider,
 		rollMin: parseInt(data.settings[0].moveDeciderOptions.minRoll),
 		rollMax: parseInt(data.settings[0].moveDeciderOptions.maxRoll)
 	});
@@ -92,7 +91,6 @@ DonburiGame.prototype.init = function(context) {
 DonburiGame.prototype.createInitialState = function() {
 	console.log("creating Initial State");
 	console.log(this.players);
-	console.log("Donburi state moveDecider val: " + data.moveDecider);
 
 	var players = convertToMooToolsPlayers(this);
 	var pieces = convertToMooToolsPieces();
@@ -102,7 +100,7 @@ DonburiGame.prototype.createInitialState = function() {
 	//createScriptFile();
 
 	var boardRules = getBoardRules();
-	var slotRules = getSlotRules();
+	var slotRules = {};//getSlotRules();
 
 	state = {
 		board: new Board(null, {slots: slots, rules: boardRules}), 
@@ -113,8 +111,7 @@ DonburiGame.prototype.createInitialState = function() {
 		slotPicked: null,
 		moveCount: null, 
 		moveType: null,
-		moveFlags: null,
-		moveDecider: data.moveDecider
+		moveFlags: null
 	};
 
 	// for (var name in methods) {
@@ -209,7 +206,6 @@ var Game = new Class({
 	Implements: [Options, Events],
 	options: {
 		title: "title here",
-		moveDecider: "",
 		usePoints: false, // if true, use points
 		moveDecider: "dice",
 		rollMin: 1,
@@ -226,9 +222,12 @@ var Game = new Class({
 		$("title").html(this.options.title);
 		$("header h1").html(this.options.title);
 		
-		console.info("in game render: moveDecider: "+state.moveDecider);
-		$("#roll_move").html(state.moveDecider);
-		this.options.moveDecider = state.moveDecider;
+		console.info("in game render: moveDecider: "+this.options.moveDecider);
+		var rollMoveText = "Roll Dice";
+		if (this.options.moveDecider == "place") {
+			rollMoveText = "Make Move";
+		}
+		$("#roll_move").html(rollMoveText);
 
 		// Create players
 		state.players.render();
@@ -304,7 +303,12 @@ var Game = new Class({
 		    });
 
             console.info("************* bindActionHandlers : moveDecider: " + this.options.moveDecider);
-            $("#roll_move").html(this.options.moveDecider);
+
+			var rollMoveText = "Roll Dice";
+			if (this.options.moveDecider == "place") {
+				rollMoveText = "Make Move";
+			}
+			$("#roll_move").html(rollMoveText);
 
             /*During initialization, the function below is bound to this button, 
              *and then on update it is bound again. This unbind (and the one below) 
@@ -476,7 +480,7 @@ var Game = new Class({
 			this.ifMyTurnChangeToNextTurn();
 		} else { // continue with turn
 
-			if (donburiGame.state.moveDecider == "Roll Dice") {
+			if (game.options.moveDecider == "dice") {
 				var diceResult = game.decideMove();
 				donburiGame.state.moveCount = diceResult;
 				$("#move-result-num").html(diceResult);
@@ -519,7 +523,7 @@ var Game = new Class({
 		var types = ["isOffBoard"];
 		var offPieces = donburiGame.state.pieces.getPieces({player:donburiGame.whoseTurn(), piecestate: types});
 
-		var showPickerIf = (donburiGame.state.moveDecider == "Pick Slot" ||
+		var showPickerIf = (game.options.moveDecider == "place" ||
 							onPieces.length == 0);
 
 		if (!showPickerIf) { // Roll Dice
@@ -1630,7 +1634,7 @@ function getSlotRules() {
 	var rules = new Array();
 	for (var i = 0; i < data.rules.rules.length; i++) {
 		var rule = data.rules.rules[i];
-		if (rule.sensing_object.search("slot") == 0)
+		if (typeof rule.sensing_object != "undefined" && rule.sensing_object.search("slot") == 0)
 			rules.push(rule);
 	}
 	return rules;

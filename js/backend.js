@@ -1360,10 +1360,11 @@ $(document).ready(function() {
 		el: $("#settings"),
 		events: {
 			'change #move_decider': 'showMoveDeciderOptions',
-			'change #move_decider_options input': 'saveMoveDeciderOptions'
+			'change .setting_options input': 'saveMoveDeciderOptions'
 		},
 		initialize: function() {
 			_.bindAll(this, 'render', 'showMoveDeciderOptions', 'saveMoveDeciderOptions');
+			$("#move_decider").selectmenu({width: "200"});
 			this.render();
 		},
 		render: function() {
@@ -1372,35 +1373,42 @@ $(document).ready(function() {
 			if (typeof moveDecider == "undefined") {
 				moveDecider = "dice";
 			}
-			$("#move_decider option[value='" + moveDecider + "']").attr('selected', 'selected');
+			$("#move_decider").selectmenu("value", moveDecider)
 			this.showMoveDeciderOptions();
 		},
 		showMoveDeciderOptions: function() {
-			var moveDecider = $("#move_decider").val();
-			if (moveDecider == "choose") {
-				$("#move_decider_options").hide();
-			} else {
-				// TODO change move decider options based on chosen value
-				$("#move_decider_options").show();
+			var moveDecider = $("#move_decider").selectmenu("value");
+			$(".setting_options").hide();
+			if (moveDecider == "dice") {
+				$("#dice_options").show();
 				var moveDeciderOptions = settings.get("moveDeciderOptions");
-				if (moveDeciderOptions != null) {
+				if (moveDeciderOptions != null && !$.isEmptyObject(moveDeciderOptions)) {
 					$("#min_roll").val(moveDeciderOptions.minRoll);
 					$("#max_roll").val(moveDeciderOptions.maxRoll);
+				} else {
+					$("#min_roll").val(1);
+					$("#max_roll").val(6);
 				}
-				settings.set("moveDecider", moveDecider);
-				settings.save();
 			}
+			settings.set("moveDecider", moveDecider);
+			settings.save();
+			this.saveMoveDeciderOptions();
 		},
 		saveMoveDeciderOptions: function() {
-			// TODO change move decider options based on chosen value
-			var minRoll = $("#min_roll").val();
-			var maxRoll = $("#max_roll").val();
-			var moveDeciderOptions = {
-				minRoll: minRoll,
-				maxRoll: maxRoll
-			};
-			settings.set("moveDeciderOptions", moveDeciderOptions);
-			settings.save();
+			var moveDecider = $("#move_decider").selectmenu("value");
+			if (moveDecider == "dice") {
+				var minRoll = $("#min_roll").val();
+				var maxRoll = $("#max_roll").val();
+				var moveDeciderOptions = {
+					minRoll: minRoll,
+					maxRoll: maxRoll
+				};
+				settings.set("moveDeciderOptions", moveDeciderOptions);
+				settings.save();
+			} else {
+				settings.set("moveDeciderOptions", {});
+				settings.save();
+			}
 		}
 	});	
 	

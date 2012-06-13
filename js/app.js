@@ -164,7 +164,6 @@ function convertValuesToSingleJSON() {
 	data.board = getBoardJSON();
 	data.rules = getRulesJSON();	
 	data.settings = getSettingsJSON();
-	data.moveDecider = $("#move_decider_option").val();
 	return data;
 }
 

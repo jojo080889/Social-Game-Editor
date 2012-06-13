@@ -347,8 +347,23 @@ header #mode_switch .selected:hover {
 }
 
 /* Settings Tab */
-#move_decider_options {
+.setting {
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	padding: 15px 0;
+}
+.setting .setting_name {
+	font-size: 20px;
+	vertical-align: middle;
+}
+.setting .setting_options {
 	display: none;
+	margin-left: 30px;
+	padding: 5px;
+	width: 400px;
+}
+.setting .setting_description {
+	margin-left: 30px;
 }
 
 .sansa p { font-size: 70%; line-height: 200%; }

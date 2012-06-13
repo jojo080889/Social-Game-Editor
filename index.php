@@ -53,13 +53,6 @@ include "header.php"
 		<div id="boardRulesPanel" class="rules_panel">
 			<h4>Rules for Game</h4>
 			<div id="rules_select" class="tab_content">
-				<div id="move_decider">
-					<h2>Move Decider:</h2>
-					<select id="move_decider_option">
-						<option>Roll Dice</option>
-						<option>Pick Slot</option>
-					</select>
-				</div><br>
 				<button id="addRule" class="button"><i class="icon-plus"></i>Add Rule</button>
 				
 				<div id="ruleList"></div>
@@ -96,17 +89,23 @@ include "header.php"
 	<div id="settings" class="tab_content">
 		<h4>Settings</h4>
 		<div>
-			<p>
-				Move Decider:
-				<select id="move_decider">
-					<option value="choose">Choose...</option>
-					<option value="dice">Dice (default)</option>
-				</select>
-			</p>
-			<p id="move_decider_options">
-				Minimum roll: <input type="text" id="min_roll" size="2" />
-				Maximum roll: <input type="text" id="max_roll" size="2" />
-			</p>
+			<div class="setting">
+				<p>
+					<span class="setting_name">Move Decider</span>
+					<select id="move_decider">
+						<option value="dice">Dice (default)</option>
+						<option value="place">Pick Slot</option>
+					</select>
+				</p>
+				<p id="move_decider_text" class="setting_description">
+					Determines how players make moves during the game (for example, by rolling the dice as in Monopoly, or by placing pieces on the board as in tic-tac-toe.)
+				</p>
+				<fieldset id="dice_options" class="setting_options">
+					<legend>Options</legend>
+					Minimum roll: <input type="text" id="min_roll" size="2" /><br />
+					Maximum roll: <input type="text" id="max_roll" size="2" />
+				</fieldset>
+			</div>
 		</div>
 	</div>
 </div> <!-- end vtab -->
