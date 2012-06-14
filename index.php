@@ -138,6 +138,16 @@ include "header.php"
 <div id="dialog-clearBoard" class="dialog" title="Clear Board?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Do you really want to clear the board of all tiles?</p>
 </div>
+<div id="dialog-export" class="dialog" title="Export to Musubi">
+	<h2>
+		Here it is!
+	</h2>
+	<div id="export_qr">
+	</div>
+	<p>
+		Scan the QR code above and send the link to any Musubi feed to install the game and share it with your friends.
+	</p>
+</div>
 
 <!-- templates -->
 <script id="ruleTemplate" type="text/template">

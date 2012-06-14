@@ -455,3 +455,9 @@ header #mode_switch .selected:hover {
 .dialog {
 	display: none; /* hide initially */
 }
+#dialog-export {
+	text-align: center;
+}
+#dialog-export #export_qr {
+	margin:15px;
+}

@@ -10,6 +10,7 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
 	<script type="text/javascript" src="js/backbone-localStorage.js"></script>
 	<script type="text/javascript" src="js/jquery.miniColors.min.js"></script>
+	<script type="text/javascript" src="js/jquery.qrcode.min.js"></script>
 	<script type="text/javascript" src="js/app.js"></script>
 	
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
@@ -44,7 +45,7 @@
 			<ul>
 				<li>Save Project</li>
 				<li>Load Project</li>
-				<li>Export to Musubi</li>
+				<li id="export_to_musubi">Export to Musubi</li>
 			</ul>
 		</nav>
 	</div>

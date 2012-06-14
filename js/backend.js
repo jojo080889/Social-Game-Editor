@@ -1095,6 +1095,27 @@ $(document).ready(function() {
 	});	
 	
 	/* App Views */
+	var HeaderView = Backbone.View.extend({
+		el: $("header"),
+		events: {
+			'click #export_to_musubi': 'showQRCode'
+		},
+		initialize: function() {
+			_.bindAll(this, 'render', 'showQRCode');
+			this.render();
+		},
+		render: function() {
+		
+		},
+		showQRCode: function() {
+			$('#dialog-export #export_qr').qrcode({width: 200, height: 200, text: "http://mobisocial.stanford.edu/donburi/hosted/musubi/app/game"});
+			var self = this;
+			$( "#dialog-export" ).show().dialog({
+				resizable: true,
+				modal: true
+			});
+		}
+	});
 	var BoardEditView = Backbone.View.extend({
 		el: $("#board_design"),
 		events: {
@@ -1267,6 +1288,7 @@ $(document).ready(function() {
 	tileTypeList = new TileTypeListView();
 	tileList = new TileList();
 	
+	headerView = new HeaderView();
 	boardEditView = new BoardEditView();
 	piecesAndPlayersView = new PiecesAndPlayersView();
 	rulesSelectView = new RulesSelectView();
