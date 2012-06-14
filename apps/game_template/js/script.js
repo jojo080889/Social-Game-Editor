@@ -3,7 +3,6 @@
 $("#container").live("pageinit", function() {
 });
 
-
 /*
  * App launch when Musubi is ready
  */

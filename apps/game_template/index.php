@@ -4,6 +4,7 @@
 <!--[if (gt IEMobile 7)|!(IEMobile)]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 
 <head>
+  <base href="http://mobisocial.stanford.edu/donburi/hosted/musubi/app/game/">
   <meta charset="utf-8">
 
   <title>My First Donburi Game</title>

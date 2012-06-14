@@ -25,6 +25,8 @@ function SureRemoveDir($dir, $DeleteMe) {
     }
 }
 
+echo $hostDir;
+
 // recurively copy all contents of $src directory to $dst directory
 function recurse_copy($src,$dst) { 
     $dir = opendir($src); 
