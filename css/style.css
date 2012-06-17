@@ -455,6 +455,22 @@ header #mode_switch .selected:hover {
 .dialog {
 	display: none; /* hide initially */
 }
+
+#dialog-choosePiece div.pieceChoice {
+	border: 1px solid gray;
+	cursor: pointer;
+	display: inline-block;
+	height: 80px;
+	margin: 10px;
+	text-align: center;
+	overflow: hidden;
+	width: 80px;
+}
+
+#dialog-choosePiece .selectedPiece {
+	background: #FFFCAD;
+}
+
 #dialog-export {
 	text-align: center;
 }

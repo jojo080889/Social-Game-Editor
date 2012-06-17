@@ -118,6 +118,9 @@ include "header.php"
 </div>	
 	
 <!-- dialogs -->
+<div id="dialog-choosePiece" class="dialog" title="Choose piece">
+	<p>Choose Piece(s)</p>
+</div>
 <div id="dialog-pieceTypeDelete" class="dialog" title="Delete this piece type?">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Deleting this piece type will delete all pieces of that type currently assigned to players. Are you sure?</p>
 </div>

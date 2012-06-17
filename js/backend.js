@@ -158,15 +158,56 @@ $(document).ready(function() {
 			this.model.set("sensing_subobject", sensing_subobject.val());	
 			this.model.set("sensing_action", "");
 			this.model.set("sensing_action_modifier", "");
+			var currentModel = this.model;
 			this.model.save();
 			
 			$( sensing_subobject ).nextAll().remove();							// remove the next select statements
-			
 			/** construct the next select statement **/
 			var select_type = "";
 			if (sensing_object.val() == "player") select_type = "possession";
 			if (sensing_object.val() == "slot") select_type = "possession";
 			if (sensing_object.val() == "piece") select_type = "locationAndType";
+			if (sensing_subobject.val() == "specific_piece") {
+				$( "#dialog-choosePiece" ).show().dialog({
+					resizable: false,
+					width: 500,
+					modal: true,
+					open: function(){
+					
+						var listNames = "<ul>";
+						for (var i = 0; i < pieceTypes.length; i++) {
+							listNames += "<div id='" + pieceTypes[i]["name"] + "' class='pieceChoice'>"; 
+							listNames += pieceTypes[i]["name"];
+							if (pieceTypes[i]["image"] == null) {
+								listNames += "<div class='colorPiece' style='display: block; margin: 0 auto; height: 50px; width: 50px; border-radius: 25px; background-color: " + pieceTypes[i]["color"] + ";'></div>";
+							} else {
+								listNames += "<img src='" + pieceTypes[i]["image"] + "' style='display: block; margin: 0 auto' />";
+							}
+							listNames += "</div>";
+						}
+						listNames += "</ul>";
+						$( this ).html(listNames);
+						$( "#dialog-choosePiece .pieceChoice" ).click(function() {
+							$(this).toggleClass("selectedPiece");
+						});
+					},
+					buttons: {
+						"Done": function() {
+							var selectedPieces = new Array();
+							$( this ).find(".selectedPiece").each(function() {
+								selectedPieces.push(this.id);
+							});
+							// update the sensing_subobject to be the selected piece(s)
+							currentModel.set("sensing_subobject", selectedPieces);	
+							currentModel.save();
+							$( this ).dialog( "close" );
+						},
+						Cancel: function() {
+							$( this ).dialog( "close" );
+						}
+					}
+				});
+			}
 			if (select_type != "") {
 				$('<select />', { class: "sensing_action", })
 					.appendTo( parentDiv )
@@ -200,12 +241,55 @@ $(document).ready(function() {
 			}
 		},
 		set_sensing_action_modifier: function() {
+			var currentModel = this.model;
 			var ruleView = "#ruleView_" + this.model.get("id");
 			var sensing_action_modifier = $( ruleView ).find(".sensing_action_modifier");
 			
 			/** get the value and store in model **/
 			this.model.set("sensing_action_modifier", sensing_action_modifier.val());	
 			this.model.save();
+			
+			if (sensing_action_modifier.val() == "specific_piece") {
+				$( "#dialog-choosePiece" ).show().dialog({
+					resizable: false,
+					width: 500,
+					modal: true,
+					open: function(){
+					
+						var listNames = "<ul>";
+						for (var i = 0; i < pieceTypes.length; i++) {
+							listNames += "<div id='" + pieceTypes[i]["name"] + "' class='pieceChoice'>"; 
+							listNames += pieceTypes[i]["name"];
+							if (pieceTypes[i]["image"] == null) {
+								listNames += "<div class='colorPiece' style='display: block; margin: 0 auto; height: 50px; width: 50px; border-radius: 25px; background-color: " + pieceTypes[i]["color"] + ";'></div>";
+							} else {
+								listNames += "<img src='" + pieceTypes[i]["image"] + "' style='display: block; margin: 0 auto' />";
+							}
+							listNames += "</div>";
+						}
+						listNames += "</ul>";
+						$( this ).html(listNames);
+						$( "#dialog-choosePiece .pieceChoice" ).click(function() {
+							$(this).toggleClass("selectedPiece");
+						});
+					},
+					buttons: {
+						"Done": function() {
+							var selectedPieces = new Array();
+							$( this ).find(".selectedPiece").each(function() {
+								selectedPieces.push(this.id);
+							});
+							// update the action modifier to be the selected piece(s)
+							currentModel.set("sensing_action_modifier", selectedPieces);	
+							currentModel.save();
+							$( this ).dialog( "close" );
+						},
+						Cancel: function() {
+							$( this ).dialog( "close" );
+						}
+					}
+				});
+			}
 		},
 		set_do_action: function() {
 			var ruleView = "#ruleView_" + this.model.get("id");
